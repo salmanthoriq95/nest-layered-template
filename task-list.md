@@ -31,25 +31,32 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Keep N-layered organization, DI, and clear behavioral boundaries. [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts)
 - [x] Keep one modular application; deployment follows each project's needs. [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature)
 - [x] Keep persistence and external implementation details outside services. [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
-- [ ] Define the smallest example/auth module layout and controller/service responsibilities.
-- [ ] Choose only the contract forms and DI tokens needed for demonstrated boundaries.
-- [ ] Define dependency direction, exports, and shared-code limits.
-- [ ] Document persistence/integration extension locations without unused repositories or clients.
+- [x] Define the smallest example/auth module layout and controller/service responsibilities. [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
+- [x] Choose abstract-class contracts and runtime DI tokens for demonstrated boundaries.
+- [x] Define dependency direction, exports, and shared-code limits.
+- [x] Document persistence/integration extension locations without unused repositories or clients.
 
 ## 3. Code and folder conventions
 
-- [ ] Define source, configuration, test, and documentation folders.
-- [ ] Define naming for files, folders, classes, interfaces, types, functions, and variables.
-- [ ] Choose TypeScript settings, explicit typing rules, and limits on `any` and assertions.
-- [ ] Define imports, exports, aliases, and folder dependencies.
+- [x] Document and approve [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions) in [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md).
+- [x] Define source, root configuration, test, and documentation locations.
+- [x] Define naming for files, folders, classes, interfaces, types, functions, and variables.
+- [x] Agree strict typing, boundary types, and limits on `any` and assertions.
+- [ ] Choose remaining compiler/module settings after runtime/tooling selection.
+- [x] Define direct imports, exports, and folder dependencies; defer aliases and barrel files.
 - [ ] Define `null`, `undefined`, optional properties, and defaults.
 - [ ] Define formatting, linting, comments, code documentation, and automated enforcement.
 
 ## 4. API contracts
 
+- [x] Require runtime validation for body/query/path inputs, including `GET`. [D-032 — HTTP input validation and XSS boundaries](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries)
+- [x] Require a uniform JSON envelope. [D-033 — Uniform JSON response envelope](docs/DOC-003-decisions.md#d-033--uniform-json-response-envelope)
+- [x] Document common standard statuses with examples. [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md)
+- [x] Approve the detailed input policy and expanded envelope in [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md).
+- [x] Approve HTTP wiring and project-specific status mappings.
 - [ ] Agree the public, admin, and superadmin example paths and methods.
-- [ ] Agree concise success/denial bodies and HTTP behavior.
-- [ ] Define unexpected-error handling and minimum API documentation.
+- [x] Agree the envelope, access success/denial statuses, and safe unexpected-error handling.
+- [ ] Agree exact endpoint input/result schemas and minimum API documentation format.
 
 Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle policies require a later application scope.
 
@@ -104,7 +111,9 @@ External-call timeouts, retries, queues, and event idempotency belong to a later
 
 ## 9. Testing and completion criteria
 
+- [x] Agree colocated unit tests, HTTP tests in `test/`, and behavior-focused coverage. [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations)
 - [ ] Verify the guest/admin/superadmin allow/deny matrix.
+- [ ] Verify validation, response envelopes, real status codes, and safe error details after the HTTP contract is approved.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
 - [ ] Define relevant type checks, linting, and test commands after tooling approval.
 - [ ] Define Done for the demonstrative responses, boundaries, and documentation.
@@ -180,25 +189,29 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-027 — Conventional Commits message format](docs/DOC-003-decisions.md#d-027--conventional-commits-message-format) | Accepted |
 | [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) | Accepted |
 | [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) | Accepted matrix; mechanism open |
+| [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions) | Accepted; tooling open |
+| [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations) | Accepted; tooling open |
+| [D-032 — HTTP input validation and XSS boundaries](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) | Accepted; endpoint schemas and tooling open |
+| [D-033 — Uniform JSON response envelope](docs/DOC-003-decisions.md#d-033--uniform-json-response-envelope) | Accepted |
+| [D-034 — HTTP status standards and response examples](docs/DOC-003-decisions.md#d-034--http-status-standards-and-response-examples) | Accepted; exact endpoint contracts open |
 
 ## Next discussions
 
 - [x] Confirm access-only initial scope and extension placeholders. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
 - [x] Confirm superadmin access to the admin example. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
-- [ ] Agree minimal code conventions, folders, layer boundaries, and placeholder documentation.
+- [x] Agree code conventions, folders, layer boundaries, placeholders, and test locations in [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md).
+- [x] Approve envelopes, input handling, HTTP wiring, and status choices in [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md) and [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md).
 - [ ] Choose demo identity handling and exact route/response contracts.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 3.0.0. The maintainer explicitly authorized committing the prepared documentation on master and pushing to origin/master; [DOC-007 — Git Conventions](docs/DOC-007-git-conventions.md) still applies.
-- Scope: AGENTS.md, README.md, this task list, and DOC-003, DOC-004, DOC-006, DOC-007, and DOC-010 documentation. No application implementation is included.
-- Prepared message: `docs(template): define access demos and reliability guidance`.
-- Verified: current branch master, expected origin repository, reviewed diff, clean whitespace check, and 220 internal links before this handoff was added.
-- Blocker: staging failed because `.git/index.lock` could not be created on a read-only filesystem. No new commit or push occurred.
-- Resume: obtain a writable Git workspace through the environment or use the maintainer's local terminal. Recheck status/destination, remove this temporary handoff from the final changes, then stage, commit, and push under the existing authorization. Do not bypass filesystem controls or push the old HEAD as if it contained these changes.
-- Next discussion: minimal code conventions/folder layout, demo identity handling, and exact route/response contracts; no real CRUD or integrations.
+- Guide version: 3.2.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Previous Git handoff: local master and cached origin/master both point to `9109b79` (`docs(template): define access demos and reliability guidance`); the working tree was clean when this discussion resumed. Live remote verification failed because github.com could not resolve, so current remote state is unverified.
+- Current progress: code/test conventions, input policy, expanded response envelopes, HTTP wiring, and status conventions are accepted. The maintainer requested a commit message and will commit/push these documentation changes.
+- Next step/questions: agree how demo identities are supplied, public-route handling, and exact route/input/result contracts; then evaluate exact runtime/tooling versions before scaffolding. Request-ID format, log integration, and other explicitly open details still need decisions.
+- Approvals: [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions), [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations), and [D-032–D-034 — HTTP validation, envelopes, and status conventions](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) are accepted. No new software execution or assistant commit/push is authorized by this design approval.
 
 ## Implementation backlog
 

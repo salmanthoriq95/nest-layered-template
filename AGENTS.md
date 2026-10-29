@@ -1,6 +1,6 @@
 # DOC-001 — AI Contributor Guide
 
-**Status:** Accepted · **Version:** 3.0.0 · **Updated:** 2026-10-29.
+**Status:** Accepted · **Version:** 3.2.0 · **Updated:** 2026-10-29.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -28,6 +28,8 @@ At session start or after compaction, read this guide, identify the task, then l
 | Trigger | Read before affected work |
 | --- | --- |
 | Scope, feature, layer, contract, or integration changes | [DOC-004 — Conventions: 2. Scope and priorities](docs/DOC-004-conventions.md#2-scope-and-priorities), [DOC-004 — Conventions: 3. Architecture](docs/DOC-004-conventions.md#3-architecture), or [DOC-004 — Conventions: 5. External interaction examples](docs/DOC-004-conventions.md#5-external-interaction-examples), as applicable. |
+| Code layout, naming, typing, imports, or tests | Relevant sections of [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md). |
+| Request validation, response envelopes, or HTTP statuses | Relevant [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md); [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md) when status examples are needed. Check proposed versus accepted details. |
 | Authentication, authorization, or public access | [DOC-004 — Conventions: 4. Authorization](docs/DOC-004-conventions.md#4-authorization). |
 | Decision or documentation changes | [DOC-004 — Conventions: 1. Documentation](docs/DOC-004-conventions.md#1-documentation) and affected decision records. |
 | New/changed external software, package-manager/installer runs, skills, MCP, or CI actions | Full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005-supply-chain-security.md), before selection, download, installation, update, or execution. |

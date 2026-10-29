@@ -99,6 +99,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: the maintainer approved one application, organized by feature, with layers inside each module.
 - Decision: use this modular organization as the foundation.
 - Consequences: keep feature flows together for tracing and localized changes. Exact modules, folders, and intermodule communication remain open.
+- Follow-up: the minimal module/folder layout and export rules were accepted in [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions).
 - Review when: feature boundaries no longer fit the domain, cross-dependencies obstruct change, or deployment needs evolve.
 
 ## D-010 — Behavioral contracts and integration boundaries
@@ -268,7 +269,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: the maintainer wants a reusable skeleton that demonstrates access and extension locations, not a real application.
 - Replaces: the CRUD implementation scope in [D-005 — Scope and priorities](DOC-003-decisions.md#d-005--scope-and-priorities) and [D-024 — Article, category, and comment examples](DOC-003-decisions.md#d-024--article-category-and-comment-examples). Initial real external I/O and database-backed permissions from earlier directions are deferred.
 - Retained: N-layered modules, DI, clear contracts/boundaries, minimum reliability planning, and all approval requirements. Add future provider contracts/libraries only for a later agreed integration.
-- Open: minimum code conventions, placeholder layout, and demo identity/response mechanism.
+- Follow-up: code conventions and placeholder layout were accepted in [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Demo identity and exact endpoint/response contracts remain open.
 
 ## D-029 — Public, admin, and superadmin demo access
 
@@ -276,4 +277,50 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 - Decision: public access allows everyone; admin access allows admin and superadmin; superadmin access allows only superadmin. Demo handlers report allowed or denied access without real business operations.
 - Reason: the maintainer requested the smallest meaningful access demonstration and explicitly confirmed that superadmin may access the admin example.
-- Open: exact route names/methods, response shape/status, and how demo identities are supplied and verified. No login flow, token format, or client-role-header mechanism is selected.
+- Open: exact route names/methods, endpoint input/result schemas, and how demo identities are supplied and verified. No login flow, token format, or client-role-header mechanism is selected.
+- Follow-up: envelopes and access status defaults were accepted in [D-033 — Uniform JSON response envelope](DOC-003-decisions.md#d-033--uniform-json-response-envelope) and [D-034 — HTTP status standards and response examples](DOC-003-decisions.md#d-034--http-status-standards-and-response-examples).
+
+## D-030 — Minimal code layout and conventions
+
+**Status:** Accepted layout, contracts, DI, naming, and typing; tooling open · **Date:** 2026-10-29.
+
+- Decision: use small `examples` and `auth` feature modules, controller/service separation, application-owned contracts, explicit constructor DI, and empty persistence/integration extension locations. Use abstract classes as injected contract tokens, with concise naming and strict typing rules.
+- Reason: provide an easy-to-trace starting structure without unused layers or speculative provider APIs.
+- Approval: the maintainer accepted the remaining code conventions while requesting a test-location decision, validation, and envelopes. The test choice is recorded separately below.
+- Details: [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Tool/version selection and software execution remain subject to preflight and explicit approval.
+
+## D-031 — Minimal testing strategy and locations
+
+**Status:** Accepted; tooling open · **Date:** 2026-10-29.
+
+- Decision: keep unit tests beside source as `*.spec.ts` and HTTP tests in `test/` as `*.e2e-spec.ts`. Test meaningful behavior and important branches rather than every method. Verify the complete demo access matrix and agreed HTTP boundaries without real external services.
+- Reason: keep tests close to the code while reserving one small HTTP suite for framework wiring and client-visible behavior. The maintainer explicitly selected this proposal.
+- Details: [DOC-011 — Code Conventions: 5. Minimal testing strategy](DOC-011-code-conventions.md#5-minimal-testing-strategy). Test tools, commands, and numerical coverage thresholds are not selected.
+
+## D-032 — HTTP input validation and XSS boundaries
+
+**Status:** Accepted; endpoint schemas and tooling open · **Date:** 2026-10-29.
+
+- Decision: validate and handle untrusted body, query, and path inputs at the HTTP boundary, including `GET` inputs, before application logic. Account for XSS risks without claiming that validation alone prevents them.
+- Reason: the maintainer requested validators and input cleaning to reduce malformed-input and scripting risks.
+- Accepted policy: field-specific normalization, strict field allowlists, explicit parsing, safe validation errors, and context-appropriate output handling. No blanket strip-tags behavior or sanitizer/validator dependency is selected.
+- Approval: the maintainer explicitly accepted the HTTP proposals together with the expanded envelope.
+- Details: [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
+
+## D-033 — Uniform JSON response envelope
+
+**Status:** Accepted · **Date:** 2026-10-29.
+
+- Decision: provide consistent JSON success and error envelopes, preserving actual HTTP status semantics and keeping transport wrapping outside services.
+- Reason: the maintainer wants uniform client responses and requested more detail than the initial minimal `data`/`error` proposal.
+- Accepted shape: `success`, `statusCode`, `message`, `data`, `error`, and `meta` with request ID and UTC timestamp; safe field-level error details where relevant. The minimal shape was declined; the maintainer then explicitly approved this replacement and HTTP boundary wiring.
+- Details: [DOC-012 — HTTP Boundary Conventions: 4. Response envelope](DOC-012-http-conventions.md#4-response-envelope).
+
+## D-034 — HTTP status standards and response examples
+
+**Status:** Accepted reference and status mappings; exact endpoint contracts open · **Date:** 2026-10-29.
+
+- Decision: document standard HTTP status usage, relevant headers, and response examples. Preserve bodyless response semantics rather than attaching JSON where the protocol forbids a body.
+- Reason: the maintainer explicitly requested HTTP status standards and an example response for each documented status.
+- Accepted mappings: `200` for granted demo access, `401` for missing/invalid authentication, `403` for insufficient access, and `400` for request-schema validation. Reserve `422` for an agreed semantic/domain rejection. Preserve protocol-required headers and bodyless responses.
+- Details: [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md). Common status examples are a reference, not a requirement to implement new application features. Exact route and endpoint data schemas remain open.

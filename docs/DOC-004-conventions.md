@@ -70,13 +70,14 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ## 3. Architecture
 
-**Status:** Accepted principles; implementation details open
+**Status:** Accepted principles and minimal code conventions; identity and endpoint details open
 
 **Records:**
 
 - [D-006 — N-layered architecture, DI, and contracts](DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts)
 - [D-009 — One modular application with layers per feature](DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature)
 - [D-010 — Behavioral contracts and integration boundaries](DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
+- [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
 
 **Decision:** Use N-layered architecture in one application organized by feature, with DI and behavioral contracts; keep external implementations outside services.
 
@@ -84,19 +85,21 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 - Contracts define available operations, behavior, and responsibility boundaries.
 - Design boundaries to contain the impact of domain, ORM, and provider changes.
-- Layer names, folders, contract forms, DI wiring, and import rules remain open.
+- Follow the agreed layout, abstract-class DI contracts, naming, typing, and import rules in [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Tooling and exact method signatures remain open.
 - Deployment follows each project's needs and resources; logical layers do not prescribe physical tiers. Reference: [Microsoft N-tier guide](https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/n-tier), retrieved 2026-10-28.
 - Exported Nest providers form a module's public API. Reference: [NestJS modules](https://docs.nestjs.com/modules), retrieved 2026-10-28.
 
-### Proposed implementation
+### Implementation conventions
 
-**Status:** Proposed; exact code conventions remain open.
+**Status:** Minimal code conventions accepted; identity and endpoint specifics remain open.
+
+Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Unit tests stay beside source; HTTP tests stay in `test/`.
 
 - Use a small example module whose handlers return access-result messages.
 - Demonstrate controller/service separation and DI without routing responses through unused persistence code.
 - Define only contracts needed by the demo's layer boundaries. Leave future persistence/provider contracts to their actual integration work.
 - Reserve documented persistence/integration extension locations without real clients, queries, transactions, uploads, payments, or simulated claims of external success.
-- Choose contract forms, runtime DI tokens, and minimum folder/naming rules before coding.
+- Use abstract classes as contracts and runtime DI tokens with explicit constructor injection and module wiring.
 - Agree how demo identities are supplied. Do not infer real authentication or trust a caller-provided role as verified identity.
 
 ### Change limits
@@ -128,7 +131,7 @@ Other identities gain no privileged access by default. These are demo access rul
 
 ### Open for the demo
 
-- Exact endpoint paths, methods, response bodies, and HTTP success/denial behavior.
+- Exact endpoint paths, methods, input schemas, and response data. Envelope and access status conventions are accepted in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
 - How identities are supplied and verified for demonstration/testing.
 - Minimal policy/DI boundaries and whether public metadata such as `@Public()` is used.
 
@@ -196,3 +199,31 @@ Architecture references are neither artifact security audits nor approval to use
 - Keep conduct rules separate from software-license permissions. GitHub reporting is approved; [DOC-009 — Code of Conduct](../CODE_OF_CONDUCT.md) remains proposed. Read [DOC-008 — Licensing and Community Scope](DOC-008-licensing.md) when working on these topics.
 - Credit collaboration with OpenAI Codex in the README and agent guide.
 - Available session identity: GPT-6 model family; exact variant unavailable. Do not infer a specific model ID from a product catalog.
+
+## 8. HTTP boundaries
+
+**Status:** Accepted; endpoint-specific schemas, identity, and tooling open
+
+**Records:**
+
+- [D-032 — HTTP input validation and XSS boundaries](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries)
+- [D-033 — Uniform JSON response envelope](DOC-003-decisions.md#d-033--uniform-json-response-envelope)
+- [D-034 — HTTP status standards and response examples](DOC-003-decisions.md#d-034--http-status-standards-and-response-examples)
+
+**Decision:** Validate consumed body/query/path input before service logic and provide consistent JSON envelopes with standard HTTP semantics.
+
+**Reason:** Keep input boundaries and client-visible behavior predictable while reducing malformed-input and scripting risks.
+
+Follow [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md) for validation, normalization, XSS responsibilities, envelopes, and HTTP wiring. Use [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md) for status selection and examples. Bodyless responses must follow the HTTP standard; they cannot carry an envelope.
+
+## 9. Minimal testing
+
+**Status:** Strategy accepted; runner and commands open
+
+**Record:** [D-031 — Minimal testing strategy and locations](DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations).
+
+**Decision:** Keep unit tests beside source and HTTP tests in `test/`; verify meaningful behavior rather than every method.
+
+**Reason:** Keep tests easy to locate, useful for changes, and small enough for a template.
+
+Follow [DOC-011 — Code Conventions: 5. Minimal testing strategy](DOC-011-code-conventions.md#5-minimal-testing-strategy). Cover the access matrix and actual HTTP boundaries without introducing real providers or testing framework internals.
