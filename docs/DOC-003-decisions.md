@@ -1,6 +1,6 @@
 # DOC-003 — Decision Records
 
-**Status:** Current register · **Updated:** 2026-10-28.
+**Status:** Current register · **Updated:** 2026-10-29.
 **Format record:** [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation).
 
 **Decision:** Keep stable decision IDs and explicit status. Every decision document states the decision and its reason; other sections are optional.
@@ -10,7 +10,7 @@
 ## Reading and writing records
 
 - Read only records linked by the current task or needed to resolve a conflict.
-- Use a short header with ID/title and status: Accepted, Proposed, or Superseded. Add dates, scope, and replacement links when useful.
+- Use a short header with ID/title and status: Accepted, Proposed, Superseded, or Deferred, specifying the affected scope. Add dates, scope, and replacement links when useful.
 - Require **Decision** and **Reason** in decision documents. Context, consequences, alternatives, pros/cons, and review triggers are optional; omit empty or unnecessary sections.
 - A maintainer-confirmed change can replace an earlier rule. Mark the affected scope and link the replacement; preserve history and stable IDs.
 - [D-001–D-003 — Original project decisions](DOC-003-decisions.md#d-001--nodejs-and-nestjs) retain their original 2026-10-27 dates. Historical extra sections remain for their useful context.
@@ -55,11 +55,11 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-005 — Scope and priorities
 
-**Status:** Accepted · **Date:** 2026-10-28.
+**Status:** Priorities/team accepted; CRUD scope superseded by [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) · **Date:** 2026-10-28.
 
 - Reason: a solo developer or team of 2–3 needs a CRUD backend with access control.
-- Decision: cover authentication, flexible authorization, and 2–3 CRUD examples. Prioritize comprehension, delivery, code evolution, cleanliness, debugging, review, and coding speed.
-- Consequences: assess abstraction costs against a small team's needs. Example domains, measurable success criteria, traffic, and first-release boundaries remain open.
+- Original decision: cover authentication, flexible authorization, and 2–3 CRUD examples. Prioritize comprehension, delivery, code evolution, cleanliness, debugging, review, and coding speed.
+- Scope update: [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) replaces the CRUD requirement and the later article/category/comment implementation scope. Small-team priorities remain active.
 - Review when: team size, domains, priorities, or operational load change.
 
 ## D-006 — N-layered architecture, DI, and contracts
@@ -74,7 +74,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-007 — Configurable authorization
 
-**Status:** Accepted requirements · **Date:** 2026-10-28. Permission and delegation models remain open.
+**Status:** Extension direction retained; initial demo governed by [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) and [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) · **Date:** 2026-10-28.
 
 - Reason: superadmin must control admin/user access; CRUD examples need restrictions.
 - Decision: make configurable authorization part of the template's foundation.
@@ -112,7 +112,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-011 — External interaction examples
 
-**Status:** Accepted · **Date:** 2026-10-28. Replaces the scope in [D-008 — Upload and payment isolation](DOC-003-decisions.md#d-008--upload-and-payment-isolation).
+**Status:** Separation retained; initial external I/O scope superseded by [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) · **Date:** 2026-10-28. Previously replaced the scope in [D-008 — Upload and payment isolation](DOC-003-decisions.md#d-008--upload-and-payment-isolation).
 
 - Reason: database access, upload, and payment illustrate external interactions.
 - Decision: demonstrate this pattern through contracts and separate implementations; choose concrete examples according to release scope.
@@ -122,7 +122,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-012 — Resource identity and access policies
 
-**Status:** Accepted direction · **Date:** 2026-10-28. Schema, public-access granularity, and policy evaluation remain open.
+**Status:** Database-backed implementation deferred by [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) · **Date:** 2026-10-28. Retained as a possible future extension.
 
 - Reason: uniquely named resource types live in a database; superadmin manages access, admin delegation is adaptable, and some access is public.
 - Decision: register resource identities in the database, support configurable admin delegation, and accommodate unauthenticated access. `@Public()` remains a candidate.
@@ -227,3 +227,53 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Decision: assign stable, ordered DOC-XXX identifiers to documentation filenames and titles. Keep existing D-XXX decision IDs and show the title beside each reference. Preserve standard root filenames and the unchanged MIT license text.
 - Reason: make document order, purpose, and referenced decisions recognizable at a glance without opening each link.
 - Scope: document IDs identify files; decision IDs identify agreements within them. Numeric order supports navigation, not mandatory sequential reading.
+
+## D-024 — Article, category, and comment examples
+
+**Status:** Superseded by [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) · **Date:** 2026-10-29.
+
+- Decision: use articles, categories, and comments as the three CRUD examples.
+- Reason: the maintainer accepted these concrete domains as a starting point for access rules and module design.
+- Historical note: the maintainer clarified that real entities and CRUD are not needed. Their relationships, lifecycle, and ownership are no longer initial-template prerequisites.
+
+## D-025 — Minimum monitoring, backup, and disaster recovery
+
+**Status:** Requirement accepted; baseline proposed · **Date:** 2026-10-29.
+
+- Decision: add minimum monitoring, backup, and disaster recovery strategy to the template's scope.
+- Reason: the maintainer wants a small, understandable reliability foundation that supports failure detection and recovery.
+- Open: approve the proposed [DOC-010 — Reliability Strategy](DOC-010-reliability.md), then choose project-specific tools, schedules, retention, alerting, RPO/RTO, and recovery procedures. No implementation or recovery guarantee is claimed.
+
+## D-026 — Direct master workflow for this repository
+
+**Status:** Accepted until explicitly changed · **Date:** 2026-10-29.
+
+- Decision: work directly on master in this repository. Create or switch branches only when the maintainer explicitly requests it. General branching strategy belongs in a separate personal engineering handbook.
+- Reason: the maintainer prefers direct commits for this project and will decide when branch separation is needed.
+- Scope: this sets the workflow, not permission for the assistant to commit, push, change remotes, or create the handbook repository.
+
+## D-027 — Conventional Commits message format
+
+**Status:** Accepted · **Date:** 2026-10-29.
+
+- Decision: use Conventional Commits 1.0.0 for commit messages, with optional scope/body/footers and explicit breaking-change markers.
+- Reason: the maintainer explicitly selected this concrete format after clarifying the request for a common Git convention.
+- Reference: [official Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/), retrieved 2026-10-29. No commit hooks or release automation are selected.
+
+## D-028 — Placeholder-only access demonstration template
+
+**Status:** Accepted · **Date:** 2026-10-29.
+
+- Decision: prepare a minimal template with access-response examples and persistence/integration placeholders only. No real article/category/comment CRUD, ORM, database, upload/payment provider, or permissions-management application is required initially.
+- Reason: the maintainer wants a reusable skeleton that demonstrates access and extension locations, not a real application.
+- Replaces: the CRUD implementation scope in [D-005 — Scope and priorities](DOC-003-decisions.md#d-005--scope-and-priorities) and [D-024 — Article, category, and comment examples](DOC-003-decisions.md#d-024--article-category-and-comment-examples). Initial real external I/O and database-backed permissions from earlier directions are deferred.
+- Retained: N-layered modules, DI, clear contracts/boundaries, minimum reliability planning, and all approval requirements. Add future provider contracts/libraries only for a later agreed integration.
+- Open: minimum code conventions, placeholder layout, and demo identity/response mechanism.
+
+## D-029 — Public, admin, and superadmin demo access
+
+**Status:** Accepted access matrix; mechanism open · **Date:** 2026-10-29.
+
+- Decision: public access allows everyone; admin access allows admin and superadmin; superadmin access allows only superadmin. Demo handlers report allowed or denied access without real business operations.
+- Reason: the maintainer requested the smallest meaningful access demonstration and explicitly confirmed that superadmin may access the admin example.
+- Open: exact route names/methods, response shape/status, and how demo identities are supplied and verified. No login flow, token format, or client-role-header mechanism is selected.

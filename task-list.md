@@ -1,9 +1,11 @@
 # DOC-002 — Project Task List
 
-**Status:** Active checklist · **Updated:** 2026-10-28.
+**Status:** Active checklist · **Updated:** 2026-10-29.
 **Record:** [D-003 — Root task list](docs/DOC-003-decisions.md#d-003--root-task-list).
 
 Living discussion and implementation checklist for `nest-layered-template`. Read only task sections relevant to the current request.
+
+**Current scope:** access-result demonstrations for public/admin/superadmin plus persistence/integration placeholders. Real CRUD, data models, ORM, databases, and live third-party integrations are outside the initial template. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
 
 ## Working rules
 
@@ -17,33 +19,22 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 
 ## 1. Scope and goals
 
-- [x] Establish authentication, flexible authorization, and 2–3 access-controlled CRUD examples. [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities)
-- [ ] Choose concrete CRUD domains and use cases.
+- [x] Replace real CRUD scope with minimal access demos and extension placeholders. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+- [x] Confirm public/admin/superadmin access, including superadmin access to the admin example. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
+- [ ] Agree exact demo routes, access-result responses, and identity mechanism.
 - [x] Target solo developers or teams of 2–3. [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities)
-- [ ] Define team collaboration.
-- [ ] Estimate traffic, data volume, availability, and response-time targets.
-- [ ] Assess multitenancy, background jobs, and external integrations.
-- [ ] Define required/optional features and first-release boundaries.
-- [x] Treat database, upload, and payment as integration example categories; select concrete examples with release scope. [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples)
-- [x] Prioritize comprehension, delivery, code evolution, cleanliness, debugging, and review. [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities)
-- [ ] Define measurable success criteria and scope-expansion triggers.
+- [x] Prioritize comprehension, delivery, controlled evolution, cleanliness, debugging, and review.
+- [ ] Define a small first-release acceptance checklist for the access template.
 
 ## 2. Architecture and module boundaries
 
-- [x] Adopt N-layered architecture, DI, and contracts between layers. [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts)
-- [x] Organize one application by feature, with layers inside each module. [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature)
-- [x] Let each project choose deployment based on needs and resources. [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts)
-- [ ] Define concrete domain modules.
-- [ ] Assign controller, service, domain, and data-access responsibilities.
-- [x] Require behavioral contracts and keep ORM/gateway/external I/O implementations outside services. [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
-- [ ] Choose contract forms, ownership, DI tokens, inputs, outputs, and errors.
-- [ ] Define dependency direction and intermodule communication.
-- [ ] Define shared code, abstraction rules, and common-module boundaries.
-- [x] Separate external implementations from application logic. [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries), [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples)
-- [ ] Define integration boundaries and test substitutes.
-- [ ] Specify persistence and transaction contracts that limit ORM coupling.
-- [ ] If upload is selected, define its contract, ownership, access, validation, and storage mapping.
-- [ ] If payment is selected, define its contract, statuses, idempotency, webhook authenticity, duplicate/out-of-order handling, and business-data consistency.
+- [x] Keep N-layered organization, DI, and clear behavioral boundaries. [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts)
+- [x] Keep one modular application; deployment follows each project's needs. [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature)
+- [x] Keep persistence and external implementation details outside services. [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
+- [ ] Define the smallest example/auth module layout and controller/service responsibilities.
+- [ ] Choose only the contract forms and DI tokens needed for demonstrated boundaries.
+- [ ] Define dependency direction, exports, and shared-code limits.
+- [ ] Document persistence/integration extension locations without unused repositories or clients.
 
 ## 3. Code and folder conventions
 
@@ -56,45 +47,31 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 
 ## 4. API contracts
 
-- [ ] Choose REST, GraphQL, WebSocket, or other interfaces as needed.
-- [ ] Define endpoints, HTTP methods/statuses, and versioning.
-- [ ] Define input validation, unknown-field handling, and request-size limits.
-- [ ] Define success/error responses and stable error codes.
-- [ ] Define pagination, filtering, sorting, and result limits.
-- [ ] Define identifier, date/time, timezone, number, and money formats.
-- [ ] Define compatibility, deprecation, and API documentation.
+- [ ] Agree the public, admin, and superadmin example paths and methods.
+- [ ] Agree concise success/denial bodies and HTTP behavior.
+- [ ] Define unexpected-error handling and minimum API documentation.
+
+Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle policies require a later application scope.
 
 ## 5. Data and transactions
 
-- [ ] Identify storage needs and database/data-access selection criteria.
-- [ ] Define table/collection, column, identifier, and timestamp naming.
-- [ ] Define constraints, indexes, and data integrity rules.
-- [ ] Define transactions, consistency, and concurrency handling.
-- [ ] Define migrations, seeds, and development/test data.
-- [ ] Define deletion, soft deletion, retention, and recovery.
-- [ ] Define schema changes compatible with application deployments.
+**Current scope:** placeholders only. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+
+- [ ] Describe how a future project adds persistence contracts, libraries, implementations, and DI wiring.
+- [ ] Ensure placeholder paths perform no real I/O or misleading simulated persistence.
+- [ ] Document the future integration approval/preflight boundary.
+
+Database/ORM selection, schema, relationships, indexes, migrations, seeds, transactions, and upload/payment implementations are deferred.
 
 ## 6. Authentication, authorization, and data protection
 
-- [x] Require superadmin control over admin/user access. [D-007 — Configurable authorization](docs/DOC-003-decisions.md#d-007--configurable-authorization)
-- [x] Register unique resource-type identities in the database; keep admin delegation adaptable. [D-012 — Resource identity and access policies](docs/DOC-003-decisions.md#d-012--resource-identity-and-access-policies)
-- [x] Support public access to selected resources/operations. [D-012 — Resource identity and access policies](docs/DOC-003-decisions.md#d-012--resource-identity-and-access-policies)
-- [ ] Define user identity needs and identity-provider integration.
-- [ ] Choose session/token behavior, expiry, revocation, and logout.
-- [ ] Define roles, permissions, resource ownership, and access checks.
-- [ ] Define when admins may manage user access.
-- [ ] Define resource catalogs, actions, scopes, delegation, and synchronization with code.
-- [ ] Choose public-access metadata, such as `@Public()`, including granularity and authorization interaction.
-- [ ] Define fixed/dynamic roles, inheritance, and role/direct-user grants.
-- [ ] Define data scopes and whether hierarchy means organization or roles.
-- [ ] Assess deny-by-default behavior and per-resource enforcement points.
-- [ ] Define permission-management limits and last-administrator protection.
-- [ ] Define when permission changes affect active sessions/tokens.
-- [ ] Define tenant isolation if required.
-- [ ] Classify sensitive data and define access, retention, and protection.
-- [ ] Define secrets management, credential rotation, and least privilege.
-- [ ] Define applicable request protections, including rate limits, CORS, and CSRF.
-- [ ] Define audit trails and data excluded from logs.
+- [x] Agree the three-category demo access matrix. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
+- [ ] Choose how demo identities are supplied and verified.
+- [ ] Agree minimal role-check/DI boundaries and public-route handling.
+- [ ] Keep caller-provided role claims distinct from verified identity.
+- [ ] Define failure behavior without leaking sensitive data.
+
+Database-backed resource catalogs, dynamic permission/delegation management, account CRUD, ownership scopes, and full login/token/session workflows are deferred. No extra authorization framework is selected.
 
 ## 7. Dependencies and supply chain
 
@@ -120,33 +97,27 @@ The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005
 
 ## 8. Errors and resilience
 
-- [ ] Classify validation, business, authorization, and infrastructure errors.
-- [ ] Map internal errors to public responses without sensitive information.
-- [ ] Define external-operation timeouts, retries, backoff, and attempt limits.
-- [ ] Define idempotency and duplicate request/event handling.
-- [ ] Define behavior during database or external-service failures.
-- [ ] If jobs are needed, define failure handling, retries, and recovery.
+- [ ] Define access-denied and unexpected-error responses.
+- [ ] Define minimal request/error context and redaction for debugging.
+
+External-call timeouts, retries, queues, and event idempotency belong to a later real integration scope.
 
 ## 9. Testing and completion criteria
 
-- [ ] Define risk-based unit, integration, and end-to-end coverage.
-- [ ] Define real dependencies, mocks, fixtures, and test-database isolation.
-- [ ] Test important permission, validation, transaction, and failure paths.
-- [ ] Assess contract, migration, security, and performance testing.
-- [ ] Define required type checks, linting, and relevant tests before acceptance.
-- [ ] Define Done across behavior, security, documentation, and schema changes.
+- [ ] Verify the guest/admin/superadmin allow/deny matrix.
+- [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
+- [ ] Define relevant type checks, linting, and test commands after tooling approval.
+- [ ] Define Done for the demonstrative responses, boundaries, and documentation.
+
+No database, business-transaction, or provider integration tests are required before those integrations exist.
 
 ## 10. Configuration and operations
 
-- [ ] Define supported environments and configuration sources.
-- [ ] Define startup validation, defaults, and secret-free configuration examples.
-- [ ] Define structured logs, levels, request/correlation IDs, and sensitive-data redaction.
-- [ ] Define metrics, tracing, alerts, and service targets.
-- [ ] Define health checks, readiness, liveness, and graceful shutdown.
-- [ ] Define hosting, packaging, and resource management.
-- [ ] Define CI/CD, environment separation, and deployment access.
-- [ ] Define deployment/migration ordering, rollback or forward recovery, and verification.
-- [ ] Define backups, restore tests, log retention, and incident procedures.
+- [x] Retain minimum monitoring, backup, and DR planning guidance. [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery)
+- [ ] Review which minimal logging/health demonstrations belong in the initial template.
+- [ ] Define only configuration/startup behavior needed by the selected demo.
+
+[DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
 ## 11. Developer experience and maintenance
 
@@ -156,8 +127,9 @@ The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005
 - [x] Maintain conventions and decision records with the task list. [D-004 — Decision records and conventions](docs/DOC-003-decisions.md#d-004--decision-records-and-conventions)
 - [ ] Add representative code examples for conventions.
 - [x] Establish the decision-record format and location. [DOC-003 — Decision Records](docs/DOC-003-decisions.md)
-- [ ] Define branch, commit, pull-request, and review practices.
-- [ ] Choose a reference feature implementation.
+- [x] Use master directly until the maintainer requests branch separation; keep general branching strategy in a separate handbook. [D-026 — Direct master workflow for this repository](docs/DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository)
+- [x] Adopt Conventional Commits for commit messages. [D-027 — Conventional Commits message format](docs/DOC-003-decisions.md#d-027--conventional-commits-message-format)
+- [ ] Define the minimal access-demo reference implementation.
 - [ ] Define template versioning, changelog, and downstream updates.
 - [x] Record the plan for a public GitHub repository. [D-013 — Public GitHub repository](docs/DOC-003-decisions.md#d-013--public-github-repository)
 - [x] Choose an English project/repository name. [D-013 — Public GitHub repository](docs/DOC-003-decisions.md#d-013--public-github-repository), [D-014 — Descriptive project name](docs/DOC-003-decisions.md#d-014--descriptive-project-name)
@@ -183,14 +155,14 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-002 — Software supply chain policy](docs/DOC-003-decisions.md#d-002--software-supply-chain-policy) | Accepted |
 | [D-003 — Root task list](docs/DOC-003-decisions.md#d-003--root-task-list) | Accepted |
 | [D-004 — Decision records and conventions](docs/DOC-003-decisions.md#d-004--decision-records-and-conventions) | Accepted; format updated by [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation) |
-| [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities) | Accepted |
+| [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities) | Priorities/team accepted; CRUD scope superseded; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
 | [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts) | Accepted |
-| [D-007 — Configurable authorization](docs/DOC-003-decisions.md#d-007--configurable-authorization) | Accepted requirements; model details open |
+| [D-007 — Configurable authorization](docs/DOC-003-decisions.md#d-007--configurable-authorization) | Future extension direction; initial demo narrowed; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
 | [D-008 — Upload and payment isolation](docs/DOC-003-decisions.md#d-008--upload-and-payment-isolation) | Superseded by [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) |
 | [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature) | Accepted |
 | [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries) | Accepted |
-| [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) | Accepted |
-| [D-012 — Resource identity and access policies](docs/DOC-003-decisions.md#d-012--resource-identity-and-access-policies) | Accepted direction; model details open |
+| [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) | Separation retained; initial real I/O deferred; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
+| [D-012 — Resource identity and access policies](docs/DOC-003-decisions.md#d-012--resource-identity-and-access-policies) | Database-backed implementation deferred; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
 | [D-013 — Public GitHub repository](docs/DOC-003-decisions.md#d-013--public-github-repository) | Accepted |
 | [D-014 — Descriptive project name](docs/DOC-003-decisions.md#d-014--descriptive-project-name) | Accepted |
 | [D-015 — Concise English documentation](docs/DOC-003-decisions.md#d-015--concise-english-documentation) | Accepted |
@@ -202,15 +174,31 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-021 — MIT license and downstream scope](docs/DOC-003-decisions.md#d-021--mit-license-and-downstream-scope) | Accepted |
 | [D-022 — Community conduct and reporting](docs/DOC-003-decisions.md#d-022--community-conduct-and-reporting) | Reporting accepted; conduct wording proposed |
 | [D-023 — Document identifiers and descriptive references](docs/DOC-003-decisions.md#d-023--document-identifiers-and-descriptive-references) | Accepted |
+| [D-024 — Article, category, and comment examples](docs/DOC-003-decisions.md#d-024--article-category-and-comment-examples) | Superseded by placeholder-only scope; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
+| [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery) | Requirement accepted; baseline proposed |
+| [D-026 — Direct master workflow for this repository](docs/DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository) | Accepted until explicitly changed |
+| [D-027 — Conventional Commits message format](docs/DOC-003-decisions.md#d-027--conventional-commits-message-format) | Accepted |
+| [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) | Accepted |
+| [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) | Accepted matrix; mechanism open |
 
 ## Next discussions
 
-- [x] Establish application shape and team size. [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities)
-- [x] Choose the project/repository name. [D-014 — Descriptive project name](docs/DOC-003-decisions.md#d-014--descriptive-project-name)
-- [ ] Define the resource catalog, admin delegation, and public-access mechanism.
-- [ ] Finalize module layout, layer responsibilities, contracts, and DI wiring from the [DOC-004 — Conventions: Proposed implementation](docs/DOC-004-conventions.md#proposed-implementation).
-- [ ] Choose 2–3 CRUD domains demonstrating access rules and module boundaries.
-- [ ] Prioritize the remaining agenda and first-release scope.
+- [x] Confirm access-only initial scope and extension placeholders. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+- [x] Confirm superadmin access to the admin example. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
+- [ ] Agree minimal code conventions, folders, layer boundaries, and placeholder documentation.
+- [ ] Choose demo identity handling and exact route/response contracts.
+- [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
+- [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
+
+## Active handoff
+
+- Guide version: 3.0.0. The maintainer explicitly authorized committing the prepared documentation on master and pushing to origin/master; [DOC-007 — Git Conventions](docs/DOC-007-git-conventions.md) still applies.
+- Scope: AGENTS.md, README.md, this task list, and DOC-003, DOC-004, DOC-006, DOC-007, and DOC-010 documentation. No application implementation is included.
+- Prepared message: `docs(template): define access demos and reliability guidance`.
+- Verified: current branch master, expected origin repository, reviewed diff, clean whitespace check, and 220 internal links before this handoff was added.
+- Blocker: staging failed because `.git/index.lock` could not be created on a read-only filesystem. No new commit or push occurred.
+- Resume: obtain a writable Git workspace through the environment or use the maintainer's local terminal. Recheck status/destination, remove this temporary handoff from the final changes, then stage, commit, and push under the existing authorization. Do not bypass filesystem controls or push the old HEAD as if it contained these changes.
+- Next discussion: minimal code conventions/folder layout, demo identity handling, and exact route/response contracts; no real CRUD or integrations.
 
 ## Implementation backlog
 

@@ -6,12 +6,13 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 
 ## Scope
 
-- Authentication and configurable authorization.
-- Two or three CRUD examples with access controls.
-- One application, organized by feature, with layers inside each module.
-- Dependency injection and contracts covering behavior and responsibilities.
-- Database and external integration implementations outside the service layer.
-- Optional upload or payment examples; deployment follows each project's needs and resources.
+- Demonstrate public, admin, and superadmin access with allow/deny responses.
+- Public is open to everyone; admin access allows admin and superadmin; superadmin access allows only superadmin.
+- Keep one modular, N-layered application with DI and clear boundaries.
+- Prepare persistence and external integration placeholders. Add real contracts, libraries, and implementations only when a consuming project needs them.
+- Initial scope has no real article/category/comment CRUD, database, ORM, upload, or payment integration.
+- Keep minimum monitoring, backup, and recovery guidance as planning material; real operational settings require a deployment and relevant data.
+
 
 Designed for solo developers and teams of 2–3. Priorities: readable flows, fast delivery, easy debugging and review, and changes with controlled scope and cost.
 
@@ -25,9 +26,10 @@ Designed for solo developers and teams of 2–3. Priorities: readable flows, fas
 | [DOC-004 — Conventions](docs/DOC-004-conventions.md) | Accepted rules, proposals, and open questions. |
 | [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005-supply-chain-security.md) | Required checks and explicit approval before external software use. |
 | [DOC-006 — AI Working Agreements](docs/DOC-006-agent-agreements.md) | Version history and context recovery details. |
-| [DOC-007 — Git Conventions](docs/DOC-007-git-conventions.md) | Git ownership rules and open workflow decisions. |
+| [DOC-007 — Git Conventions](docs/DOC-007-git-conventions.md) | Direct master workflow, Conventional Commits, and Git write authorization. |
 | [DOC-008 — Licensing and Community Scope](docs/DOC-008-licensing.md) | MIT selection, alternatives, and downstream responsibility. |
 | [DOC-009 — Code of Conduct](CODE_OF_CONDUCT.md) | Draft participation standards and GitHub reporting. |
+| [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) | Proposed monitoring, backup, and disaster recovery baseline. |
 
 ## AI collaboration
 

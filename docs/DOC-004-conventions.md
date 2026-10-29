@@ -1,6 +1,6 @@
 # DOC-004 — Conventions
 
-**Status:** Accepted rules; proposals labeled · **Updated:** 2026-10-28.
+**Status:** Accepted rules; proposals labeled · **Updated:** 2026-10-29.
 **Format and reading:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -48,23 +48,25 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ## 2. Scope and priorities
 
-**Status:** Accepted
+**Status:** Accepted; earlier CRUD scope superseded
 
 **Records:**
 
+- [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+- [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
 - [D-005 — Scope and priorities](DOC-003-decisions.md#d-005--scope-and-priorities)
-- [D-011 — External interaction examples](DOC-003-decisions.md#d-011--external-interaction-examples)
+- [D-025 — Minimum monitoring, backup, and disaster recovery](DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery)
 
-**Decision:** Build a template for solo developers or teams of 2–3, with authentication, configurable authorization, and 2–3 access-controlled CRUD examples.
+**Decision:** Build an access-demonstration template for solo developers or teams of 2–3. Return allow/deny messages for public, admin, and superadmin examples.
 
-**Reason:** Make flows easy to understand and changes inexpensive to control.
+**Reason:** Demonstrate structure, DI, and access boundaries without implementing a real application.
 
-- Use Node.js and NestJS; exact versions and supporting software require supply chain review and approval.
-- Example CRUD domains remain open.
-- Optimize for understandable flows, delivery speed, clean code, easy debugging and review, and controlled change costs.
-- Evaluate abstractions by how well they localize changes at a cost the maintainer understands.
-- Code evolution is an initial goal; traffic, data volume, and availability targets remain open.
-- Database, upload, and payment are example integration categories. Select concrete examples and depth when defining the first release.
+- Use Node.js and NestJS; exact versions and supporting tools still require preflight and explicit approval.
+- Real articles, categories, comments, relationships, lifecycle, and CRUD are outside the initial scope. Their earlier selection is historical.
+- Keep persistence and third-party integration extension points as placeholders. Do not select an ORM/database/SDK or perform real external I/O for these examples.
+- Add provider-specific contracts, libraries, mappings, and implementations later when requested; do not design speculative provider APIs now.
+- Preserve simple flows, readable code, fast debugging/review, and controlled changes.
+- Minimum reliability guidance remains documented in [DOC-010 — Reliability Strategy](DOC-010-reliability.md). Real data backup and recovery work is deferred until relevant data and deployment exist.
 
 ## 3. Architecture
 
@@ -88,100 +90,70 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ### Proposed implementation
 
-**Status:** Proposed.
+**Status:** Proposed; exact code conventions remain open.
 
-- Start with controller → application service → repository/integration contract → infrastructure implementation.
-- Controllers handle transport; services coordinate business flows; infrastructure handles technology details.
-- Check business rules and resource access in services; pass required data-access constraints through repository contracts.
-- Consider service contracts at controller–service boundaries; assess maintenance cost before standardizing interfaces.
-- Use application-owned contract inputs and outputs; avoid exposing ORM models, query builders, transaction clients, or vendor SDK responses.
-- Specify not-found behavior, errors, transaction boundaries, and relevant idempotency guarantees. Matching signatures alone is insufficient.
-- Choose interface plus runtime DI token, or an abstract class. Reference: [NestJS custom providers](https://docs.nestjs.com/fundamentals/custom-providers), retrieved 2026-10-28.
-- Consider focused contracts before introducing generic repositories or shared base services.
-
-Proposed call flow; DI selects implementations and services depend on contracts:
-
-```mermaid
-flowchart LR
-    Controller --> Service[Application service]
-    Service --> Repository[Repository contract]
-    Repository --> Persistence[ORM implementation]
-    Service --> Integration[Upload or payment contract]
-    Integration --> Provider[Provider implementation]
-```
+- Use a small example module whose handlers return access-result messages.
+- Demonstrate controller/service separation and DI without routing responses through unused persistence code.
+- Define only contracts needed by the demo's layer boundaries. Leave future persistence/provider contracts to their actual integration work.
+- Reserve documented persistence/integration extension locations without real clients, queries, transactions, uploads, payments, or simulated claims of external success.
+- Choose contract forms, runtime DI tokens, and minimum folder/naming rules before coding.
+- Agree how demo identities are supplied. Do not infer real authentication or trust a caller-provided role as verified identity.
 
 ### Change limits
 
-Contracts contain change impact; they do not eliminate migration work. An ORM change can affect queries, migrations, transactions, and mapping. A payment provider change can affect capabilities, statuses, webhooks, and reconciliation. Domain changes may alter contracts themselves.
-
-A move toward ports and adapters requires reviewing contract ownership, dependency direction, and framework coupling. Evaluate architecture changes against real benefits and migration costs.
+Placeholders show where future dependencies connect. Adding a real provider still requires its contract, library, wiring, and implementation; no effortless migration or production authentication guarantee is implied.
 
 ## 4. Authorization
 
-**Status:** Accepted requirements; policy model open
+**Status:** Demo access accepted; identity mechanism and route details open
 
 **Records:**
 
+- [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+- [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
 - [D-007 — Configurable authorization](DOC-003-decisions.md#d-007--configurable-authorization)
 - [D-012 — Resource identity and access policies](DOC-003-decisions.md#d-012--resource-identity-and-access-policies)
 
-**Decision:** Let superadmin control access using registered resource identities, adaptable delegation, and selected public access.
+**Decision:** Demonstrate public, admin, and superadmin access. Superadmin may access the admin example; the superadmin example remains exclusive to superadmin.
 
-**Reason:** Reuse the template across projects with different access policies.
+**Reason:** Show allowed and denied access without real entities or a permissions-management application.
 
-- Superadmin controls admin and user access; CRUD examples demonstrate restrictions.
-- Register each protected resource type under a unique name/identifier in the database. This identifies the type, not an individual record.
-- Whether admins may manage user access must be adaptable to project requirements; its rule model remains open.
-- Some resources or operations allow unauthenticated access. `@Public()` is a candidate, not a selected mechanism.
-- Superadmin/admin/user are initial actors; role structure, inheritance, and delegation details remain open.
+| Caller | Public example | Admin example | Superadmin example |
+| --- | --- | --- | --- |
+| Guest | Allow | Deny | Deny |
+| Admin | Allow | Allow | Deny |
+| Superadmin | Allow | Allow | Allow |
 
-### Proposed access model
+Other identities gain no privileged access by default. These are demo access rules, not a selected authentication implementation.
 
-**Status:** Proposed.
+### Open for the demo
 
-- Permissions express resource actions, such as `articles.read` or `articles.update`.
-- Roles group permissions; checks also consider the relevant resource context.
-- Separate allowed actions from data scope, such as own records versus all records.
-- Deny by default and check access consistently, including individual resources. Reference: [OWASP authorization guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html), retrieved 2026-10-28.
+- Exact endpoint paths, methods, response bodies, and HTTP success/denial behavior.
+- How identities are supplied and verified for demonstration/testing.
+- Minimal policy/DI boundaries and whether public metadata such as `@Public()` is used.
 
-### Open questions
+### Deferred extension
 
-- Which policy allows admins to manage user access? Which permissions and target users may they manage?
-- How do resource identifiers map to actions, data scopes, and permission-management rights?
-- How is the resource catalog synchronized with code, including renames and deletion?
-- Is public access defined in code, the database, or both? At what resource/operation granularity, and how does it interact with authorization?
-- Are permissions assigned through roles, directly to users, or both?
-- Are roles fixed or editable, and do they inherit permissions?
-- Is own/all scope sufficient? Does “users below an admin” mean organizational hierarchy or roles?
-- Does superadmin have unrestricted access, and how is the last administrator protected?
-- When do permission changes or revocations affect active sessions/tokens?
-- Which access changes need an audit trail?
+Persistent resource catalogs, dynamic roles/permissions, delegation management, account CRUD, data ownership, and login/token/session workflows are not prerequisites for this initial demo. Revisit them only under a later agreed scope.
 
 ## 5. External interaction examples
 
-**Status:** Accepted; replaces [D-008 — Upload and payment isolation](DOC-003-decisions.md#d-008--upload-and-payment-isolation) scope
+**Status:** Placeholder-only initial scope; real implementations deferred
 
 **Records:**
 
+- [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+- [D-010 — Behavioral contracts and integration boundaries](DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [D-011 — External interaction examples](DOC-003-decisions.md#d-011--external-interaction-examples)
-- [D-008 — Upload and payment isolation](DOC-003-decisions.md#d-008--upload-and-payment-isolation)
 
-**Decision:** Demonstrate external I/O through contracts; choose database/upload/payment examples according to release scope.
+**Decision:** Prepare extension placeholders for persistence and external integrations, without implementing or selecting their technologies.
 
-**Reason:** Teach replaceable integrations without making every example a required feature.
+**Reason:** Let a consuming project add the required contract, library, and adapter later while keeping external details outside service logic.
 
-- Select concrete database, upload, or payment examples for the first release; keep their implementations separate from application logic.
-- Contracts limit caller dependence on provider details.
-- Providers, SDKs, storage, implementation timing, exact contracts, and database transaction boundaries remain open.
-
-Proposed responsibilities:
-
-| Area | Application rules | Integration implementation |
-| --- | --- | --- |
-| Upload | Ownership, upload/read access, and links to business resources. | Store, retrieve, delete, and map provider identifiers. |
-| Payment | Amount, currency, order links, and business status rules. | Gateway calls, webhook authenticity checks, and provider status mapping. |
-
-Before implementing a selected example, define file authorization and validation, payment idempotency, duplicate/out-of-order webhooks, and consistency with business data as applicable.
+- Document where contracts and implementations would be added and how DI would connect them.
+- Keep the access demo independent of persistence and external services.
+- Do not add repositories, schema, migrations, real upload/payment behavior, or vendor SDK wrappers merely to populate a layer.
+- Real integrations require a new agreed scope and the normal supply chain preflight/approval process.
 
 ## 6. Supply chain
 
@@ -207,6 +179,8 @@ Architecture references are neither artifact security audits nor approval to use
 - [D-016 — AI collaboration and attribution](DOC-003-decisions.md#d-016--ai-collaboration-and-attribution)
 - [D-021 — MIT license and downstream scope](DOC-003-decisions.md#d-021--mit-license-and-downstream-scope)
 - [D-022 — Community conduct and reporting](DOC-003-decisions.md#d-022--community-conduct-and-reporting)
+- [D-026 — Direct master workflow for this repository](DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository)
+- [D-027 — Conventional Commits message format](DOC-003-decisions.md#d-027--conventional-commits-message-format)
 
 **Decision:** Use nest-layered-template, concise English, and evidenced AI attribution for a public repository.
 
@@ -215,6 +189,7 @@ Architecture references are neither artifact security audits nor approval to use
 - Project and repository name: `nest-layered-template`. Prefer descriptive, distinctive, memorable wording.
 - Repository description: “A modular NestJS backend starter with clear boundaries, explicit contracts, and flexible authorization.”
 - The maintainer plans a public GitHub repository and handles commits and pushes.
+- Follow [DOC-007 — Git Conventions](DOC-007-git-conventions.md): work directly on master and use Conventional Commits. General branching strategy belongs in the maintainer's separate personal engineering handbook.
 - All repository documentation uses concise English.
 - Use the standard [MIT License](../LICENSE), copyright 2026 salmanthoriq95. Preserve its terms; third-party licenses remain separate.
 - Do not imply upstream support, endorsement, or operation of independent forks or deployments. Liability disclaimers are not a promise of universal legal immunity.

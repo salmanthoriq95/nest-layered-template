@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 2.2.0 · **Updated:** 2026-10-28.
+**Status:** Accepted · **Guide version:** 3.0.0 · **Updated:** 2026-10-29.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,9 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 3.0.0 | 2026-10-29 | Replace real CRUD and initial data-backed integration scope with allow/deny access demos and extension placeholders. Preserve architecture and approval gates. | [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template), [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) |
+| 2.4.0 | 2026-10-29 | Record direct master workflow and Conventional Commits; broader branching strategy stays in a separate handbook. Commit/push authority is unchanged. | [D-026 — Direct master workflow for this repository](DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository), [D-027 — Conventional Commits message format](DOC-003-decisions.md#d-027--conventional-commits-message-format) |
+| 2.3.0 | 2026-10-29 | Add task-based reliability routing; strategy scope is approved, while detailed baseline and operational settings remain proposed. | [D-025 — Minimum monitoring, backup, and disaster recovery](DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery) |
 | 2.2.0 | 2026-10-28 | Add stable document IDs, ordered filenames, and titled references; update routes while preserving approval gates. | [D-023 — Document identifiers and descriptive references](DOC-003-decisions.md#d-023--document-identifiers-and-descriptive-references) |
 | 2.1.0 | 2026-10-28 | Add task-based licensing/conduct routing. MIT and GitHub reporting are approved; conduct wording remains proposed. | [D-021 — MIT license and downstream scope](DOC-003-decisions.md#d-021--mit-license-and-downstream-scope), [D-022 — Community conduct and reporting](DOC-003-decisions.md#d-022--community-conduct-and-reporting) |
 | 2.0.0 | 2026-10-28 | Replace blanket reading with task-based loading; adopt lightweight decision headers and move detailed history here. Clarification and supply chain gates remain mandatory. | [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation), [D-020 — Task-based context loading](DOC-003-decisions.md#d-020--task-based-context-loading) |

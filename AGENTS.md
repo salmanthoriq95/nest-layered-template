@@ -1,6 +1,6 @@
 # DOC-001 — AI Contributor Guide
 
-**Status:** Accepted · **Version:** 2.2.0 · **Updated:** 2026-10-28.
+**Status:** Accepted · **Version:** 3.0.0 · **Updated:** 2026-10-29.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -15,9 +15,11 @@ Co-created with OpenAI Codex (GPT-6 family; exact variant unavailable).
 - Do not improvise or invent requirements. Ask the maintainer about unclear, missing, or conflicting guidance; wait before affected work. Silence is not approval.
 - Propose deviations or additions and obtain explicit maintainer approval before implementation.
 - Follow accepted decisions and supersession links. Keep proposals and unknowns distinct from approved facts.
+- Initial scope is access demos plus persistence/integration placeholders. Do not add real CRUD, domain relationships, ORM, database-backed permissions, or live integrations without a new maintainer request.
 - Preserve unrelated changes. Write concise English and report only verified results.
 - External software steps require the full supply chain policy, preflight, and explicit approval. ELIGIBLE is not execution permission.
 - Leave commits, pushes, publication, and remote changes to the maintainer unless explicitly requested.
+- Work directly on `master` in this repository; creating or switching branches requires explicit maintainer instruction.
 
 ## Load context by task
 
@@ -33,6 +35,7 @@ At session start or after compaction, read this guide, identify the task, then l
 | Resume unfinished work or change agent rules | Relevant [DOC-002 — Project Task List](task-list.md) or [DOC-006 — AI Working Agreements](docs/DOC-006-agent-agreements.md). |
 | Project identity, attribution, or overview | [DOC-000 — nest-layered-template](README.md) or [DOC-004 — Conventions: 7. Project identity and attribution](docs/DOC-004-conventions.md#7-project-identity-and-attribution). |
 | Licensing, downstream scope, or community conduct | Relevant [DOC-008 — Licensing and Community Scope](docs/DOC-008-licensing.md), [LICENSE](LICENSE), or [DOC-009 — Code of Conduct (draft)](CODE_OF_CONDUCT.md). |
+| Monitoring, backups, restore, or disaster recovery | Relevant sections of [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md). |
 
 Use `rg` to locate headings, then read the relevant range. Check header status/version and linked decision IDs; open history only to resolve changes or conflicts. Reuse unchanged context within the task. If no applicable rule exists, ask the maintainer before proceeding.
 
