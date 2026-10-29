@@ -74,7 +74,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-007 — Configurable authorization
 
-**Status:** Extension direction retained; initial demo governed by [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) and [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) · **Date:** 2026-10-28.
+**Status:** Initial permission model defined by [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access); advanced delegation deferred · **Date:** 2026-10-28.
 
 - Reason: superadmin must control admin/user access; CRUD examples need restrictions.
 - Decision: make configurable authorization part of the template's foundation.
@@ -128,6 +128,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: uniquely named resource types live in a database; superadmin manages access, admin delegation is adaptable, and some access is public.
 - Decision: register resource identities in the database, support configurable admin delegation, and accommodate unauthenticated access. `@Public()` remains a candidate.
 - Consequences: names identify resources but do not define actions, scopes, delegation, or authentication/authorization interaction. Schema and authorization technology remain unselected.
+- Follow-up: initial code-owned permission keys, per-user in-memory grants, and `@Public()` are accepted in [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access). Database registration remains deferred.
 - Review when: resource domains, access policies, or organizational models change.
 - Open questions: [DOC-004 — Conventions: 4. Authorization](DOC-004-conventions.md#4-authorization).
 
@@ -263,21 +264,23 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-028 — Placeholder-only access demonstration template
 
-**Status:** Accepted · **Date:** 2026-10-29.
+**Status:** Minimal scope retained; auth state extended by [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) · **Date:** 2026-10-29.
 
 - Decision: prepare a minimal template with access-response examples and persistence/integration placeholders only. No real article/category/comment CRUD, ORM, database, upload/payment provider, or permissions-management application is required initially.
 - Reason: the maintainer wants a reusable skeleton that demonstrates access and extension locations, not a real application.
 - Replaces: the CRUD implementation scope in [D-005 — Scope and priorities](DOC-003-decisions.md#d-005--scope-and-priorities) and [D-024 — Article, category, and comment examples](DOC-003-decisions.md#d-024--article-category-and-comment-examples). Initial real external I/O and database-backed permissions from earlier directions are deferred.
 - Retained: N-layered modules, DI, clear contracts/boundaries, minimum reliability planning, and all approval requirements. Add future provider contracts/libraries only for a later agreed integration.
+- Scope extension: [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) adds actual in-memory authorization state; [D-036 — Minimal JWT identity and server-side access state](DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state) selects JWT identity. General feature persistence and external integrations remain placeholders; real CRUD and permission-management endpoints are not implied.
 - Follow-up: code conventions and placeholder layout were accepted in [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Demo identity and exact endpoint/response contracts remain open.
 
 ## D-029 — Public, admin, and superadmin demo access
 
-**Status:** Accepted access matrix; mechanism open · **Date:** 2026-10-29.
+**Status:** Public/superadmin rules retained; unconditional admin access superseded by [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) · **Date:** 2026-10-29.
 
 - Decision: public access allows everyone; admin access allows admin and superadmin; superadmin access allows only superadmin. Demo handlers report allowed or denied access without real business operations.
 - Reason: the maintainer requested the smallest meaningful access demonstration and explicitly confirmed that superadmin may access the admin example.
-- Open: exact route names/methods, endpoint input/result schemas, and how demo identities are supplied and verified. No login flow, token format, or client-role-header mechanism is selected.
+- Clarification: the maintainer confirmed automatic permission access for an authenticated superadmin, then accepted the granular model in [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access). An admin now needs the required grant for a protected permission endpoint.
+- Open: exact route names/methods, endpoint input/result schemas, and token issuance. JWT identity is selected in [D-036 — Minimal JWT identity and server-side access state](DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state); a full login flow remains unselected.
 - Follow-up: envelopes and access status defaults were accepted in [D-033 — Uniform JSON response envelope](DOC-003-decisions.md#d-033--uniform-json-response-envelope) and [D-034 — HTTP status standards and response examples](DOC-003-decisions.md#d-034--http-status-standards-and-response-examples).
 
 ## D-030 — Minimal code layout and conventions
@@ -287,6 +290,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Decision: use small `examples` and `auth` feature modules, controller/service separation, application-owned contracts, explicit constructor DI, and empty persistence/integration extension locations. Use abstract classes as injected contract tokens, with concise naming and strict typing rules.
 - Reason: provide an easy-to-trace starting structure without unused layers or speculative provider APIs.
 - Approval: the maintainer accepted the remaining code conventions while requesting a test-location decision, validation, and envelopes. The test choice is recorded separately below.
+- Follow-up: [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) extends the auth layout with permission metadata and an in-memory store behind a contract. The guard now checks permissions and trusted privileged roles; general feature persistence stays empty.
 - Details: [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Tool/version selection and software execution remain subject to preflight and explicit approval.
 
 ## D-031 — Minimal testing strategy and locations
@@ -324,3 +328,35 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: the maintainer explicitly requested HTTP status standards and an example response for each documented status.
 - Accepted mappings: `200` for granted demo access, `401` for missing/invalid authentication, `403` for insufficient access, and `400` for request-schema validation. Reserve `422` for an agreed semantic/domain rejection. Preserve protocol-required headers and bodyless responses.
 - Details: [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md). Common status examples are a reference, not a requirement to implement new application features. Exact route and endpoint data schemas remain open.
+
+## D-035 — Per-user permissions and public access
+
+**Status:** Accepted; endpoint and grant-management details open · **Date:** 2026-10-29.
+
+- Decision: use stable `resource:action` permission keys on protected endpoints, per-user grants in an in-memory store, and `@Public()` metadata for anonymous access. Keep permission definitions near their feature and grant storage behind an application-owned contract.
+- Reason: the maintainer clarified that individual admins need different capabilities; a shared role alone does not express the intended access policy. Real article CRUD and a permission-management API are not implied.
+- Access: an authenticated superadmin automatically passes permission checks. Read current role and grants from the server-side store; superadmin-only routes remain restricted to that role. Other callers need the endpoint's required grant. Public access is per route and does not make a permission globally public; input validation still applies.
+- Updates: read current role/grants once per protected request. In one process, subsequent checks see changes in that store; this does not cancel requests already authorized. Cache behavior is deferred.
+- Approval: the maintainer explicitly accepted all recommendations after reviewing permission placement, server-side lookup, JWT identity, and UUID public identifiers. Token and identifier choices are recorded separately below.
+- Open: exact permission catalog and grant fixtures, how superadmin changes grants, policy for missing route metadata, and any multiple-permission matching semantics. Exact decorator implementation and contract methods remain open.
+- Boundaries: in-memory state is process-local and resets on restart. Caching, shared persistence, real account CRUD, and provider integrations require later scope. No new dependency is selected or audited by this discussion.
+- Reference: [NestJS authorization](https://docs.nestjs.com/security/authorization#claims-based-authorization), retrieved 2026-10-29.
+
+## D-036 — Minimal JWT identity and server-side access state
+
+**Status:** Accepted architecture; token profile, issuance, and tooling open · **Date:** 2026-10-29.
+
+- Decision: use signed JWTs with minimal identity/validation claims. Resolve current role and permission grants from the server-side store using the authenticated subject; do not embed permission snapshots or custom encrypted permission payloads.
+- Reason: permission changes should affect later checks without reissuing a token, and the grant list need not be exposed in token contents. Encrypting a bearer token does not prevent a holder from replaying it.
+- Validation: verify the signature and expected claims, including issuer, audience, and validity period. Use the public user identifier for the subject. A caller-supplied role or an unverified token claim is not a trusted permission source.
+- Limits: this selects neither a JWT library/version nor a signing algorithm, key configuration, token lifetime, transport, issuance, refresh, logout, or revocation workflow. Permission lookup alone does not revoke a leaked token's identity.
+- References: [OWASP REST Security: JWT](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html#jwt), [RFC 6750: bearer-token properties](https://www.rfc-editor.org/rfc/rfc6750.html#section-1.2), retrieved 2026-10-29. No software preflight or execution approval is implied.
+
+## D-037 — UUID v4 public user identifiers
+
+**Status:** Accepted; database key design deferred · **Date:** 2026-10-29.
+
+- Decision: expose UUID v4 user identifiers and use them as JWT subjects. Generate them through Node's built-in `crypto.randomUUID()` when the approved runtime is in place; no Hashids dependency is needed for this purpose.
+- Reason: avoid exposing sequential numeric user identifiers while keeping the template small. Database primary keys remain a later schema choice.
+- Boundary: UUIDs do not replace object-level authorization when real resources are added. Hashids is reversible ID encoding, not encryption; it is not the selected identifier strategy.
+- References: [Node.js crypto.randomUUID](https://nodejs.org/api/crypto.html#cryptorandomuuidoptions), [Hashids security notice](https://github.com/niieani/hashids.js), [OWASP IDOR prevention](https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html), retrieved 2026-10-29. Exact runtime selection still requires preflight and explicit approval.

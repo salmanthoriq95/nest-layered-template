@@ -6,11 +6,12 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 
 ## Scope
 
-- Demonstrate public, admin, and superadmin access with allow/deny responses.
-- Public is open to everyone; admin access allows admin and superadmin; superadmin access allows only superadmin.
+- Demonstrate public, permission-protected, and superadmin-only access with allow/deny responses.
+- Use per-user in-memory grants. Public routes are anonymous; authenticated superadmins pass permission checks; superadmin-only routes stay restricted.
+- Use minimal signed JWT identity and current server-side role/grant lookup, with UUID v4 public user IDs. Token issuance and exact tooling remain open.
 - Keep one modular, N-layered application with DI and clear boundaries.
 - Validate request inputs and use uniform JSON envelopes with standard HTTP statuses and safe error details.
-- Prepare persistence and external integration placeholders. Add real contracts, libraries, and implementations only when a consuming project needs them.
+- Prepare general persistence and external integration placeholders, alongside the auth module's in-memory access store behind a contract. Add database/provider implementations when a consuming project needs them.
 - Initial scope has no real article/category/comment CRUD, database, ORM, upload, or payment integration.
 - Keep minimum monitoring, backup, and recovery guidance as planning material; real operational settings require a deployment and relevant data.
 

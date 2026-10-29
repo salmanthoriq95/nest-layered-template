@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 3.2.0 · **Updated:** 2026-10-29.
+**Status:** Accepted · **Guide version:** 4.0.0 · **Updated:** 2026-10-29.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,7 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.0.0 | 2026-10-29 | Replace unconditional admin access with per-user permissions, in-memory role/grant lookup, and public route metadata. Accept minimal JWT identity and UUID v4 public user IDs. General feature persistence remains placeholders; software/Git approval gates are unchanged. | [D-035–D-037 — Per-user permissions, JWT identity, and public user identifiers](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) |
 | 3.2.0 | 2026-10-29 | Accept field-specific input policy, expanded JSON envelopes, shared HTTP wiring, and status mappings after explicit maintainer approval. Identity, endpoint schemas, and tooling remain open; software approval gates are unchanged. | [D-032–D-034 — HTTP validation, envelopes, and status conventions](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) |
 | 3.1.0 | 2026-10-29 | Record accepted code/test conventions and add task-based HTTP validation, envelope, and status-reference routes. Detailed HTTP policies and expanded envelope remain proposed. | [D-030–D-034 — Code, testing, and HTTP boundary agreements](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions) |
 | 3.0.0 | 2026-10-29 | Replace real CRUD and initial data-backed integration scope with allow/deny access demos and extension placeholders. Preserve architecture and approval gates. | [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template), [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) |

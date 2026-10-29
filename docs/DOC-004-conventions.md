@@ -54,6 +54,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 - [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
 - [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
+- [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
 - [D-005 — Scope and priorities](DOC-003-decisions.md#d-005--scope-and-priorities)
 - [D-025 — Minimum monitoring, backup, and disaster recovery](DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery)
 
@@ -62,15 +63,16 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 **Reason:** Demonstrate structure, DI, and access boundaries without implementing a real application.
 
 - Use Node.js and NestJS; exact versions and supporting tools still require preflight and explicit approval.
+- Demonstrate per-user permissions with an in-memory role/grant store, public metadata, signed JWT identity, and UUID v4 public user IDs. Grant lists stay server-side; token issuance details remain open.
 - Real articles, categories, comments, relationships, lifecycle, and CRUD are outside the initial scope. Their earlier selection is historical.
-- Keep persistence and third-party integration extension points as placeholders. Do not select an ORM/database/SDK or perform real external I/O for these examples.
+- Keep general feature persistence and third-party integration extension points as placeholders. The auth module's in-memory access store is an approved exception; no ORM, database, or real external I/O is required.
 - Add provider-specific contracts, libraries, mappings, and implementations later when requested; do not design speculative provider APIs now.
 - Preserve simple flows, readable code, fast debugging/review, and controlled changes.
 - Minimum reliability guidance remains documented in [DOC-010 — Reliability Strategy](DOC-010-reliability.md). Real data backup and recovery work is deferred until relevant data and deployment exist.
 
 ## 3. Architecture
 
-**Status:** Accepted principles and minimal code conventions; identity and endpoint details open
+**Status:** Accepted principles and minimal code conventions; token issuance and endpoint details open
 
 **Records:**
 
@@ -91,7 +93,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ### Implementation conventions
 
-**Status:** Minimal code conventions accepted; identity and endpoint specifics remain open.
+**Status:** Minimal code conventions accepted; token issuance and endpoint specifics remain open.
 
 Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Unit tests stay beside source; HTTP tests stay in `test/`.
 
@@ -100,7 +102,7 @@ Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-
 - Define only contracts needed by the demo's layer boundaries. Leave future persistence/provider contracts to their actual integration work.
 - Reserve documented persistence/integration extension locations without real clients, queries, transactions, uploads, payments, or simulated claims of external success.
 - Use abstract classes as contracts and runtime DI tokens with explicit constructor injection and module wiring.
-- Agree how demo identities are supplied. Do not infer real authentication or trust a caller-provided role as verified identity.
+- Use the accepted JWT identity and current server-side permission model below. Token issuance still needs a decision; do not infer a full login flow or trust caller-provided role claims.
 
 ### Change limits
 
@@ -108,7 +110,7 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 
 ## 4. Authorization
 
-**Status:** Demo access accepted; identity mechanism and route details open
+**Status:** Permission, JWT identity, and public-ID conventions accepted; token profile, issuance, and route details open
 
 **Records:**
 
@@ -116,24 +118,52 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 - [D-029 — Public, admin, and superadmin demo access](DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
 - [D-007 — Configurable authorization](DOC-003-decisions.md#d-007--configurable-authorization)
 - [D-012 — Resource identity and access policies](DOC-003-decisions.md#d-012--resource-identity-and-access-policies)
+- [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
+- [D-036 — Minimal JWT identity and server-side access state](DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state)
+- [D-037 — UUID v4 public user identifiers](DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers)
 
-**Decision:** Demonstrate public, admin, and superadmin access. Superadmin may access the admin example; the superadmin example remains exclusive to superadmin.
+**Decision:** Authorize protected example operations through per-user grants. Use `@Public()` for anonymous routes and current server-side role/grant state for protected requests. An authenticated superadmin passes permission checks; superadmin-only routes remain exclusive to that role.
 
-**Reason:** Show allowed and denied access without real entities or a permissions-management application.
+**Reason:** Allow different capabilities for individual admins/users while keeping the template independent of real domain CRUD and database technology.
 
-| Caller | Public example | Admin example | Superadmin example |
+| Caller | Public example | Permission-protected example | Superadmin-only example |
 | --- | --- | --- | --- |
 | Guest | Allow | Deny | Deny |
-| Admin | Allow | Allow | Deny |
+| Authenticated non-superadmin without required grant | Allow | Deny | Deny |
+| Authenticated non-superadmin with required grant | Allow | Allow | Deny |
 | Superadmin | Allow | Allow | Allow |
 
-Other identities gain no privileged access by default. These are demo access rules, not a selected authentication implementation.
+An admin role alone grants no protected permission. This replaces the unconditional admin allowance in the earlier matrix; endpoint handlers still return access-result messages.
+
+### Permission definitions and storage
+
+- Define stable `resource:action` keys near the feature, initially in `examples.permissions.ts`. Keys such as `article:read` or `article:update` describe capabilities; multiple endpoints may require the same key.
+- Protected routes declare required permissions through metadata such as `@RequirePermissions()`. `@Public()` permits anonymous access on that route without making the permission globally public. Validation still applies.
+- Store current per-user roles and grants in an in-memory auth adapter behind a `PermissionStore` contract. Keep storage code outside the application service layer; wire the adapter through DI.
+- Read role/grants once per protected request. Subsequent checks in the same process see store changes; already-authorized requests are not cancelled. No grant snapshot in a JWT is authoritative.
+- In-memory state resets on restart and is separate in each process. Shared persistence, caching, and invalidation strategies are deferred until needed.
+
+### JWT identity
+
+- Use signed JWTs for minimal identity and validation claims. Verify the signature and expected issuer, audience, and validity period, then resolve current access state using the subject.
+- Keep permission lists and privileged role decisions in the server-side store. Do not add custom permission encryption inside JWTs.
+- Token encryption does not prevent bearer-token reuse after a leak; permission lookup alone does not provide logout or full token revocation.
+- JWT library/version, signing profile, key configuration, lifetime, transport, issuance, refresh, and revocation details remain open. A login/account application is not implied by selecting JWT identity.
+
+### Public user identifiers
+
+- Expose UUID v4 user IDs and use them as JWT subjects. Use Node's built-in `crypto.randomUUID()` after runtime preflight and approval.
+- Database primary-key types remain undecided. No Hashids dependency is selected.
+- Identifier complexity does not replace object-level access checks when real resources are introduced.
+
+Sources and rationale are linked in [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access), [D-036 — Minimal JWT identity and server-side access state](DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state), and [D-037 — UUID v4 public user identifiers](DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers).
 
 ### Open for the demo
 
 - Exact endpoint paths, methods, input schemas, and response data. Envelope and access status conventions are accepted in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
-- How identities are supplied and verified for demonstration/testing.
-- Minimal policy/DI boundaries and whether public metadata such as `@Public()` is used.
+- How demo tokens are issued, transported, configured, and tested.
+- Exact permission catalog, grant fixtures, and how superadmin changes grants. No grant-management endpoint is selected.
+- Behavior for missing route metadata, multiple required permissions, and exact superadmin-only metadata.
 
 ### Deferred extension
 
@@ -141,7 +171,7 @@ Persistent resource catalogs, dynamic roles/permissions, delegation management, 
 
 ## 5. External interaction examples
 
-**Status:** Placeholder-only initial scope; real implementations deferred
+**Status:** General persistence/integration placeholders; auth in-memory access store explicitly included
 
 **Records:**
 
@@ -149,12 +179,12 @@ Persistent resource catalogs, dynamic roles/permissions, delegation management, 
 - [D-010 — Behavioral contracts and integration boundaries](DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [D-011 — External interaction examples](DOC-003-decisions.md#d-011--external-interaction-examples)
 
-**Decision:** Prepare extension placeholders for persistence and external integrations, without implementing or selecting their technologies.
+**Decision:** Prepare general persistence/integration placeholders and the approved in-memory authorization adapter. Do not select a database, ORM, or live external provider.
 
 **Reason:** Let a consuming project add the required contract, library, and adapter later while keeping external details outside service logic.
 
 - Document where contracts and implementations would be added and how DI would connect them.
-- Keep the access demo independent of persistence and external services.
+- Keep the demo independent of databases and external services. Initial auth storage is limited to the in-memory role/grant adapter specified in [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access).
 - Do not add repositories, schema, migrations, real upload/payment behavior, or vendor SDK wrappers merely to populate a layer.
 - Real integrations require a new agreed scope and the normal supply chain preflight/approval process.
 
@@ -226,4 +256,4 @@ Follow [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md) for 
 
 **Reason:** Keep tests easy to locate, useful for changes, and small enough for a template.
 
-Follow [DOC-011 — Code Conventions: 5. Minimal testing strategy](DOC-011-code-conventions.md#5-minimal-testing-strategy). Cover the access matrix and actual HTTP boundaries without introducing real providers or testing framework internals.
+Follow [DOC-011 — Code Conventions: 5. Minimal testing strategy](DOC-011-code-conventions.md#5-minimal-testing-strategy). Cover the access matrix and actual HTTP boundaries without databases, live external providers, or tests of framework internals.

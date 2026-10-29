@@ -5,7 +5,7 @@
 
 Living discussion and implementation checklist for `nest-layered-template`. Read only task sections relevant to the current request.
 
-**Current scope:** access-result demonstrations for public/admin/superadmin plus persistence/integration placeholders. Real CRUD, data models, ORM, databases, and live third-party integrations are outside the initial template. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+**Current scope:** public, permission-protected, and superadmin-only access responses; per-user in-memory role/grants; minimal signed JWT identity; UUID v4 public user IDs. General feature persistence and integrations remain placeholders. Real domain CRUD, ORM, databases, and live providers remain outside the initial template. [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
 
 ## Working rules
 
@@ -20,8 +20,8 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 ## 1. Scope and goals
 
 - [x] Replace real CRUD scope with minimal access demos and extension placeholders. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
-- [x] Confirm public/admin/superadmin access, including superadmin access to the admin example. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
-- [ ] Agree exact demo routes, access-result responses, and identity mechanism.
+- [x] Retain public/superadmin rules and require per-user grants for other protected access. [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
+- [ ] Agree exact demo routes, input/result schemas, and token issuance.
 - [x] Target solo developers or teams of 2–3. [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities)
 - [x] Prioritize comprehension, delivery, controlled evolution, cleanliness, debugging, and review.
 - [ ] Define a small first-release acceptance checklist for the access template.
@@ -62,21 +62,28 @@ Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle p
 
 ## 5. Data and transactions
 
-**Current scope:** placeholders only. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
+**Current scope:** general feature persistence/integrations remain placeholders; auth has an approved in-memory role/grant adapter. [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
 
 - [ ] Describe how a future project adds persistence contracts, libraries, implementations, and DI wiring.
 - [ ] Ensure placeholder paths perform no real I/O or misleading simulated persistence.
 - [ ] Document the future integration approval/preflight boundary.
 
-Database/ORM selection, schema, relationships, indexes, migrations, seeds, transactions, and upload/payment implementations are deferred.
+Database/ORM selection, schema, relationships, indexes, migrations, database seeds, transactions, and upload/payment implementations are deferred. Auth in-memory fixtures are part of the demo; exact fixture assignments remain open.
 
 ## 6. Authentication, authorization, and data protection
 
-- [x] Agree the three-category demo access matrix. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
-- [ ] Choose how demo identities are supplied and verified.
-- [ ] Agree minimal role-check/DI boundaries and public-route handling.
-- [ ] Keep caller-provided role claims distinct from verified identity.
-- [ ] Define failure behavior without leaking sensitive data.
+- [x] Replace blanket admin access with the permission-aware access table in [DOC-004 — Conventions: 4. Authorization](docs/DOC-004-conventions.md#4-authorization).
+- [x] Confirm automatic permission access for an authenticated superadmin. [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
+- [x] Accept per-user permission metadata, in-memory grants, and `@Public()`. [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
+- [x] Read current role/grants server-side for each protected request; defer caching.
+- [x] Accept minimal signed JWT identity without embedded grants or custom permission encryption. [D-036 — Minimal JWT identity and server-side access state](docs/DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state)
+- [x] Accept UUID v4 public user IDs using Node's built-in generator. [D-037 — UUID v4 public user identifiers](docs/DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers)
+- [x] Keep caller-provided roles and unverified claims separate from trusted identity and current store state.
+- [x] Use agreed safe `401`/`403` error envelopes for authentication/access failures.
+- [ ] Agree exact permission catalog/fixtures and how superadmin changes grants.
+- [ ] Agree token issuance, signing profile, claims, key configuration, transport, and lifetime; clarify refresh/logout scope.
+- [ ] Agree missing-metadata behavior, multiple-permission semantics, and superadmin-only metadata.
+- [ ] Define the identity, authorization, and permission-store contract methods before implementation.
 
 Database-backed resource catalogs, dynamic permission/delegation management, account CRUD, ownership scopes, and full login/token/session workflows are deferred. No extra authorization framework is selected.
 
@@ -104,7 +111,7 @@ The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005
 
 ## 8. Errors and resilience
 
-- [ ] Define access-denied and unexpected-error responses.
+- [x] Define access-denied and unexpected-error envelopes and HTTP statuses.
 - [ ] Define minimal request/error context and redaction for debugging.
 
 External-call timeouts, retries, queues, and event idempotency belong to a later real integration scope.
@@ -112,7 +119,8 @@ External-call timeouts, retries, queues, and event idempotency belong to a later
 ## 9. Testing and completion criteria
 
 - [x] Agree colocated unit tests, HTTP tests in `test/`, and behavior-focused coverage. [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations)
-- [ ] Verify the guest/admin/superadmin allow/deny matrix.
+- [ ] Verify the permission-aware access table, including admin without a grant and superadmin bypass.
+- [ ] Verify expired/tampered JWT rejection and permission changes taking effect on subsequent protected checks.
 - [ ] Verify validation, response envelopes, real status codes, and safe error details after the HTTP contract is approved.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
 - [ ] Define relevant type checks, linting, and test commands after tooling approval.
@@ -166,7 +174,7 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-004 — Decision records and conventions](docs/DOC-003-decisions.md#d-004--decision-records-and-conventions) | Accepted; format updated by [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation) |
 | [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities) | Priorities/team accepted; CRUD scope superseded; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
 | [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts) | Accepted |
-| [D-007 — Configurable authorization](docs/DOC-003-decisions.md#d-007--configurable-authorization) | Future extension direction; initial demo narrowed; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
+| [D-007 — Configurable authorization](docs/DOC-003-decisions.md#d-007--configurable-authorization) | Initial model defined by [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access); advanced delegation deferred |
 | [D-008 — Upload and payment isolation](docs/DOC-003-decisions.md#d-008--upload-and-payment-isolation) | Superseded by [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) |
 | [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature) | Accepted |
 | [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries) | Accepted |
@@ -187,13 +195,16 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery) | Requirement accepted; baseline proposed |
 | [D-026 — Direct master workflow for this repository](docs/DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository) | Accepted until explicitly changed |
 | [D-027 — Conventional Commits message format](docs/DOC-003-decisions.md#d-027--conventional-commits-message-format) | Accepted |
-| [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) | Accepted |
-| [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) | Accepted matrix; mechanism open |
+| [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) | Minimal scope retained; auth state extended |
+| [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) | Public/superadmin rules retained; blanket admin allowance superseded |
 | [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions) | Accepted; tooling open |
 | [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations) | Accepted; tooling open |
 | [D-032 — HTTP input validation and XSS boundaries](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) | Accepted; endpoint schemas and tooling open |
 | [D-033 — Uniform JSON response envelope](docs/DOC-003-decisions.md#d-033--uniform-json-response-envelope) | Accepted |
 | [D-034 — HTTP status standards and response examples](docs/DOC-003-decisions.md#d-034--http-status-standards-and-response-examples) | Accepted; exact endpoint contracts open |
+| [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) | Accepted; exact endpoint/grant details open |
+| [D-036 — Minimal JWT identity and server-side access state](docs/DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state) | Accepted architecture; token profile, issuance, and tooling open |
+| [D-037 — UUID v4 public user identifiers](docs/DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers) | Accepted; database key design deferred |
 
 ## Next discussions
 
@@ -201,17 +212,19 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Confirm superadmin access to the admin example. [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access)
 - [x] Agree code conventions, folders, layer boundaries, placeholders, and test locations in [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md).
 - [x] Approve envelopes, input handling, HTTP wiring, and status choices in [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md) and [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md).
-- [ ] Choose demo identity handling and exact route/response contracts.
+- [x] Accept per-user permissions, server-side in-memory lookup, JWT identity, and UUID v4 public user IDs.
+- [ ] Agree demo token issuance and grant updates, then exact route/contract details and remaining access-policy semantics.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 3.2.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Previous Git handoff: local master and cached origin/master both point to `9109b79` (`docs(template): define access demos and reliability guidance`); the working tree was clean when this discussion resumed. Live remote verification failed because github.com could not resolve, so current remote state is unverified.
-- Current progress: code/test conventions, input policy, expanded response envelopes, HTTP wiring, and status conventions are accepted. The maintainer requested a commit message and will commit/push these documentation changes.
-- Next step/questions: agree how demo identities are supplied, public-route handling, and exact route/input/result contracts; then evaluate exact runtime/tooling versions before scaffolding. Request-ID format, log integration, and other explicitly open details still need decisions.
+- Guide version: 4.0.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Previous Git observation: the maintainer's local master contains `3229e53` (`docs(conventions): define code, testing, and HTTP standards`); the working tree was clean before this permission discussion. Live remote state was not checked in this discussion.
+- Current progress: the maintainer explicitly accepted per-user permissions, in-memory current role/grants, `@Public()`, superadmin bypass, minimal JWT identity without embedded/encrypted grants, and UUID v4 public user IDs. The earlier blanket admin matrix is superseded; layout, tests, scope, and conventions now reflect this model.
+- Next step/questions: decide demo token issuance and how superadmin changes grants, then exact routes, permission catalog/fixtures, contract methods, and remaining metadata semantics. JWT profile/key settings, request-ID format, log integration, and tooling versions remain unresolved.
 - Approvals: [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions), [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations), and [D-032–D-034 — HTTP validation, envelopes, and status conventions](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) are accepted. No new software execution or assistant commit/push is authorized by this design approval.
+- Latest approval: [D-035–D-037 — Per-user permissions, JWT identity, and public user identifiers](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) are accepted as design decisions. Exact external software steps still require their own preflight and explicit approval.
 
 ## Implementation backlog
 

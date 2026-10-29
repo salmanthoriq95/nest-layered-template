@@ -105,9 +105,9 @@ Nest documents response mapping through interceptors and error handling through 
 
 ## 6. HTTP status rules
 
-**Status:** Accepted; exact routes and identity mechanism remain open.
+**Status:** Accepted; exact routes and JWT profile/issuance remain open.
 
-Use the actual operation result to choose the status, not the HTTP verb alone. A `POST` is not automatically resource creation. For the demo, use `200` for granted access, `401` for missing/invalid authentication on protected routes, and `403` for authenticated identities without access. The identity mechanism remains open.
+Use the actual operation result to choose the status, not the HTTP verb alone. A `POST` is not automatically resource creation. For the demo, use `200` for granted access, `401` for missing/invalid authentication on protected routes, and `403` for authenticated identities without access. JWT identity and current server-side grants follow [DOC-004 — Conventions: 4. Authorization](DOC-004-conventions.md#4-authorization); token profile and issuance details remain open.
 
 Envelope rules apply to JSON response bodies. `204`, `304`, and responses to `HEAD` must not carry a body; do not append an envelope. If a successful operation needs an enveloped result, choose an appropriate body-bearing status. [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-15), retrieved 2026-10-29.
 
