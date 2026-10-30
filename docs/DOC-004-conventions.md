@@ -86,7 +86,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 **Reason:** Localize changes and make feature flows easy to trace.
 
 - Contracts define available operations, behavior, and responsibility boundaries.
-- Preserve the modular main API while giving the logging worker its own lifecycle under [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker). Background internal HTTP and send-failure fallback follow [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery); ingestion parameters, launch, and file operating details remain open.
+- Preserve the modular main API while giving the logging worker its own lifecycle under [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker). Background internal HTTP and send-failure fallback follow [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery). Local addressing, authentication, ingestion, queues, file settings, and initial launch/shutdown follow the accepted [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md); production supervision and exact software remain separate.
 - Design boundaries to contain the impact of domain, ORM, and provider changes.
 - Follow the agreed layout, abstract-class DI contracts, naming, typing, and import rules in [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Tooling and exact method signatures remain open.
 - Deployment follows each project's needs and resources; logical layers do not prescribe physical tiers. Reference: [Microsoft N-tier guide](https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/n-tier), retrieved 2026-10-28.
@@ -186,7 +186,7 @@ Sources and rationale are linked in [D-035 — Per-user permissions and public a
 - Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for routes, independent process health responses, schemas, initial grants, access metadata, token/session profile, and Swagger/bcrypt defaults.
 - Keep the accepted envelope and HTTP status conventions in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
 - Request IDs use server-generated UUID v4 values under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Internal HTTP delivery and safe stderr fallback are accepted.
-- Follow accepted [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust) for login/refresh quotas, environment configuration, process-local counters, 429 headers, and explicit proxy trust. Remaining limiter/deployment parameters are open alongside contract methods, fixture hashes, worker operating settings, cost calibration, and exact software versions.
+- Follow accepted [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust) for login/refresh quotas, environment configuration, process-local counters, 429 headers, and explicit proxy trust. Remaining limiter/deployment parameters are open alongside contract methods, fixture hashes, cost calibration, and exact software versions. Initial logging operating settings are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 
 ### Deferred extension
 
@@ -208,7 +208,7 @@ Persistent resource catalogs, advanced delegation, account CRUD, registration, p
 
 - Document where contracts and implementations would be added and how DI would connect them.
 - Keep feature demos independent of databases and third-party services. Auth account, role/grant, and session/refresh state are in-memory adapters behind contracts, following [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md). General feature persistence and live integrations remain placeholders.
-- The logging worker's local error files and background internal HTTP delivery are approved, following [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Transport and file details remain outside main application services. No exact library/version is selected; ingestion and file operating parameters remain open.
+- The logging worker's local error files, background internal HTTP delivery, ingestion contract, and initial operating parameters are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Transport and file implementations remain outside main application services. No exact library/version is selected.
 - Do not add repositories, schema, migrations, real upload/payment behavior, or vendor SDK wrappers merely to populate a layer.
 - Real integrations require a new agreed scope and the normal supply chain preflight/approval process.
 

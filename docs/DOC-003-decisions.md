@@ -455,45 +455,50 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-046 — Asynchronous logging and development diagnostics
 
-**Status:** Requirements accepted; file layout and operational details open · **Date:** 2026-10-30.
+**Status:** Accepted; initial operating details resolved in D-058 · **Date:** 2026-10-30.
 
-- Decision: use JSON console/stdout logs, UUID v4 request correlation, the proposed request metadata, and HTTP severity levels. Emit logs asynchronously in the background so responses do not wait for persistence. Persist unexpected application faults to local `.json` files. Additional body/query/header context is development-only; secrets stay excluded in every environment.
+- Decision: use JSON console/stdout logs, UUID v4 request correlation, the accepted request metadata, and HTTP severity levels. Emit logs asynchronously in the background so responses do not wait for persistence. Persist unexpected application faults to local `.json` files. Additional body/query/header context is development-only; secrets stay excluded in every environment.
 - Reason: the maintainer accepted the logging baseline with async behavior, error-file persistence, and development-only request diagnostics, then explicitly allowed responses to finish before background file writes.
-- Clarification: persist unexpected faults such as application bugs, not expected validation failures. Failure classification replaces the ambiguous “>500” threshold; catching a fault at the global HTTP boundary does not make it expected. Syntax/build errors before logger startup need a separate capture decision.
-- Boundary: this adds real local logging persistence without adding a database or real domain persistence. Exact development selector, redaction/capture limits, buffering/failure behavior, file operating details, and pre-startup capture remain open. No logging package or implementation is selected or executed.
+- Clarification: persist unexpected faults such as application bugs, not expected validation failures. Failure classification replaces the ambiguous “>500” threshold; catching a fault at the global HTTP boundary does not make it expected. Pre-startup and fatal-error handling follow [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy).
+- Boundary: this adds real local logging persistence without adding a database or real domain persistence. Development capture, buffering/failure behavior, file settings, and lifecycle policies were subsequently accepted in [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy). No logging package or implementation is selected or executed.
 - Follow-up: [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker) places output and persistence in a separate process.
 - File grouping: [D-048 — Daily JSON error files](DOC-003-decisions.md#d-048--daily-json-error-files) selects one array-based JSON file per day.
 - Details: [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 
 ## D-047 — Independent logging worker
 
-**Status:** Process boundary accepted; internal HTTP selected later, supervision open · **Date:** 2026-10-30.
+**Status:** Accepted; initial launch/lifecycle resolved in D-058, production supervision deferred · **Date:** 2026-10-30.
 
 - Decision: separate logging from the main API into an independently running process that owns log output and unexpected-error persistence. Keep the API modular and layered; this adds a dedicated logging process rather than splitting business features.
 - Reason: the maintainer wants the logging worker to remain alive and continue processing received events when the backend crashes.
 - Boundary: process isolation does not recover events that were never sent or guarantee survival of a shared host failure. Keep transport/file details outside application services through contracts and DI. No broker, process manager, additional runtime/package, or execution is approved.
 - Follow-up: [D-048 — Daily JSON error files](DOC-003-decisions.md#d-048--daily-json-error-files) selects daily arrays; [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery) selects transport and send-failure behavior.
-- Open: exact ingestion contract/protection, timeouts, acknowledgments/retries, queue bounds, startup/shutdown/supervision, and file operating details.
+- Operating follow-up: [D-053–D-057 — Worker addressing, authentication, delivery timeout, retries, and concurrency](DOC-003-decisions.md#d-053--default-logging-worker-ingestion-address) and [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy) resolve the initial operating choices. Production supervision and exact software remain separate work.
 - Details: [DOC-016 — Logging Conventions: 4. Worker and delivery boundary](DOC-016-logging-conventions.md#4-worker-and-delivery-boundary).
 
 ## D-048 — Daily JSON error files
 
-**Status:** Accepted; file operating details open · **Date:** 2026-10-30.
+**Status:** Accepted; initial file operating details resolved in D-058 · **Date:** 2026-10-30.
 
 - Decision: the independent logging worker groups unexpected-error records into one `.json` file per day, whose top-level value is a JSON array. Coordinate updates to preserve a valid document under concurrent events.
 - Reason: after the per-event file option was explained, the maintainer explicitly chose one daily file containing an array of errors.
-- Open: date timezone, file path/naming, record schema, write/recovery strategy, access controls, retention, and file-size limits. Transport was later selected in [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery); worker supervision remains open. No runtime file has been created.
+- Operating follow-up: [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy) accepts UTC grouping, file path/schema, serialized replacement writes, recovery/access rules, seven-day retention, and a 10 MiB daily limit. Transport follows [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery). No runtime file has been created.
 - Details: [DOC-016 — Logging Conventions: 5. File layout and remaining choices](DOC-016-logging-conventions.md#5-file-layout-and-remaining-choices).
 
 ## D-049 — Best-effort internal HTTP logging delivery
 
-**Status:** Accepted; ingestion and operational parameters open · **Date:** 2026-10-30.
+**Status:** Accepted; initial ingestion/operating policy resolved in D-058 · **Date:** 2026-10-30.
 
 - Decision: the API depends on a logging contract; an adapter sends sanitized events to the independent worker through internal HTTP in the background. The worker handles normal output and daily unexpected-error persistence. API responses do not wait for delivery or file writes.
 - Reason: the maintainer accepted the proposed simple transport and best-effort behavior for the initial version, keeping delivery details outside main application services.
 - Failure behavior: if sending fails, keep serving API requests and emit a sanitized local `stderr` diagnostic. Do not change the API response or recursively send that fallback through the failed logger transport.
 - Delivery limits: events not yet received by the worker can be lost if the API crashes or delivery fails. This is not a durable or zero-loss delivery guarantee.
-- Open: ingestion address/path/schema/protection, timeouts, acknowledgment/retry details, queue bounds, shutdown flushing, worker supervision, and remaining file/development settings. No exact software, broker, process manager, installation, execution, commit, or push is approved by this design decision.
+- Address follow-up: [D-053 — Default logging worker ingestion address](DOC-003-decisions.md#d-053--default-logging-worker-ingestion-address) selects the initial same-host listener and ingestion URL, with an environment-configurable API target.
+- Authentication follow-up: [D-054 — Shared-token logging worker authentication](DOC-003-decisions.md#d-054--shared-token-logging-worker-authentication) selects the dedicated shared credential, header, and rejection behavior.
+- Timeout follow-up: [D-055 — Logging delivery timeout and cancellation](DOC-003-decisions.md#d-055--logging-delivery-timeout-and-cancellation) accepts a one-second default total timeout per attempt and active cancellation.
+- Retry follow-up: [D-056 — Single-attempt logging delivery](DOC-003-decisions.md#d-056--single-attempt-logging-delivery) selects one attempt per event with no automatic retry for the initial version.
+- Concurrency follow-up: [D-057 — Concurrent logging delivery limit](DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit) accepts at most ten active HTTP deliveries per API process by default.
+- Operating follow-up: [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy) accepts ingestion/202 acknowledgment, queue bounds, shutdown handling, separate manual launch, file/development settings, and configuration validation. Exact software and deployment supervision remain separate; this decision does not approve installation, execution, commit, or push.
 - Details: [DOC-016 — Logging Conventions: 4. Worker and delivery boundary](DOC-016-logging-conventions.md#4-worker-and-delivery-boundary).
 
 ## D-050 — Login and refresh rate limits and proxy trust
@@ -527,3 +532,57 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Approval: the maintainer accepted every row of the minimal health-check proposal.
 - Boundary: check the responding process. The API's health does not depend on worker availability. Dependency readiness, monitoring schedules/alerts, and deployment tooling remain separate decisions. This approval selects no library, runtime/version, or execution command.
 - Details: [DOC-010 — Reliability Strategy: Minimal health checks](DOC-010-reliability.md#minimal-health-checks), [DOC-015 — Demo API Contracts: Health responses](DOC-015-demo-api-contracts.md#health-responses).
+
+## D-053 — Default logging worker ingestion address
+
+**Status:** Accepted initial default; settings resolved in D-058 · **Date:** 2026-10-30.
+
+- Decision: initially run the API and logging worker as separate processes on the same host. Listen on `127.0.0.1:3001` and receive logs through `POST /internal/logs`, giving the default API target `http://127.0.0.1:3001/internal/logs`. Allow the target address to be configured through `.env` for deployment needs.
+- Reason: the maintainer accepted this concrete local default for now while retaining configurable deployment addressing.
+- Boundary: preserve independent worker lifecycle and best-effort delivery. The existing unauthenticated worker health route remains `GET /health`. Payload/reply schemas and configuration follow [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy); non-loopback deployment, software selection, and execution remain separate. Authentication follows [D-054 — Shared-token logging worker authentication](DOC-003-decisions.md#d-054--shared-token-logging-worker-authentication).
+- Details: [DOC-016 — Logging Conventions: Default ingestion address](DOC-016-logging-conventions.md#default-ingestion-address).
+
+## D-054 — Shared-token logging worker authentication
+
+**Status:** Accepted; credential/configuration policy resolved in D-058 · **Date:** 2026-10-30.
+
+- Decision: protect `POST /internal/logs` using a dedicated random static `LOG_WORKER_TOKEN`, configured with the same value in the API and worker `.env` settings. Send it as `Authorization: Bearer <LOG_WORKER_TOKEN>`; missing or mismatched request credentials return `401`. Redact the token in all modes and log outputs. Worker `GET /health` remains unauthenticated.
+- Reason: the maintainer explicitly accepted the proposed shared-token mechanism for local API-to-worker communication.
+- Boundary: this is a dedicated machine credential for log delivery. Its random-byte/hex format, startup validation, and manual rotation follow [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy). Non-loopback deployment remains separate. No actual secret, runtime file, software selection, or execution is generated or approved by this decision.
+- Details: [DOC-016 — Logging Conventions: Ingestion authentication](DOC-016-logging-conventions.md#ingestion-authentication).
+
+## D-055 — Logging delivery timeout and cancellation
+
+**Status:** Accepted; validation resolved in D-058, HTTP client selection pending · **Date:** 2026-10-30.
+
+- Decision: default each HTTP log-delivery attempt to a total timeout of 1000 milliseconds, configurable through `LOG_WORKER_TIMEOUT_MS` in `.env`. Actively cancel an unfinished request when the deadline is reached and emit the accepted safe local `stderr` diagnostic. API responses remain independent of logging completion.
+- Reason: the maintainer accepted the proposed one-second bound and explicit cancellation for background log delivery.
+- Boundary: cancellation affects the local HTTP attempt; the worker might already have received or stored its event. This does not select retry behavior, queue bounds, an HTTP client/library, exact runtime versions, or execution.
+- Details: [DOC-016 — Logging Conventions: Delivery timeout](DOC-016-logging-conventions.md#delivery-timeout).
+
+## D-056 — Single-attempt logging delivery
+
+**Status:** Accepted for the initial version · **Date:** 2026-10-30.
+
+- Decision: make one HTTP delivery attempt per log event, with no automatic retry after failure or timeout. Emit the accepted safe local `stderr` diagnostic on failure and continue processing later events without changing the main API response.
+- Reason: the maintainer accepted this simple initial behavior and its delivery-loss trade-off. Repeating a POST with an uncertain outcome could create duplicate records.
+- Boundary: honor this rule in the HTTP client as well as the logging adapter. Delivery remains best effort; a timeout does not prove the worker never received the event. Queue, acknowledgment, and shutdown behavior follow [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy); concurrency follows [D-057 — Concurrent logging delivery limit](DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit). No HTTP client/library or execution is selected.
+- Details: [DOC-016 — Logging Conventions: Delivery retries](DOC-016-logging-conventions.md#delivery-retries).
+
+## D-057 — Concurrent logging delivery limit
+
+**Status:** Accepted default · **Date:** 2026-10-30.
+
+- Decision: allow at most ten active HTTP log deliveries per API process by default, configurable through `LOG_WORKER_MAX_CONCURRENT_REQUESTS=10` in `.env`.
+- Reason: the maintainer accepted this concrete initial bound on simultaneous background sends.
+- Boundary: this limits log deliveries, not main API request concurrency or requests per second. Queue capacity, overflow, and worker processing follow [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy). No HTTP client/library or execution is selected.
+- Details: [DOC-016 — Logging Conventions: Concurrent deliveries](DOC-016-logging-conventions.md#concurrent-deliveries).
+
+## D-058 — Minimal logging operating policy
+
+**Status:** Accepted for the initial version · **Date:** 2026-10-30.
+
+- Decision: adopt all nine operating groups in [DOC-016 — Logging Conventions: 6. Initial logging operating policy](DOC-016-logging-conventions.md#6-initial-logging-operating-policy): queues/overflow, ingestion/acknowledgment, development capture, safe exception details, daily files/retention, writing/recovery, process layout/lifecycle, credential handling, and configuration defaults.
+- Reason: the maintainer explicitly accepted the complete package, resolving the remaining first-version logging policy in one review and keeping the template bounded and understandable.
+- Approval: the maintainer answered “setuju semua” to the numbered 1–9 proposal. Defaults and failure/loss trade-offs are accepted; implementation has not started.
+- Boundary: delivery remains best effort. Exact runtime/tooling versions, software preflight/execution, build commands, and production supervision/non-loopback deployment remain separate work. No source, secret, runtime file, commit, or push is created by this documentation approval.

@@ -32,7 +32,11 @@ Implement these as local access-policy decorators. Protected requests require va
 
 ### Health responses
 
-The logging worker also exposes its own unauthenticated `GET /health` at its address, with no request inputs. Both processes return HTTP `200`, `Cache-Control: no-store`, and the following standard envelope when responding:
+The logging worker also exposes its own unauthenticated `GET /health` at its address, with no request inputs. Its initial default URL is `http://127.0.0.1:3001/health`, under [DOC-016 — Logging Conventions: Default ingestion address](DOC-016-logging-conventions.md#default-ingestion-address).
+
+Worker health remains public alongside shared-token log ingestion, as specified in [DOC-016 — Logging Conventions: Ingestion authentication](DOC-016-logging-conventions.md#ingestion-authentication).
+
+Both processes return HTTP `200`, `Cache-Control: no-store`, and the following standard envelope when responding:
 
 ```json
 {
@@ -130,10 +134,10 @@ When Swagger is enabled, fail startup on missing or invalid documentation creden
 
 JWT environment names, key encoding, startup validation, duration defaults, and manual rotation follow accepted [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration).
 
-UUID request correlation and async logging requirements are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md), including the independent logging process and unexpected-fault files.
+UUID request correlation and the initial logging operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md), including the independent process, authenticated `POST /internal/logs`, ingestion/202 acknowledgment, queues, and unexpected-fault files. Worker health remains a separate public liveness endpoint.
 
 Login/refresh quotas and proxy trust policy are accepted in [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust).
 
 Periodic cleanup, request-time expiry enforcement, and refresh replay retention are accepted in [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
 
-Still open: fixture hash generation, deployment cost calibration, worker ingestion/file parameters, limiter implementation/deployment parameters, cleanup implementation/settings, exact service/store method signatures, and software versions. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.
+Still open: fixture hash generation, deployment cost calibration, limiter implementation/deployment parameters, cleanup implementation/settings, exact service/store method signatures, software versions, and deployment-specific process supervision. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.

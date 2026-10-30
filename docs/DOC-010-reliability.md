@@ -7,24 +7,25 @@
 - [D-046 — Asynchronous logging and development diagnostics](DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics)
 - [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker)
 - [D-052 — Minimal process health endpoints](DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
+- [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy)
 
 **Decision:** Include minimum monitoring, backup, and disaster recovery planning in the template. Keep implementation and operational settings subject to maintainer approval.
 
 **Reason:** Help a solo developer or small team detect failures, protect data, and recover through a short, understandable process.
 
-**Current template scope:** access demos, auth in-memory state, general integration placeholders, an independent logging process with local unexpected-error files, and minimal liveness endpoints for both processes. Database/upload backups and deployment recovery work remain deferred until relevant application data and hosting exist. Log-file limits/retention are open in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Do not add fake backup jobs, database health checks, or recovery claims to the demo.
+**Current template scope:** access demos, auth in-memory state, general integration placeholders, an independent logging process with local unexpected-error files, and minimal liveness endpoints for both processes. Database/upload backups and deployment recovery work remain deferred until relevant application data and hosting exist. Daily error-file limits and retention are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Do not add fake backup jobs, database health checks, or recovery claims to the demo.
 
-Accepted async logging, development diagnostics, unexpected-error JSON persistence, and an independent logging process are specified in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Minimal health checks below are accepted; broader monitoring, backup, and recovery plans remain proposals. No reliability provider, exact software, alert schedule/threshold, log-retention period, or recovery target is selected. New software still requires the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md).
+Accepted async logging, development diagnostics, unexpected-error JSON persistence, and the worker operating policy are specified in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md), including seven-day daily-file retention. Minimal health checks below are accepted; broader monitoring, backup, and recovery plans remain proposals. No reliability provider, exact software, alert schedule/threshold, console-log retention period, or recovery target is selected. New software still requires the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md).
 
 ## 1. Monitoring
 
 **Status:** Logging and minimal process liveness accepted; readiness, alerts, and broader monitoring details proposed.
 
 - Expose the accepted minimal liveness endpoints below. Dependency readiness checks and external availability monitoring remain proposed.
-- Follow accepted [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md) for structured logs, UUID request IDs, background internal HTTP, safe stderr fallback, secret exclusion, development-only context, and separate-worker daily JSON arrays. Ingestion parameters, file paths, and operating details remain open.
+- Follow accepted [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md) for structured logs, UUID request IDs, background internal HTTP, safe stderr fallback, secret exclusion, development-only context, bounded queues, and UTC daily JSON arrays with retention/size limits. Implementation and deployment supervision remain pending.
 - Observe request traffic, latency, errors, and resource saturation.
 - Alert on unavailable service, sustained failures, resource exhaustion, and failed or stale backups.
-- Assign an alert recipient and link each actionable alert to a short response procedure. Confirm thresholds, intervals, log retention, and delivery channels per project.
+- Assign an alert recipient and link each actionable alert to a short response procedure. Confirm thresholds, intervals, console-log retention, and delivery channels per project.
 
 The signal selection follows [Google SRE monitoring guidance](https://sre.google/sre-book/monitoring-distributed-systems/), retrieved 2026-10-29.
 
@@ -78,7 +79,7 @@ RTO/RPO definitions and recovery exercises follow the [Google Cloud DR planning 
 
 | Area | To agree |
 | --- | --- |
-| Monitoring | Checks, intervals, thresholds, recipient, channel, and log retention. |
+| Monitoring | Checks, intervals, thresholds, recipient, channel, and console-log retention. Daily error-file retention is already accepted. |
 | Backup | Schedule, retention, storage isolation, encryption/access, and restore-test cadence. |
 | Recovery | RPO, RTO, scenarios, recovery owner/target, and cutover procedure. |
 

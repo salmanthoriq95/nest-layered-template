@@ -8,6 +8,7 @@
 - [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
 - [D-040 — HS256 tokens, refresh rotation, and immediate logout](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
 - [D-041 — In-memory demo accounts and manual grants](DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants)
+- [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy)
 
 **Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has in-memory account, permission, and session adapters. Keep unit tests beside source and HTTP tests in `test/`.
 
@@ -17,7 +18,7 @@
 
 This is the agreed layout, not existing source code. It includes the permission and session-lifecycle decisions added after the first layout. API routes and demo passwords are accepted; exact internal contract methods and fixture hashes remain pending. Add test files where the behavior requires them.
 
-The tree below covers the main API. The independently running logging worker and its transport/file layout are not mapped into folders yet; follow [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md) without inventing those choices.
+The tree includes the main API and accepted logging locations. Use `src/logging/` for API logging contracts/event types and the adapter, and `src/logging-worker/` for the independent worker entry point and implementation. Detailed filenames and contract methods belong to implementation review under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 
 API and worker health endpoints are accepted in [DOC-015 — Demo API Contracts: Health responses](DOC-015-demo-api-contracts.md#health-responses); exact health file placement remains open.
 
@@ -25,6 +26,8 @@ API and worker health endpoints are accepted in [DOC-015 — Demo API Contracts:
 src/
   main.ts
   app.module.ts
+  logging/
+  logging-worker/
   modules/
     examples/
       examples.module.ts
@@ -57,6 +60,7 @@ src/
         in-memory-session.store.ts
 test/
   app.e2e-spec.ts
+  logging-worker.e2e-spec.ts
 docs/
 ```
 
@@ -149,6 +153,6 @@ Bcrypt, its starting cost, demo passwords, and endpoint/grant and token/session 
 
 JWT environment names, defaults, validation, and manual key rotation are accepted in [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration).
 
-Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, and best-effort internal HTTP delivery are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Ingestion parameters, worker/file layout, and operating details remain open.
+Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are agreed; implementation and deployment supervision remain pending.
 
-Still open: exact internal contract methods, fixture hashes, remaining operational settings, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.
+Still open: exact internal contract methods, fixture hashes, limiter/cleanup settings and validation, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.

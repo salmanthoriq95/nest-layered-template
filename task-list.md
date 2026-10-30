@@ -132,11 +132,17 @@ The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005
 - [x] Accept structured async logs, UUID request IDs, base fields/severity, unexpected-fault persistence, and development-only request context. Secrets stay excluded in all modes. [D-046 — Asynchronous logging and development diagnostics](docs/DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics)
 - [x] Require a separate logging process that can continue after an API-only crash. [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker)
 - [x] Choose background internal HTTP through a logging-contract adapter, best-effort delivery, and safe local stderr diagnostics on send failure. API responses do not wait or change. [D-049 — Best-effort internal HTTP logging delivery](docs/DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery)
-- [ ] Define ingestion parameters/protection, delivery bounds, queue/shutdown behavior, and worker supervision.
+- [x] Accept the initial same-host worker listener `127.0.0.1:3001`, `POST /internal/logs`, and an environment-configurable API target. [D-053 — Default logging worker ingestion address](docs/DOC-003-decisions.md#d-053--default-logging-worker-ingestion-address)
+- [x] Accept shared `LOG_WORKER_TOKEN` through `.env` and an Authorization Bearer header, 401 on missing/mismatched credentials, universal token redaction, and public health. [D-054 — Shared-token logging worker authentication](docs/DOC-003-decisions.md#d-054--shared-token-logging-worker-authentication)
+- [x] Accept `LOG_WORKER_TIMEOUT_MS=1000` per HTTP attempt, active cancellation, and safe stderr fallback with unchanged API responses. [D-055 — Logging delivery timeout and cancellation](docs/DOC-003-decisions.md#d-055--logging-delivery-timeout-and-cancellation)
+- [x] Accept one HTTP attempt per event with no automatic retry for the initial version; preserve safe failure diagnostics and normal handling of later events. [D-056 — Single-attempt logging delivery](docs/DOC-003-decisions.md#d-056--single-attempt-logging-delivery)
+- [x] Accept `LOG_WORKER_MAX_CONCURRENT_REQUESTS=10` active HTTP log sends per API process by default. [D-057 — Concurrent logging delivery limit](docs/DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit)
+- [x] Accept all nine operating groups together under [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy); do not reopen accepted settings one parameter at a time.
+- [x] Define ingestion/202 acknowledgment, settings/protection, bounded queues/overflow, separate manual process launch, and shutdown handling. Production supervision remains deployment-specific.
 - [x] Select one daily `.json` file containing an array of unexpected-error records. [D-048 — Daily JSON error files](docs/DOC-003-decisions.md#d-048--daily-json-error-files)
-- [ ] Resolve file path/date timezone/schema, access controls, retention/rotation/limits, development-mode configuration/capture limits, and pre-startup failure capture.
+- [x] Accept UTC file grouping/path/schema, owner-only access, seven-day retention, 10 MiB daily limits, serialized replacement/recovery rules, development capture limits, and pre-startup stderr limitations.
 
-Third-party-call resilience and event idempotency belong to a later integration scope. Logging's approved internal HTTP delivery still needs its own bounds and operating parameters under [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md).
+Third-party-call resilience and event idempotency belong to a later integration scope. Logging's initial operating policy is accepted in [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md); implementation, software approval, and deployment supervision remain separate work.
 
 ## 9. Testing and completion criteria
 
@@ -148,6 +154,14 @@ Third-party-call resilience and event idempotency belong to a later integration 
 - [ ] Verify login/refresh quotas, success/failure counting, IP/endpoint separation, required 429 headers, counter reset, and ignored untrusted forwarding headers.
 - [ ] Verify expiry rejection between cleanup runs, retained replay evidence, and preserved accounts/grants after cleanup.
 - [ ] Verify unauthenticated health endpoints on the API and worker, 200 envelopes/no-store headers, and API health while the worker is unavailable.
+- [ ] Verify worker ingestion accepts only the configured shared token, rejects missing/mismatched credentials, and never exposes the token in logs or diagnostics in any mode.
+- [ ] Verify timed-out logging attempts are actively cancelled and safely reported without awaiting delivery on the main API request or changing its response.
+- [ ] Verify failed/timed-out events are not automatically retried and later events can still be delivered.
+- [ ] Verify active HTTP log sends respect the configured per-API-process concurrency limit.
+- [ ] Verify FIFO queue limits/overflow, bounded safe stderr summaries, ingestion field/size/content-type validation, 202 memory acceptance, and safe 400/401/413/415/503 envelopes.
+- [ ] Verify development allowlists and capture limits, production/test context omission at both boundaries, secret exclusion, and safe unexpected-error details in files only.
+- [ ] Verify UTC daily JSON arrays, retention/size limits, serialized replacement writes, file permissions, and preserved files/safe diagnostics on write failure or corruption.
+- [ ] Verify logging configuration validation, startup without a reachable worker, separate worker lifetime, five-second graceful drain, and fatal/pre-startup diagnostic limitations.
 - [ ] Verify Swagger UI/schema access protection, Basic Auth challenges, valid/invalid credentials, literal hash loading, and independence from API authentication.
 - [ ] Verify validation, response envelopes, real status codes, and safe error details against the accepted HTTP contract.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
@@ -159,10 +173,10 @@ No database, business-transaction, or provider integration tests are required be
 ## 10. Configuration and operations
 
 - [x] Retain minimum monitoring, backup, and DR planning guidance. [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery)
-- [x] Include async logging, a separate worker, and best-effort internal HTTP; keep unapproved ingestion/file parameters open. [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md)
+- [x] Accept async logging, a separate worker, best-effort internal HTTP, and the complete initial ingestion/file/lifecycle policy. [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md)
 - [x] Accept independent public `GET /health` on the API and logging worker, with standard 200 envelopes and no-store headers. [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 - [x] Define JWT configuration/startup rules and invalid enabled-Swagger credential handling. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
-- [ ] Finalize any remaining operational settings after logging, throttling, retention, and health scope decisions.
+- [ ] Finalize remaining limiter/cleanup settings and tooling before affected implementation; logging and minimal process-health policies are accepted.
 
 [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
@@ -243,13 +257,19 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing) | Algorithm/defaults accepted; implementation open |
 | [D-044 — Public dummy login credentials](docs/DOC-003-decisions.md#d-044--public-dummy-login-credentials) | Accepted; actual fixture hashes pending |
 | [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation) | Accepted; implementation pending |
-| [D-046 — Asynchronous logging and development diagnostics](docs/DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics) | Requirements accepted; file/operating details open |
-| [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker) | Process boundary/internal HTTP accepted; supervision open |
-| [D-048 — Daily JSON error files](docs/DOC-003-decisions.md#d-048--daily-json-error-files) | Daily array grouping accepted; operating details open |
-| [D-049 — Best-effort internal HTTP logging delivery](docs/DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery) | Accepted; ingestion/operating parameters open |
+| [D-046 — Asynchronous logging and development diagnostics](docs/DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics) | Accepted; operating details resolved in D-058 |
+| [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker) | Accepted; initial launch/lifecycle resolved in D-058; production supervision deferred |
+| [D-048 — Daily JSON error files](docs/DOC-003-decisions.md#d-048--daily-json-error-files) | Accepted; file operating details resolved in D-058 |
+| [D-049 — Best-effort internal HTTP logging delivery](docs/DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery) | Accepted; ingestion/operating details resolved in D-058 |
 | [D-050 — Login and refresh rate limits and proxy trust](docs/DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust) | Policy/defaults accepted; implementation/deployment parameters open |
 | [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup) | Policy accepted; scheduling/settings open |
 | [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints) | Accepted; implementation pending |
+| [D-053 — Default logging worker ingestion address](docs/DOC-003-decisions.md#d-053--default-logging-worker-ingestion-address) | Accepted; configuration resolved in D-058 |
+| [D-054 — Shared-token logging worker authentication](docs/DOC-003-decisions.md#d-054--shared-token-logging-worker-authentication) | Accepted; credential/configuration policy resolved in D-058; generation pending |
+| [D-055 — Logging delivery timeout and cancellation](docs/DOC-003-decisions.md#d-055--logging-delivery-timeout-and-cancellation) | Accepted; validation resolved in D-058; HTTP client selection pending |
+| [D-056 — Single-attempt logging delivery](docs/DOC-003-decisions.md#d-056--single-attempt-logging-delivery) | Accepted initial policy |
+| [D-057 — Concurrent logging delivery limit](docs/DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit) | Default and setting name accepted |
+| [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy) | All nine groups accepted; implementation pending |
 
 ## Next discussions
 
@@ -271,18 +291,24 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Accept login/refresh quotas and proxy trust; explain how a reverse proxy affects client IP and rate limiting.
 - [x] Accept in-memory cleanup without delaying expiry/revocation or deleting required replay evidence, dummy accounts, or grants.
 - [x] Accept [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints): independent public `GET /health` on the API and worker, with standard 200 envelopes and no-store headers.
-- [ ] Resolve remaining worker, limiter, and cleanup operating parameters before implementation.
+- [x] Accept the initial worker ingestion URL `http://127.0.0.1:3001/internal/logs` and independent same-host processes; keep deployment target configuration in `.env`.
+- [x] Accept the dedicated shared-token mechanism for ingestion while leaving health public.
+- [x] Accept a configurable one-second timeout per log-delivery attempt, with cancellation and safe failure handling.
+- [x] Accept one attempt per event with no automatic retry for the initial version.
+- [x] Accept a default maximum of ten active HTTP log deliveries per API process.
+- [x] Accept all nine logging operating groups in one review, as requested by the maintainer.
+- [ ] Resolve remaining limiter and cleanup implementation/settings together before affected implementation.
 - [ ] Finish remaining code/tooling defaults and a small first-release acceptance checklist.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.12.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: local master contains `8387997` (`docs(auth): accept API contracts and define demo credentials`). The JWT configuration documentation changes were already present when the logging discussion began and are preserved. Live remote state was not checked here.
-- Current progress: JWT configuration, logging/worker delivery, rate limits/proxy trust, periodic cleanup, and [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints) are accepted. The five operational discussion topics are resolved at the policy level. The API and worker each expose public `GET /health` with a standard 200 envelope, `status: ok`, and no-store; API liveness is independent of worker availability. No key, fixture hash, runtime log, or application source has been generated.
+- Guide version: 4.18.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: local master contains `2f6c0a9` (`docs: define auth configuration and operational conventions`). The earlier address documentation changes were already present and are preserved. Live remote state was not checked here.
+- Current progress: the maintainer answered “setuju semua” to all nine groups in [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy). Initial queues/overflow, ingestion/202 acknowledgment, development capture, safe exception details, daily files/retention/size, write/recovery rules, separate process layout/lifecycle, credential policy, and configuration defaults are accepted. Related docs and earlier open-status references are synchronized. No secret, fixture hash, runtime log, or application source has been generated.
 - Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: prepare remaining implementation choices and first-release checks without reopening the five accepted policies. Worker ingestion/protection, delivery bounds/retry/flush, process launch, development selector/capture limits, daily-file settings, pre-startup diagnostics, and exact limiter/scheduler/environment parameters remain open, along with tooling/internal contracts. Complete full software preflight and obtain explicit execution approval before installation or running new software. Dependency readiness and broader monitoring/backup/recovery plans remain proposed; accepting basic liveness does not approve them.
+- Next step/questions: initial logging policy is complete in [DOC-016 — Logging Conventions: 6. Initial logging operating policy](docs/DOC-016-logging-conventions.md#6-initial-logging-operating-policy); no logging-policy approval is pending. Group any remaining limiter/cleanup settings, tooling/internal contracts, and first-release acceptance details into a concise review; do not restart parameter-by-parameter questioning. Exact software needs full preflight and explicit execution approval before scaffolding/installing/running. Production supervision and non-loopback deployment remain deferred to actual deployment needs.
 - Approval boundary: no exact external software/version, hashing command, installation/execution, or assistant commit/push is authorized by these design decisions. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed monitoring/backup/recovery details beyond accepted logging requirements.
 
 ## Implementation backlog
