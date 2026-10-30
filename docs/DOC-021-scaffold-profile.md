@@ -1,6 +1,6 @@
 # DOC-021 — Initial Scaffold Profile
 
-**Status:** Accepted profile and acceptance criteria; exact artifacts/configuration pending · **Updated:** 2026-10-30.
+**Status:** Accepted profile, configuration layout, and auth contract conventions; artifacts/implementation pending · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration)
@@ -10,6 +10,11 @@
 - [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
 - [D-075 — Stable public demo fixtures](DOC-003-decisions.md#d-075--stable-public-demo-fixtures)
 - [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)
+- [D-077 — Compiler configuration and script layout](DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
+- [D-078 — Authentication service and crypto boundaries](DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries)
+- [D-079 — Storage lookup snapshots](DOC-003-decisions.md#d-079--storage-lookup-snapshots)
+- [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers)
+- [D-081 — Caret dependency ranges](DOC-003-decisions.md#d-081--caret-dependency-ranges)
 
 ## 1. Configuration profile
 
@@ -31,7 +36,7 @@
 
 The maintainer's numbered reply repeated basic lint, then gave the remaining choices in order. The record follows the answer content: default Prettier, automatic watch, `@nestjs/config`/Zod, synchronous memory allowed, typed application errors, and both test scopes. The repetition adds no separate convention.
 
-The compiler target and implementation conventions in section 5 are accepted. Remaining compiler flags, emitted paths, watcher startup details, other command names, configuration files, complete internal signatures, actual fixture values, dependency ranges, and resolved package versions still require implementation review. Earlier `login`/`refresh`/`logout` examples do not settle every contract's exact types or method-specific errors. Do not introduce a mixed sync/async return abstraction or speculative persistence methods without agreement.
+The target, selected flags, config/output layout, auth service signatures, and conventions in sections 5–6 are accepted. Complete config/script contents, watcher startup details, remaining store/provider signatures, actual fixture values, dependency baselines/resolutions, and artifacts still require review. Do not introduce a mixed sync/async return abstraction or speculative persistence methods without agreement.
 
 ## 2. Boundary behavior
 
@@ -80,7 +85,7 @@ Express, `@nestjs/config`, `jose`, and native `bcrypt` are selected directions; 
 | Missing lookup | Return `undefined` from storage lookups when no record exists. This does not change required JSON `null` fields in HTTP envelopes. |
 | Internal session time | Use epoch milliseconds with explicit names such as `expiresAtMs`. JWT NumericDate claims and environment TTLs remain seconds; limiter elapsed time remains monotonic. |
 | Demo fixtures | Generate UUID v4 IDs and separately salted bcrypt hashes once, after execution approval, and commit them as public demo fixtures. Both passwords remain `dev123`; do not regenerate IDs/hashes at startup. |
-| Dependencies | Use version ranges with a committed `package-lock.json`; use `npm ci` for repeat installs after approval. Exact range expressions and every resolved artifact still need review. |
+| Dependencies | Use caret ranges with a committed `package-lock.json`; use `npm ci` for repeat installs after approval. Actual version baselines and every resolved artifact still need review. |
 
 ### Build and test artifacts
 
@@ -89,9 +94,52 @@ Compilation checks types and emits JavaScript; the test runner separately execut
 - Compile application code and tests using the same application compiler profile, with test-specific file selection/output kept separate.
 - Run compiled unit and HTTP tests as part of the build workflow. A failed type check, compilation, or required test makes the build fail.
 - Keep test sources, compiled tests, and test fixtures outside the application artifact. Deployment/startup does not run the test suite.
-- Preserve focused test commands and the aggregate check. Compose compilation/build/test steps without recursive commands or redundant full-suite runs; exact scripts and paths remain review items.
+- Preserve focused test commands and the aggregate check. Compose compilation/build/test steps without recursive commands or redundant full-suite runs. Output paths are fixed in section 6; exact scripts remain review items.
 - Test results describe the exercised behavior of the checked revision/configuration; they do not prove every runtime environment behaves identically.
 
 The accepted target is `ESNext`, not a fixed language-year target. Its semantics can change with a compiler upgrade. [TypeScript target documentation](https://www.typescriptlang.org/tsconfig/target.html), retrieved 2026-10-30.
 
 Only public dummy-account fixtures belong in Git. JWT signing keys, Swagger credentials, logging credentials, real account data, and runtime state retain their existing secret exclusions. Version ranges do not authorize automatic updates: any new resolution/lockfile change requires full preflight and explicit approval before affected software steps.
+
+## 6. Configuration layout and auth contracts
+
+**Decision:** Apply all seven selected configuration/contract choices below, using hexadecimal refresh tokens.
+
+**Reason:** The maintainer selected A for questions 1–5 and 7, and B for question 6. This fixes the proposed layout and boundaries without authorizing software execution.
+
+| Area | Accepted detail |
+| --- | --- |
+| Source maps | Include source maps in application builds, including deployment artifacts, for debugging compiled code. |
+| Compiler configuration | Root `tsconfig.json` is the shared basis; `tsconfig.build.json` and `tsconfig.test.json` extend it. Application output is `dist/`; test compilation output is `.test-dist/`. |
+| Workflow scripts | Use small project-owned Node scripts in `scripts/`, invoked through npm, to coordinate compilation, test execution, output cleanup, and exit codes. Add no orchestration library. |
+| Crypto boundaries | `IdentityProviderContract` owns JWT issuance/verification through jose. A separate `PasswordVerifierContract` owns bcrypt password checks for application/Swagger use. Keep library types outside application contracts. |
+| Lookup ownership | Return copied record snapshots with readonly types. Do not expose mutable nested state owned by storage; apply changes through explicit storage operations. Missing records still return `undefined`. |
+| Refresh credentials | Generate 32 cryptographically random bytes and encode them as hexadecimal, producing 64-character tokens. Store only a SHA-256 digest with existing user/session/expiry and replay bindings. |
+| Dependency declarations | Use caret ranges, e.g. `^6.0.0` for the selected bcrypt baseline after artifact approval. Keep the lockfile and review every actual resolution; caret is not update permission. |
+
+Selected shared `compilerOptions`, in addition to the accepted ESNext/NodeNext/strict profile:
+
+```json
+{
+  "experimentalDecorators": true,
+  "emitDecoratorMetadata": true,
+  "noEmitOnError": true,
+  "sourceMap": true
+}
+```
+
+The accepted authentication-service shape is:
+
+```ts
+abstract class AuthenticationServiceContract {
+  abstract login(input: LoginInput): Promise<TokenResult>;
+  abstract refresh(input: RefreshInput): Promise<TokenResult>;
+  abstract logout(input: SessionIdentity): void;
+}
+```
+
+`LoginInput` contains username/password; `RefreshInput` contains the refresh token. `SessionIdentity` carries the verified user/session identity, never an arbitrary target from a logout request body. `TokenResult` follows the accepted token result in [DOC-015 — Demo API Contracts: 2. Input and token result schemas](DOC-015-demo-api-contracts.md#2-input-and-token-result-schemas). Logout is synchronous for the current memory implementation; JWT and password operations require async work. Retain typed application errors and atomic refresh/logout behavior.
+
+Hash the complete refresh-token representation consistently for storage/lookup. Keep raw refresh tokens out of storage and logs; retain consumed-token evidence until the existing session deadline. This generator choice does not change HTTP input bounds, credential-error mappings, token transport, or rotation rules. Passwords still use bcrypt.
+
+Copied lookup results do not introduce grant-management endpoints or unused persistence operations. Exact JWT/password-provider and session-store methods remain review items. The snippets are documentation, not generated configuration/source or executed checks.

@@ -33,6 +33,7 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Keep persistence and external implementation details outside services. [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [x] Define the smallest example/auth module layout and controller/service responsibilities. [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
 - [x] Choose abstract-class contracts and runtime DI tokens for demonstrated boundaries.
+- [x] Separate JWT/password contracts and accept auth service signatures. [D-078 — Authentication service and crypto boundaries](docs/DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries)
 - [x] Define dependency direction, exports, and shared-code limits.
 - [x] Document persistence/integration extension locations without unused repositories or clients.
 
@@ -45,9 +46,11 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Accept npm, ESM/NodeNext, TypeScript compilation through `tsc`, native Node tests/assertions/HTTP requests, and ESLint/typescript-eslint/Prettier as tooling directions. [D-060 — Initial tooling candidate review](docs/DOC-003-decisions.md#d-060--initial-tooling-candidate-review)
 - [x] Accept strict-only checking, basic lint, default Prettier, automatic watch, sync memory where appropriate, and typed application errors. [D-070 — Initial scaffold configuration](docs/DOC-003-decisions.md#d-070--initial-scaffold-configuration)
 - [x] Select `ESNext` and separate build/test configurations and outputs; require compiled unit/HTTP tests before build success. [D-073 — ESNext and verified application builds](docs/DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
-- [ ] Prepare remaining compiler flags, config files/paths, and build/watch/test script implementations for review with exact artifacts.
+- [x] Accept source maps, decorator/emit flags, three shared compiler configs, `dist/`/`.test-dist/`, and Node workflow scripts. [D-077 — Compiler configuration and script layout](docs/DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
+- [ ] Prepare full config/script contents and watcher startup details for review with exact artifacts.
 - [x] Define direct imports, exports, and folder dependencies; defer aliases and barrel files.
 - [x] Prefer named input objects, return `undefined` for missing storage records, and use epoch milliseconds for session times. [D-074 — Internal contract inputs and values](docs/DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
+- [x] Return copied readonly lookup snapshots and change state through explicit storage operations. [D-079 — Storage lookup snapshots](docs/DOC-003-decisions.md#d-079--storage-lookup-snapshots)
 - [ ] Define any remaining optional-property/default rules when required by concrete contracts; preserve required HTTP envelope `null` fields.
 - [x] Accept basic lint/default Prettier and retain existing comment/documentation guidance. [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md)
 - [ ] Implement automated enforcement after software preflight and execution approval.
@@ -100,6 +103,7 @@ Prisma is the selected future ORM under [D-069 — Prisma ORM direction](docs/DO
 - [x] Agree starting bcrypt cost 12 and initial admin grant `examples:read`.
 - [x] Select jose and native bcrypt, with bcrypt `6.0.0` as the review baseline; artifact clearance remains UNKNOWN. [D-072 — JWT and native bcrypt implementations](docs/DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations)
 - [x] Adopt one-time UUID v4/hash generation for stable public demo fixtures; actual generation remains pending. [D-075 — Stable public demo fixtures](docs/DOC-003-decisions.md#d-075--stable-public-demo-fixtures)
+- [x] Select 32-byte random refresh credentials encoded as hex with SHA-256 verifier storage. Actual generation remains pending. [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](docs/DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers)
 - [ ] Generate fixture hashes after exact software preflight and execution approval; calibrate cost before deployment.
 - [x] Agree Swagger-to-API token transport, JWT claims, issuer/audience defaults, and independent-session/replay rules.
 - [x] Accept JWT environment names, 64-character hex key encoding, startup validation, duration defaults, and manual key rotation/restart. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
@@ -139,7 +143,7 @@ The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005
 - [ ] Apply ELIGIBLE / REVIEW / BLOCKED / UNKNOWN; missing evidence remains UNKNOWN and is never safe.
 - [ ] Block known malicious artifacts; review or block vulnerable/unsupported software based on exposure and mitigations.
 - [ ] Obtain explicit approval before proceeding; ELIGIBLE never authorizes execution.
-- [x] Select dependency ranges, a committed `package-lock.json`, and `npm ci` repeat installs after approval. Future resolutions still need preflight. [D-076 — Dependency ranges and committed lockfile](docs/DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)
+- [x] Select caret dependency ranges, a committed `package-lock.json`, and `npm ci` repeat installs after approval. Future resolutions still need preflight. [D-076 — Dependency ranges and committed lockfile](docs/DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile), [D-081 — Caret dependency ranges](docs/DOC-003-decisions.md#d-081--caret-dependency-ranges)
 - [ ] Review exact runtime/package-manager versions, dependency ranges/resolutions, native artifacts, and update evidence before affected execution.
 - [ ] Define evidence storage, approval scope, and recheck triggers.
 
@@ -199,7 +203,7 @@ No database, business-transaction, or provider integration tests are required be
 - [x] Define JWT configuration/startup rules and invalid enabled-Swagger credential handling. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
 - [x] Finalize limiter/cleanup settings, Swagger throttling, and proxy-list configuration. [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters)
 - [x] Select Express and `@nestjs/config` with Zod startup validation; retain accepted auth/logging/limiter/health settings. [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md)
-- [ ] Review exact internal methods/types, config files, script implementations, and artifacts before affected implementation.
+- [ ] Review remaining provider/store methods/types, full config/script contents, and artifacts before affected implementation.
 
 [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
@@ -308,10 +312,15 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-070 — Initial scaffold configuration](docs/DOC-003-decisions.md#d-070--initial-scaffold-configuration) | Accepted profile; exact artifacts/configuration pending |
 | [D-071 — First-release acceptance and review](docs/DOC-003-decisions.md#d-071--first-release-acceptance-and-review) | Accepted criteria and complete-result review; verification pending |
 | [D-072 — JWT and native bcrypt implementations](docs/DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations) | Accepted directions; artifacts UNKNOWN |
-| [D-073 — ESNext and verified application builds](docs/DOC-003-decisions.md#d-073--esnext-and-verified-application-builds) | Accepted target/build behavior; scripts/configuration pending |
+| [D-073 — ESNext and verified application builds](docs/DOC-003-decisions.md#d-073--esnext-and-verified-application-builds) | Accepted target/build behavior; config layout selected by D-077, implementation pending |
 | [D-074 — Internal contract inputs and values](docs/DOC-003-decisions.md#d-074--internal-contract-inputs-and-values) | Accepted conventions; complete signatures pending |
 | [D-075 — Stable public demo fixtures](docs/DOC-003-decisions.md#d-075--stable-public-demo-fixtures) | Accepted policy; generation pending |
-| [D-076 — Dependency ranges and committed lockfile](docs/DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile) | Accepted policy; exact ranges/artifacts pending |
+| [D-076 — Dependency ranges and committed lockfile](docs/DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile) | Caret form selected by D-081; exact baselines/artifacts pending |
+| [D-077 — Compiler configuration and script layout](docs/DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout) | Accepted flags/layout; file implementation pending |
+| [D-078 — Authentication service and crypto boundaries](docs/DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries) | Accepted service shape/separation; remaining methods pending |
+| [D-079 — Storage lookup snapshots](docs/DOC-003-decisions.md#d-079--storage-lookup-snapshots) | Accepted readonly snapshot policy; implementation pending |
+| [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](docs/DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers) | Accepted generator/verifier profile; implementation pending |
+| [D-081 — Caret dependency ranges](docs/DOC-003-decisions.md#d-081--caret-dependency-ranges) | Accepted range form; exact baselines/artifacts pending |
 
 ## Next discussions
 
@@ -346,17 +355,18 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Close the persistence-tool comparison with Prisma as the maintainer's choice; exact versions and integration remain pending.
 - [x] Accept the scaffold profile and first-release acceptance criteria in [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md).
 - [x] Accept the nine implementation selections and clarify that build verification executes compiled tests; application artifacts exclude tests. [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](docs/DOC-021-scaffold-profile.md#5-implementation-selections)
+- [x] Accept all seven follow-up choices: A for 1–5/7 and B for 6 (hex refresh tokens). [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](docs/DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts)
 - [ ] Prepare exact config/script implementations, internal contract types, and artifacts for review.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.25.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: the worktree was clean at the start of this update. Latest observed local master is `d1909e8` (`docs: finalize scaffold profile and first-release acceptance`). Current work records implementation selections and build/test clarification; live remote state was not checked.
-- Current progress: [D-072 — JWT and native bcrypt implementations](docs/DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations) selects jose/native bcrypt, review baseline bcrypt `6.0.0`. [D-073 — ESNext and verified application builds](docs/DOC-003-decisions.md#d-073--esnext-and-verified-application-builds) accepts ESNext and separate build/test configurations/outputs; the maintainer confirmed execution of compiled unit/HTTP tests and type checking before build success, with tests excluded from application artifacts. [D-074 — Internal contract inputs and values](docs/DOC-003-decisions.md#d-074--internal-contract-inputs-and-values) accepts named inputs, missing-lookup `undefined`, and epoch-millisecond session times. [D-075 — Stable public demo fixtures](docs/DOC-003-decisions.md#d-075--stable-public-demo-fixtures) accepts one-time UUID/hash generation; [D-076 — Dependency ranges and committed lockfile](docs/DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile) accepts ranges with a lockfile. Native bcrypt's source manifest and one historical OSV/GitHub advisory were reviewed; full preflight remains UNKNOWN, including exact `@nestjs/config`, published graphs, and native artifact verification. No source, fixture value, hash, secret, or runtime log was generated.
+- Guide version: 4.26.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: the worktree was clean at the start of this update. Latest observed local master is `645c28c` (`docs: define implementation conventions and verified build workflow`). Current work records the seven follow-up choices; live remote state was not checked.
+- Current progress: [D-077 — Compiler configuration and script layout](docs/DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout) accepts deployment source maps, decorator/emit flags, three compiler configs, separate `dist/`/`.test-dist/`, and project-owned Node workflow scripts. [D-078 — Authentication service and crypto boundaries](docs/DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries) accepts async login/refresh, sync memory logout, and separate JWT/password contracts. [D-079 — Storage lookup snapshots](docs/DOC-003-decisions.md#d-079--storage-lookup-snapshots) accepts copied readonly lookup results. [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](docs/DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers) selects 32 random bytes encoded as hex and SHA-256 verifier storage; [D-081 — Caret dependency ranges](docs/DOC-003-decisions.md#d-081--caret-dependency-ranges) selects caret. Previous jose/native bcrypt, strict/ESNext, build/test gates, stable fixtures, and lockfile policies remain accepted. Full software preflight remains UNKNOWN; no source/config/script file, fixture value, hash, secret, or runtime log was generated.
 - Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: all nine choices and the build/test clarification are settled. Prepare concrete config/script files, complete contract types, fixture-generation scope, and exact dependency ranges/resolutions for review while completing [DOC-017 — Tooling Preflight: 5. Review and execution gate](docs/DOC-017-tooling-preflight.md#5-review-and-execution-gate). Remaining compiler flags/output paths are not inferred; strict-only/basic-lint/default-Prettier choices remain. Obtain concrete execution approval before installation, hashing, or running checks. First-release acceptance is settled but not verified. Preserve native cleanup, separate logging, in-memory auth, and future-only Prisma integration; actual deployment inputs remain separate.
+- Next step/questions: all seven follow-up choices are settled. Prepare full config/script contents, remaining provider/store method contracts, exact dependency baselines/resolutions, and fixture-generation scope for concrete review. Retain selected flags/output paths, readonly snapshots, hex refresh/SHA-256, caret/lockfile, and all earlier operating rules. Complete [DOC-017 — Tooling Preflight: 5. Review and execution gate](docs/DOC-017-tooling-preflight.md#5-review-and-execution-gate) and obtain concrete approval before installation, hashing, or running software. First-release criteria are accepted but unverified; actual deployment inputs remain separate.
 - Approval boundary: accepted stack/scaffold profiles and complete-result review do not clear software artifacts or authorize execution, hash generation, source scaffolding, database/client/migration work, new calendar jobs, commits, pushes, or publication. All prior secret exclusions and operating policies remain in force. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed broader monitoring/backup/recovery plans.
 
 ## Implementation backlog

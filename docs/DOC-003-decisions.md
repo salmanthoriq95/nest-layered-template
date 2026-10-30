@@ -723,7 +723,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-073 — ESNext and verified application builds
 
-**Status:** Accepted target and build/test behavior; scripts/configuration pending · **Date:** 2026-10-30.
+**Status:** Accepted target and build/test behavior; configuration layout refined by [D-077 — Compiler configuration and script layout](#d-077--compiler-configuration-and-script-layout); implementation pending · **Date:** 2026-10-30.
 
 - Decision: target `ESNext` with the accepted strict/ESM/NodeNext profile. Separate build/test configurations and outputs. Require type checking and executed unit/HTTP tests against compiled JavaScript before build success; exclude tests from application artifacts.
 - Reason: the maintainer chose ESNext and separate configurations, then confirmed the recommendation to execute compiled tests as part of build verification.
@@ -752,9 +752,56 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-076 — Dependency ranges and committed lockfile
 
-**Status:** Accepted versioning policy; exact ranges/artifacts pending · **Date:** 2026-10-30.
+**Status:** Accepted versioning policy; caret form selected by [D-081 — Caret dependency ranges](#d-081--caret-dependency-ranges); exact artifacts pending · **Date:** 2026-10-30.
 
 - Decision: use dependency version ranges with a committed `package-lock.json`; repeat installs use `npm ci` after approval. Review exact range expressions and resolved versions before adopting them.
 - Reason: the maintainer chose ranges with a lockfile over exact direct-dependency declarations.
 - Boundary: a range is not approval for future resolutions. Every dependency/lockfile change still requires full preflight and explicit approval for affected software steps. No package manifest, lockfile, installation, or update was created by this policy.
 - Details: [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](DOC-021-scaffold-profile.md#5-implementation-selections), [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md).
+
+## D-077 — Compiler configuration and script layout
+
+**Status:** Accepted configuration/workflow layout; file implementation pending · **Date:** 2026-10-30.
+
+- Decision: include source maps in application builds, enable `experimentalDecorators`, `emitDecoratorMetadata`, and `noEmitOnError`, and retain strict/ESNext/NodeNext. Use shared `tsconfig.json` plus `tsconfig.build.json`/`tsconfig.test.json`; emit application code to `dist/` and test compilation to `.test-dist/`. Coordinate build/test work with project-owned Node scripts in `scripts/`, invoked through npm.
+- Reason: the maintainer chose debugging support, shared compiler settings, and explicit workflow scripts without another orchestration dependency.
+- Boundary: preserve compiled-test build gates, test-free application artifacts, independent API/worker processes, basic lint, and default formatting. Full config/script contents and execution remain pending.
+- Refines: open configuration/output details in [D-073 — ESNext and verified application builds](#d-073--esnext-and-verified-application-builds).
+- Details: [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts).
+
+## D-078 — Authentication service and crypto boundaries
+
+**Status:** Accepted service shape and provider separation; remaining signatures pending · **Date:** 2026-10-30.
+
+- Decision: use async `login(LoginInput)`/`refresh(RefreshInput)` returning `TokenResult`, and synchronous `logout(SessionIdentity): void` for memory state. Keep JWT issuance/verification in `IdentityProviderContract` and bcrypt checks in a separate `PasswordVerifierContract`.
+- Reason: the maintainer approved the service sketch and separate adapters to localize JWT/password implementation changes.
+- Boundary: named inputs and application-owned types remain. Logout identity comes from successful authentication, not a request body. Retain active-session checks, atomic rotation/revocation, and typed errors. Exact remaining provider/store methods require review; no new account/grant endpoint is added.
+- Details: [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts).
+
+## D-079 — Storage lookup snapshots
+
+**Status:** Accepted convention; implementation pending · **Date:** 2026-10-30.
+
+- Decision: return copied record snapshots with readonly types from storage lookups, including protection against exposing mutable nested storage state. Apply state changes through explicit storage operations. Missing lookups still return `undefined`.
+- Reason: the maintainer chose traceable state changes over returning mutable live references.
+- Boundary: preserve synchronous memory access, current grant lookup, and atomic session operations. No generic repository, unused mutation method, or grant-management endpoint is introduced.
+- Details: [DOC-011 — Code Conventions: 3. Contracts and DI](DOC-011-code-conventions.md#3-contracts-and-di).
+
+## D-080 — Hexadecimal refresh tokens and SHA-256 verifiers
+
+**Status:** Accepted generator/verifier profile; implementation pending · **Date:** 2026-10-30.
+
+- Decision: generate each opaque refresh credential from 32 cryptographically random bytes encoded as hexadecimal. Store only its SHA-256 digest with the existing session/user/expiry and replay relationships; hash the same complete token representation during lookup.
+- Reason: the maintainer selected the hexadecimal alternative, with the same randomness as the proposed Base64URL form.
+- Boundary: preserve HTTP schemas/error mappings, body transport, seven-day session deadline, single-use rotation, replay retention, and immediate logout. Never persist/log the raw credential. Password hashing remains bcrypt; native runtime/artifact and execution gates remain.
+- Details: [DOC-014 — Authentication Lifecycle: 2. Token and account baseline](DOC-014-authentication-lifecycle.md#2-token-and-account-baseline), [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts).
+
+## D-081 — Caret dependency ranges
+
+**Status:** Accepted range form; exact version baselines/artifacts pending · **Date:** 2026-10-30.
+
+- Decision: use caret dependency ranges, such as `^6.0.0`, with the accepted committed lockfile and approved `npm ci` repeat installs. Evaluate each package's actual baseline and the stricter caret behavior for `0.x` versions during package review.
+- Reason: the maintainer chose caret over tilde while retaining controlled dependency resolution.
+- Boundary: no automatic upgrade or future artifact approval is implied. Full graph preflight and explicit approval remain mandatory before affected software steps.
+- Refines: the range form left open in [D-076 — Dependency ranges and committed lockfile](#d-076--dependency-ranges-and-committed-lockfile).
+- Details: [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts).

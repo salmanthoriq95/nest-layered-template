@@ -14,6 +14,8 @@
 - [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations)
 - [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
 - [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)
+- [D-077 — Compiler configuration and script layout](DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
+- [D-081 — Caret dependency ranges](DOC-003-decisions.md#d-081--caret-dependency-ranges)
 
 **Decision:** Use the accepted stack and [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md); keep artifact adoption, download, installation, and execution pending. None of the candidates below has installation clearance. Missing registry, provenance, maintenance, and transitive evidence prevents an ELIGIBLE decision.
 
@@ -23,9 +25,11 @@
 
 Accepted directions: Node 26's latest supported patch, Zod validation, Node Schedule, Prisma for future database persistence, npm, ESM/NodeNext, compilation through TypeScript, native Node tests/assertions and HTTP requests, and separate ESLint/typescript-eslint/Prettier checks. The current Node target is `26.13.0`; recheck the patch before installation review. Express is the selected HTTP adapter and `@nestjs/config`/Zod is the startup-configuration approach. Use basic lint, default Prettier, and the accepted watch/test profile; exact artifacts/configuration remain candidates. Keep accepted DI, test locations, validation behavior, auth, and logging policy.
 
-Use native Node facilities for crypto/UUIDs, timers, HTTP delivery, and log files where they meet accepted contracts. Use the selected `@nestjs/config`/Zod approach for startup configuration, verifying literal bcrypt-hash loading. Node Schedule does not replace native cleanup or create a job. No extra logging, process-manager, or test-runner package is selected. Exact build/watch scripts and config files remain pending.
+Use native Node facilities for crypto/UUIDs, timers, HTTP delivery, and log files where they meet accepted contracts. Use the selected `@nestjs/config`/Zod approach for startup configuration, verifying literal bcrypt-hash loading. Node Schedule does not replace native cleanup or create a job. No extra logging, process-manager, test-runner, or orchestration package is selected. Use project-owned Node workflow scripts in `scripts/`; full build/watch scripts and config contents remain pending.
 
-Jose and native bcrypt are now the selected implementations. The maintainer selected bcrypt `6.0.0` as the review baseline; jose `6.2.14` remains a review target. Target `ESNext`, separate build/test configurations and outputs, and require executed compiled unit/HTTP tests before build success. Use dependency ranges with a committed lockfile and approved `npm ci` repeat installs; exact ranges/resolutions and all artifact clearance remain pending.
+Jose and native bcrypt are selected behind separate JWT/password contracts. The maintainer selected bcrypt `6.0.0` as the review baseline; jose `6.2.14` remains a review target. Target `ESNext`; use shared `tsconfig.json` with build/test configs, `dist/` and `.test-dist/`, source maps, and the selected decorator/emit flags. Require executed compiled unit/HTTP tests before build success. Use caret ranges, a committed lockfile, and approved `npm ci` repeat installs; actual baselines/resolutions and all artifact clearance remain pending.
+
+The accepted refresh profile uses native cryptographic randomness for 32-byte hexadecimal credentials and SHA-256 verifier storage. This selects no additional package and authorizes no runtime or credential-generation execution. See [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts).
 
 Node's TypeScript stripping does not transform decorators or read `tsconfig.json`; compile the Nest application before running it. [Node TypeScript support](https://nodejs.org/api/typescript.html#typescript-features). Native testing and environment loading are documented in [Node test runner](https://nodejs.org/api/test.html) and [Node environment variables](https://nodejs.org/api/environment_variables.html). These are feasibility references, not execution approval.
 
@@ -161,4 +165,4 @@ Before installation/execution:
 
 Native bcrypt's exact-version OSV/GitHub scan, KEV mapping, OpenSSF/Socket/deps.dev signals, full dependency graph, and published/native artifact verification are not complete. The historical advisory and source manifest above do not close those gaps. Overall clearance remains **UNKNOWN**.
 
-No package manager, runtime, installer, hashing script, application, or test suite has been executed. No `package.json`, lockfile, secret, application source, or runtime log was created. The accepted AI guide is version **4.25.0**, recording the implementation selections and verified-build policy; artifact execution remains unapproved.
+No package manager, runtime, installer, hashing script, application, or test suite has been executed. No `package.json`, lockfile, secret, application source, or runtime log was created. The accepted AI guide is version **4.26.0**, recording configuration and contract selections; artifact execution remains unapproved.

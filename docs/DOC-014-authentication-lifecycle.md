@@ -40,13 +40,15 @@
 | Login | Use the two in-memory dummy accounts and bcrypt verification. Both passwords are `dev123`; only their hashes belong in the adapter/fixture. No application-account credentials come from `.env`. |
 | Access token | Signed JWT with a default 15-minute TTL; retain minimal identity claims, active-session validation, and current server-side permission lookup. |
 | Signing profile | HS256 for the single application, using a random secret with at least 256 bits of entropy. Fix the allowed algorithm in verifier configuration. |
-| Refresh token | Opaque, cryptographically random token; store only a verifier/hash with its user/session binding and expiry in an in-memory adapter behind a contract. |
+| Refresh token | Opaque credential from 32 cryptographically random bytes encoded as hexadecimal (64 characters). Store only its SHA-256 digest with user/session binding and expiry in an in-memory adapter behind a contract. |
 | Refresh lifetime | Seven-day session deadline from login. Rotation keeps that deadline, and newly issued access JWTs cannot outlive it. |
 | Rotation | Each successful refresh issues a new access/refresh pair and consumes the previous refresh token. Retain consumed-token relationships until expiry; replay revokes the entire session, including access JWTs. No retry/grace window is provided. |
 | Logout | Revoke the current login session and its refresh family. All access JWTs bound to that session fail subsequent protected checks immediately, even before `exp`. Independent login sessions remain active; all-device logout is excluded. |
 | Grant updates | Edit the configured in-memory grant data directly. No management route or automatic source-file reload is added. |
 
 The 15-minute and seven-day values are accepted project defaults, configurable through `.env`, not mandatory standard values. Refresh consumption/revocation must be atomic. Clients serialize refresh calls; replaying a consumed token can require a fresh login.
+
+Hash the same complete token representation when storing and looking up refresh credentials; do not persist or log raw tokens. Passwords remain bcrypt-protected. The generator/verifier profile is accepted in [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers). Auth service signatures and separate JWT/password contracts are accepted in [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts); remaining provider/store methods are pending.
 
 ### Immediate logout and session checks
 

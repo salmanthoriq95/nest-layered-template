@@ -1,6 +1,6 @@
 # DOC-011 — Code Conventions
 
-**Status:** Layout, DI, naming, typing, tests, and tooling direction accepted; exact artifacts/configuration pending · **Updated:** 2026-10-30.
+**Status:** Layout, DI, typing, tests, and configuration profile accepted; artifacts/implementation pending · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
@@ -21,6 +21,10 @@
 - [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
 - [D-075 — Stable public demo fixtures](DOC-003-decisions.md#d-075--stable-public-demo-fixtures)
 - [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)
+- [D-077 — Compiler configuration and script layout](DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
+- [D-078 — Authentication service and crypto boundaries](DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries)
+- [D-079 — Storage lookup snapshots](DOC-003-decisions.md#d-079--storage-lookup-snapshots)
+- [D-081 — Caret dependency ranges](DOC-003-decisions.md#d-081--caret-dependency-ranges)
 
 **Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has in-memory account, permission, and session adapters. Keep unit tests beside source and HTTP tests in `test/`.
 
@@ -28,7 +32,7 @@
 
 ## 1. Minimal layout
 
-This is the agreed layout, not existing source code. It includes the permission and session-lifecycle decisions added after the first layout. API routes and demo passwords are accepted; exact internal contract methods and fixture hashes remain pending. Add test files where the behavior requires them.
+This is the agreed layout, not existing source code. API routes, demo passwords, and auth service signatures are accepted; remaining store/provider methods and actual fixture hashes remain pending. Add test files where behavior requires them.
 
 The tree includes the main API and accepted logging locations. Use `src/logging/` for API logging contracts/event types and the adapter, and `src/logging-worker/` for the independent worker entry point and implementation. Detailed filenames and contract methods belong to implementation review under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 
@@ -62,6 +66,7 @@ src/
       contracts/
         authentication-service.contract.ts
         identity-provider.contract.ts
+        password-verifier.contract.ts
         authorization-service.contract.ts
         permission-store.contract.ts
         user-store.contract.ts
@@ -74,6 +79,10 @@ test/
   app.e2e-spec.ts
   logging-worker.e2e-spec.ts
 docs/
+scripts/
+tsconfig.json
+tsconfig.build.json
+tsconfig.test.json
 ```
 
 - `main.ts` boots the application; `app.module.ts` composes feature modules.
@@ -81,7 +90,7 @@ docs/
 - `auth` contains login/refresh/logout, identity/session verification, route policy, and authorization behavior. Account credentials, current role/grants, and session/refresh state stay behind application-owned contracts. Use a shared source of current role/grant data where adapters expose different views.
 - Keep exactly two dummy usernames, `superadmin` and `admin`, in the in-memory user fixture/store. Both use demo password `dev123`, stored as bcrypt hashes after approved generation. Edit grants manually; no management controller or source-file reload feature is included. Initial grants follow [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
 - Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). Native Node tests are the accepted runner direction; exact compilation/commands remain pending.
-- Keep tooling configuration at the root initially. Add runtime configuration structure when its actual settings are agreed.
+- Keep tooling configuration at the root. Share compiler settings through `tsconfig.json`, extended by build/test configs. Emit application code to `dist/` and test compilation to `.test-dist/`. Project-owned Node workflow scripts live in `scripts/` and are invoked through npm. Exact script contents remain pending.
 - `.gitkeep` only tracks an empty extension location. It performs no operation and is not a provider.
 
 ## 2. Responsibilities and dependencies
@@ -94,7 +103,7 @@ docs/
 | Module | Register providers, bind contracts to implementations, and expose only required providers. |
 | Guard | Use the identity boundary, read route policy, and delegate permission decisions through the authorization contract. |
 | Authorization service | Evaluate required grants and privileged-role rules using current state from the permission-store contract. |
-| Authentication service | Coordinate credential verification, token issuance/refresh, and current-session logout through identity/user/session contracts. |
+| Authentication service | Coordinate credential verification, token issuance/refresh, and current-session logout through identity/password/user/session contracts. |
 | Persistence/integrations | Keep general feature locations unused; auth state uses in-memory adapters. The separate logging worker owns approved error-file persistence behind its boundary. |
 
 Controllers depend on service contracts. The guard uses identity/session verification and the authorization-service contract; the authorization service reads the permission-store contract. Authentication services use user/session contracts to coordinate the accepted token lifecycle. Keep HTTP metadata, storage code, and library-specific types outside these contracts. Modules bind implementations through DI.
@@ -114,6 +123,10 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 In-memory implementations and their current contracts may be synchronous; use `Promise<T>` for actual async work. Preserve existing atomic auth/session and limiter behavior. Expected service failures use application-owned typed errors, translated at the HTTP boundary. Exact methods/types remain implementation review items. See [DOC-021 — Initial Scaffold Profile: 2. Boundary behavior](DOC-021-scaffold-profile.md#2-boundary-behavior).
 
 Prefer named input objects for operations with multiple fields, e.g. `login({ username, password })`. Simple single-value lookups such as `findById(id)` may take that value directly. Storage lookups return `undefined` when no record exists. This convention does not replace required `null` fields in HTTP envelopes. [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
+
+Storage lookups return copied record snapshots with readonly types, including copies of mutable nested data owned by storage. Apply changes through explicit storage operations; do not return live mutable records. Preserve current grant checks and atomic session behavior. [D-079 — Storage lookup snapshots](DOC-003-decisions.md#d-079--storage-lookup-snapshots)
+
+Keep JWT issuance/verification in `IdentityProviderContract` and password checks in a separate `PasswordVerifierContract`. The accepted auth service has async login/refresh returning `TokenResult` and synchronous memory logout returning `void`, using an already verified `SessionIdentity`. See [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts) for signatures. Remaining provider/store methods still require review. [D-078 — Authentication service and crypto boundaries](DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries)
 
 ## 4. Naming and typing
 
@@ -159,7 +172,7 @@ Prefer named input objects for operations with multiple fields, e.g. `login({ us
 
 `npm test` runs both unit and HTTP tests. Keep `test:unit` and `test:e2e` for focused runs; `npm run check` aggregates type checking, basic lint, default-Prettier verification, build, and all tests. Script implementations remain pending. First-release acceptance and complete-result review follow [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).
 
-Use separate build/test configurations and output locations. Build success requires type checking and executed unit/HTTP tests against compiled JavaScript; compilation alone does not run tests. Application artifacts exclude test files, and deployment/startup does not rerun the suite. Share the application compiler profile between builds and tests, and compose commands without recursive calls or redundant full-suite runs. Exact paths/scripts remain pending. [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
+Use separate build/test configurations and output locations. Build success requires type checking and executed unit/HTTP tests against compiled JavaScript; compilation alone does not run tests. Application artifacts exclude test files, and deployment/startup does not rerun the suite. Share the application compiler profile between builds and tests, and compose commands without recursive calls or redundant full-suite runs. Application output is `dist/`; test compilation output is `.test-dist/`. Exact scripts remain pending. [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds), [D-077 — Compiler configuration and script layout](DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
 
 Colocated unit tests also follow Nest's documented recommendation. [NestJS testing](https://docs.nestjs.com/fundamentals/testing), retrieved 2026-10-29.
 
@@ -177,7 +190,7 @@ JWT environment names, defaults, validation, and manual key rotation are accepte
 
 Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are agreed; implementation and deployment supervision remain pending.
 
-Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile, ESNext target, contract/value conventions, fixture/versioning policies, and acceptance criteria are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Complete internal signatures, actual fixture values, config/script implementations, remaining compiler flags, exact dependency ranges/resolutions, and deployment proxy addresses remain open. Software execution still requires preflight and explicit approval.
+Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile, selected compiler flags/paths, auth service signatures, snapshot ownership, fixture/caret policies, and acceptance criteria are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Remaining provider/store methods, actual fixture values, full config/script contents, dependency baselines/resolutions, and deployment proxy addresses remain open. Software execution still requires preflight and explicit approval.
 
 ## 7. Tooling direction
 
@@ -187,10 +200,10 @@ Limiter/cleanup settings, sliding windows, proxy-list validation, and timer life
 
 **Reason:** The maintainer accepted this small tooling profile while retaining explicit runtime and supply-chain review.
 
-- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Target `ESNext` with ESM/NodeNext and strict-only checking. Use basic lint, default Prettier, automatic compiler/API/worker watching, and the accepted build/test behavior. Remaining flags and exact configuration/script implementations still require review under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md).
+- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Target `ESNext` with ESM/NodeNext and strict-only checking. Enable `experimentalDecorators`, `emitDecoratorMetadata`, `noEmitOnError`, and source maps, including deployment builds. Use basic lint, default Prettier, automatic compiler/API/worker watching, and the accepted build/test behavior. Full configuration/script contents still require review under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md).
 - Use the latest supported Node 26 patch; the verified review target is `26.13.0` on 2026-10-30. Report security/compatibility findings and alternatives. Recheck the exact patch before installation review; do not introduce automatic upgrades.
 - Use Zod as the validation direction, preserving strict input handling and accepted HTTP contracts. Its exact artifact and Nest/Swagger adapters remain pending. Use Node Schedule for future calendar scheduling with explicit recurrence fields; exact artifacts and real job policies remain pending. The accepted native cleanup timer is unchanged.
 - Use Prisma as the future ORM direction. Keep generated types, query clients, and transaction details inside persistence adapters; services retain application-owned contracts. Exact Prisma version, database/driver, schema, migrations, and integration remain pending; general persistence stays placeholders initially. Earlier comparisons are retained in [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md). Express is the selected HTTP adapter; configuration uses `@nestjs/config` plus Zod startup validation. Exact artifacts remain pending.
 - Exact versions, resolved dependencies, artifact verification, installation, and execution remain subject to [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). Evidence is tracked in [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).
 - Use jose for JWT signing/verification and native bcrypt for account/Swagger password checks, with bcrypt `6.0.0` as the selected review baseline. Preserve existing algorithms and behavior; artifacts remain UNKNOWN. [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations)
-- Use dependency version ranges and commit `package-lock.json`; repeat installs use `npm ci` after approval. Exact ranges/resolutions require review. A range does not authorize future updates or bypass preflight when the lockfile changes. [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)
+- Use caret dependency ranges and commit `package-lock.json`; repeat installs use `npm ci` after approval. Actual baselines/resolutions require review. A range does not authorize future updates or bypass preflight when the lockfile changes. [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile), [D-081 — Caret dependency ranges](DOC-003-decisions.md#d-081--caret-dependency-ranges)

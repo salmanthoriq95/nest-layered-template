@@ -72,9 +72,11 @@ These are public demo credentials. The in-memory fixtures store bcrypt hashes; a
 | --- | --- |
 | `username` | Required non-empty string, at most 64 UTF-8 bytes; preserve case and whitespace rather than silently normalizing credentials. |
 | `password` | Required non-empty string, at most 72 UTF-8 bytes for the chosen bcrypt profile; do not trim or transform. |
-| `refreshToken` | Required non-empty string, at most 512 ASCII characters; exact opaque encoding follows the generator contract. |
+| `refreshToken` | Required non-empty string, at most 512 ASCII characters. The accepted generator issues 64-character hexadecimal tokens from 32 random bytes. |
 
 Accept JSON for login/refresh and reject extra body/query fields with `400`. No route above accepts query fields or path parameters. Bodyless routes allow an absent body or `{}` only; reject other values or supplied fields. Unsupported content types for request bodies use `415`; no sensitive input value is echoed in an error.
+
+Refresh storage keeps SHA-256 digests with the existing session/replay bindings. The generator profile does not change these HTTP bounds, error mappings, or token transport. [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers)
 
 Login and refresh return the following `data` shape. Tokens are placeholders, not generated credentials:
 
