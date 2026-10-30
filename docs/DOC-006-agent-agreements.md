@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 4.4.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Guide version:** 4.5.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,7 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.5.0 | 2026-10-30 | Accept the six API contracts, initial grants, route policies, session/replay rules, Swagger paths, and bcrypt defaults. Select `dev123` for both public dummy logins; Swagger credentials and the JWT key remain separate. Hash generation, exact software, and execution approval remain pending. | [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants), [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials) |
 | 4.4.0 | 2026-10-30 | Accept bcrypt for application credentials as well as the separate Swagger gate. Add task-based routing to proposed endpoint/grant contracts; routes, metadata/session defaults, and hash parameters are not approved by the hashing choice. | [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing), [D-042 — Minimal API contracts and initial demo grants (proposed)](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) |
 | 4.3.0 | 2026-10-30 | Accept HS256/15-minute access JWTs, opaque seven-day refresh rotation, and immediate access/refresh logout through server-side sessions. Require two memory-only dummy accounts and manual storage grant changes, with no management API. Dummy credentials do not come from `.env`; exact hashing/configuration details remain open. | [D-040–D-041 — Token lifecycle, immediate logout, and in-memory accounts/grants](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout) |
 | 4.2.0 | 2026-10-30 | Add Swagger HTTP Basic Auth with a bcrypt password hash in `.env`, covering documentation UI/schema access separately from API JWT permissions. Token baseline, bcrypt parameters, and exact library versions remain open. | [D-039 — Swagger Basic Auth with bcrypt](DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt) |

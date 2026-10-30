@@ -15,7 +15,7 @@
 
 ## 1. Minimal layout
 
-This is the agreed layout, not existing source code. It includes the permission and session-lifecycle decisions added after the first layout. Exact routes, credentials, and contract methods remain open. Add test files where the behavior requires them.
+This is the agreed layout, not existing source code. It includes the permission and session-lifecycle decisions added after the first layout. API routes and demo passwords are accepted; exact internal contract methods and fixture hashes remain pending. Add test files where the behavior requires them.
 
 ```text
 src/
@@ -59,7 +59,7 @@ docs/
 - `main.ts` boots the application; `app.module.ts` composes feature modules.
 - `examples` contains public, permission-protected, and superadmin-only response demonstrations, with feature-owned permission constants.
 - `auth` contains login/refresh/logout, identity/session verification, route policy, and authorization behavior. Account credentials, current role/grants, and session/refresh state stay behind application-owned contracts. Use a shared source of current role/grant data where adapters expose different views.
-- Keep exactly two dummy accounts in the in-memory user fixture/store. Edit grant data manually; do not add a management controller or source-file reload feature. Credential values and password hashing remain open.
+- Keep exactly two dummy usernames, `superadmin` and `admin`, in the in-memory user fixture/store. Both use demo password `dev123`, stored as bcrypt hashes after approved generation. Edit grants manually; no management controller or source-file reload feature is included. Initial grants follow [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
 - Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). The test runner remains unselected.
 - Keep tooling configuration at the root initially. Add runtime configuration structure when its actual settings are agreed.
 - `.gitkeep` only tracks an empty extension location. It performs no operation and is not a provider.
@@ -138,6 +138,6 @@ HTTP validation, input policy, response envelopes, and boundary wiring are accep
 
 Token durations/signing/refresh behavior, immediate logout, two memory-only accounts, and manual grant changes are accepted in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
 
-Bcrypt is selected for application credential verification, with parameters/implementation still open. Proposed endpoint/grant and token/session details are in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
+Bcrypt, its starting cost, demo passwords, and endpoint/grant and token/session contracts are accepted in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). Exact packages, hash generation, and deployment cost calibration remain pending.
 
-Still open: exact contract methods, actual credentials/hashes, approval of initial grants and metadata/transport rules, request-ID/log settings, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.
+Still open: exact internal contract methods, fixture hashes, remaining runtime configuration, request-ID/log settings, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.

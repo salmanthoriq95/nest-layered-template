@@ -303,7 +303,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-032 — HTTP input validation and XSS boundaries
 
-**Status:** Accepted; endpoint schemas and tooling open · **Date:** 2026-10-29.
+**Status:** Accepted; endpoint schemas specified by follow-up records, tooling open · **Date:** 2026-10-29.
 
 - Decision: validate and handle untrusted body, query, and path inputs at the HTTP boundary, including `GET` inputs, before application logic. Account for XSS risks without claiming that validation alone prevents them.
 - Reason: the maintainer requested validators and input cleaning to reduce malformed-input and scripting risks.
@@ -322,16 +322,16 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-034 — HTTP status standards and response examples
 
-**Status:** Accepted reference and status mappings; exact endpoint contracts open · **Date:** 2026-10-29.
+**Status:** Accepted; endpoint contracts added in [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) · **Date:** 2026-10-29.
 
 - Decision: document standard HTTP status usage, relevant headers, and response examples. Preserve bodyless response semantics rather than attaching JSON where the protocol forbids a body.
 - Reason: the maintainer explicitly requested HTTP status standards and an example response for each documented status.
 - Accepted mappings: `200` for granted demo access, `401` for missing/invalid authentication, `403` for insufficient access, and `400` for request-schema validation. Reserve `422` for an agreed semantic/domain rejection. Preserve protocol-required headers and bodyless responses.
-- Details: [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md). Common status examples are a reference, not a requirement to implement new application features. Exact route and endpoint data schemas remain open.
+- Details: [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md). Common status examples are a reference, not a requirement to implement new application features. Initial route/data schemas were later accepted in [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants).
 
 ## D-035 — Per-user permissions and public access
 
-**Status:** Accepted; manual grant edits selected below; endpoint details open · **Date:** 2026-10-29.
+**Status:** Accepted; manual grants and endpoint policies specified by follow-up records · **Date:** 2026-10-29.
 
 - Decision: use stable `resource:action` permission keys on protected endpoints, per-user grants in an in-memory store, and `@Public()` metadata for anonymous access. Keep permission definitions near their feature and grant storage behind an application-owned contract.
 - Reason: the maintainer clarified that individual admins need different capabilities; a shared role alone does not express the intended access policy. Real article CRUD and a permission-management API are not implied.
@@ -339,7 +339,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Updates: read current role/grants once per protected request. In one process, subsequent checks see changes in that store; this does not cancel requests already authorized. Cache behavior is deferred.
 - Approval: the maintainer explicitly accepted all recommendations after reviewing permission placement, server-side lookup, JWT identity, and UUID public identifiers. Token and identifier choices are recorded separately below.
 - Follow-up: grant changes are manual in storage, without a management endpoint, as accepted in [D-041 — In-memory demo accounts and manual grants](DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants).
-- Open: exact permission catalog and grant fixtures, policy for missing route metadata, and any multiple-permission matching semantics. Exact decorator implementation and contract methods remain open.
+- Contract follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) selects `examples:read`, the initial admin grant, fail-closed metadata, all-required permission matching, and superadmin-only metadata. Exact decorator implementation and internal contract methods remain open.
 - Boundaries: in-memory state is process-local and resets on restart. Caching, shared persistence, real account CRUD, and provider integrations require later scope. No new dependency is selected or audited by this discussion.
 - Reference: [NestJS authorization](https://docs.nestjs.com/security/authorization#claims-based-authorization), retrieved 2026-10-29.
 
@@ -351,7 +351,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: permission changes should affect later checks without reissuing a token, and the grant list need not be exposed in token contents. Encrypting a bearer token does not prevent a holder from replaying it.
 - Validation: verify the signature and expected claims, including issuer, audience, and validity period. Use the public user identifier for the subject. A caller-supplied role or an unverified token claim is not a trusted permission source.
 - Initial limits: this selected neither a JWT library/version nor a signing algorithm, key configuration, token lifetime, transport, issuance, refresh, logout, or revocation workflow. Permission lookup alone does not revoke a leaked token's identity.
-- Follow-up: minimal login, refresh, `.env` signing/expiry configuration, and Swagger-first use were selected in [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration). Exact token profile and lifecycle policies remain open.
+- Follow-up: minimal login, refresh, `.env` signing/expiry configuration, and Swagger-first use were selected in [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration). Token/session claims and transport were later accepted in [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants).
 - Profile update: [D-040 — HS256 tokens, refresh rotation, and immediate logout](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout) selects token lifetimes, signing, and immediate logout. Protected requests also require active server-side session state; signature/expiry checks alone are insufficient.
 - References: [OWASP REST Security: JWT](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html#jwt), [RFC 6750: bearer-token properties](https://www.rfc-editor.org/rfc/rfc6750.html#section-1.2), retrieved 2026-10-29. No software preflight or execution approval is implied.
 
@@ -382,7 +382,8 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Decision: protect Swagger with HTTP Basic Auth. Configure its username through `SWAGGER_USERNAME` and its bcrypt password hash through `SWAGGER_PASSWORD_HASH` in `.env`; compare submitted passwords against the hash. Protect enabled documentation UI and schema routes without changing API authentication or permissions.
 - Reason: the maintainer requested a password gate with bcrypt storage in `.env`, then explicitly selected the browser's username/password Basic Auth flow.
 - Initial boundary: this selected bcrypt for documentation credentials. Application bcrypt was accepted later in [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing). Keep credential sources and API permissions separate. No exact bcrypt/Swagger middleware package or version is selected or audited.
-- Open: configured credential values, bcrypt cost/input policy, environment-parser validation, exact route prefixes/aliases, throttling, and startup/error behavior. Credential values are supplied by the maintainer per environment.
+- Follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) accepts Swagger routes, bcrypt cost/input defaults, and startup failure for invalid enabled-documentation credentials.
+- Open: environment-supplied credential values, parser/middleware implementation, deployment cost calibration, and throttling. The dummy-account password choice does not set Swagger credentials.
 - Details: [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Library selection and hash-generation execution require the full supply chain preflight and explicit approval.
 
 ## D-040 — HS256 tokens, refresh rotation, and immediate logout
@@ -393,35 +394,48 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: the maintainer explicitly accepted the proposed durations/signing and refresh mechanics, then required logout to invalidate both access and refresh tokens immediately.
 - Logout: revoke the current login session. Every protected access request must verify a server-issued session reference and its binding to the authenticated subject after JWT verification. Missing or revoked state returns `401`, including for superadmin. All access tokens previously issued for that session become unusable on later checks; its refresh tokens cannot mint replacements.
 - Consistency: refreshing stays within the same login session. Refresh consumption/rotation and logout must not allow a revoked session to produce a new active branch. Already-authorized requests cannot be retroactively cancelled.
-- Limits: token transport, exact route/claim/response schemas, session-count policy, key encoding/rotation, and additional effects on already-issued access tokens after refresh replay remain open. All-device logout is not selected. This replaces the earlier unapproved proposal to let access JWTs remain usable after logout.
+- Follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) accepts transport, route/claim/result schemas, independent sessions, expiry caps, strict rotation, and immediate whole-session revocation on refresh replay.
+- Limits: key encoding/rotation, state-retention implementation, and exact software remain open. All-device logout is not selected. This replaces the earlier unapproved proposal to let access JWTs remain usable after logout.
 - References: [OWASP session invalidation](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#manual-session-expiration), [OWASP REST JWT state](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html#jwt), retrieved 2026-10-30. Detailed rules: [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md). No exact software version or execution approval is implied.
 
 ## D-041 — In-memory demo accounts and manual grants
 
-**Status:** Accepted; credential values, hashing, and exact grant fixtures open · **Date:** 2026-10-30.
+**Status:** Accepted; credentials, hashing, and grants specified by follow-up records · **Date:** 2026-10-30.
 
 - Decision: provide exactly two dummy accounts: one superadmin and one admin. Keep their account data and password hashes in the in-memory fixture/storage adapter, not in `.env`. Change grants manually in storage; provide no grant-management endpoint.
 - Reason: the maintainer wants a small template whose real projects replace the account/grant storage according to their needs. The maintainer explicitly rejected loading dummy-account credentials from `.env`.
 - Boundary: `.env` continues to hold JWT signing/expiry configuration and Swagger Basic Auth credentials. The application accounts, Swagger gate, and JWT key are separate concerns. No database, account CRUD, registration, or delegation API is introduced.
 - Updates: changing live in-memory grant data affects later checks. Editing fixture/seed source may require a restart; it does not add a runtime reload mechanism. Restart clears session state, so old access/refresh credentials cannot pass the required session checks.
-- Open: actual fixture credentials, hash parameters, fixed demo identifiers, initial admin grants, and precise contract schemas. Bcrypt was selected later in [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing). Do not invent passwords or generate hashes with an unapproved package.
+- Follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) accepts usernames, initial grants, schemas, and bcrypt defaults. The algorithm is recorded in [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing); password values follow [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials).
+- Open: actual fixture hashes/UUID values and internal contract methods. Hash generation requires an approved implementation and execution approval.
 - Details: [DOC-004 — Conventions: 4. Authorization](DOC-004-conventions.md#4-authorization), [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
 
 ## D-042 — Minimal API contracts and initial demo grants
 
-**Status:** Proposed; awaiting maintainer review · **Date:** 2026-10-30.
+**Status:** Accepted · **Date:** 2026-10-30.
 
-- Decision (proposed): expose login/refresh/logout and three access-message routes, seed admin with `examples:read`, and use explicit per-handler public/authenticated/permission/superadmin policies. Define concrete input/result schemas and remaining session/Swagger defaults.
+- Decision: expose login/refresh/logout and three access-message routes, seed admin with `examples:read`, and use explicit per-handler public/authenticated/permission/superadmin policies. Define concrete input/result schemas and session/Swagger defaults.
 - Reason: turn the approved behavior into a small, reviewable contract before scaffolding and tests.
-- Scope: existing token/storage/permission requirements remain accepted. New route names, grants, metadata defaults, transport, claim names, replay/session-deadline rules, and configuration/hash parameters are proposals, not implementation approval.
-- Review: [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). No source implementation, credential generation, package installation, or Git write is included.
+- Approval: the maintainer explicitly accepted the contract draft after selecting bcrypt for application accounts. This accepts its route names, grants, metadata rules, transport, JWT/session claims, replay/deadline rules, Swagger paths, bcrypt defaults, and documentation startup policy.
+- Details: [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). Exact software, hash generation, remaining runtime settings, and internal method signatures remain open. This design approval does not authorize external software execution or assistant Git writes.
 
 ## D-043 — Bcrypt application password hashing
 
-**Status:** Algorithm accepted; parameters and implementation open · **Date:** 2026-10-30.
+**Status:** Accepted algorithm and contract defaults; implementation open · **Date:** 2026-10-30.
 
 - Decision: use bcrypt for both in-memory application-account password hashes and the separately configured Swagger password hash. Keep their credential sources and access boundaries separate.
 - Reason: after comparing Argon2id and bcrypt, the maintainer explicitly selected bcrypt for application accounts as well as Swagger.
 - Alternative considered: OWASP prefers Argon2id for new applications; bcrypt was selected for consistency. Review byte limits, cost, supported hash formats, and verification behavior when choosing an implementation.
-- Open: exact library/version and preflight, hash cost, actual fixture credentials/hashes, generation workflow, and runtime performance. No hashing command has been run or approved by this algorithm decision.
-- Reference: [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html), retrieved 2026-10-30. Proposed parameters and contracts are in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
+- Follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) accepts cost 12 as the starting default, at least 10 after deployment calibration, and a 72-byte input limit. [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials) selects the demo password values.
+- Open: exact library/version and preflight, actual fixture hashes, generation workflow, and runtime performance. No hashing command has been run or approved by these design decisions.
+- Reference: [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html), retrieved 2026-10-30. Accepted parameters and contracts are in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
+
+## D-044 — Public dummy login credentials
+
+**Status:** Accepted · **Date:** 2026-10-30.
+
+- Decision: use password `dev123` for both application dummy usernames, `superadmin` and `admin`. Document these public example credentials; store bcrypt hashes in their in-memory fixtures, not plaintext passwords or application-account settings in `.env`.
+- Reason: the maintainer explicitly chose one memorable password for both dummy logins used to try the template.
+- Boundary: this choice applies only to the two application demo accounts. Swagger Basic Auth credentials and the JWT signing key remain separately configured through `.env`; neither receives this password as a default.
+- Pending: generate fixture hashes only after full software preflight and explicit execution approval. No hash, signing key, or `.env` file has been generated.
+- Details: [DOC-015 — Demo API Contracts: 1. Routes and initial grants](DOC-015-demo-api-contracts.md#1-routes-and-initial-grants).

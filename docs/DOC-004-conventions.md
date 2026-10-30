@@ -72,7 +72,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ## 3. Architecture
 
-**Status:** Accepted principles and minimal code conventions; token policies and endpoint details open
+**Status:** Accepted principles, code conventions, and API contracts; implementation/tooling open
 
 **Records:**
 
@@ -93,7 +93,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ### Implementation conventions
 
-**Status:** Minimal code conventions accepted; token policies and endpoint specifics remain open.
+**Status:** Code conventions and API contracts accepted; exact internal methods and tooling remain open.
 
 Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Unit tests stay beside source; HTTP tests stay in `test/`.
 
@@ -102,7 +102,7 @@ Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-
 - Define only contracts needed by the demo's layer boundaries. Leave future persistence/provider contracts to their actual integration work.
 - Reserve documented persistence/integration extension locations without real clients, queries, transactions, uploads, payments, or simulated claims of external success.
 - Use abstract classes as contracts and runtime DI tokens with explicit constructor injection and module wiring.
-- Use JWT identity and current server-side permissions below. Minimal login/refresh is selected; account management and detailed lifecycle policies remain outside the approved scope unless explicitly agreed. Do not trust caller-provided role claims.
+- Use JWT identity and current server-side permissions below. Login/refresh/logout and their API contracts are accepted; account management remains deferred. Do not trust caller-provided role claims.
 
 ### Change limits
 
@@ -110,7 +110,7 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 
 ## 4. Authorization
 
-**Status:** Permission, JWT identity, public IDs, and minimal login/refresh accepted; detailed token policies and route contracts open
+**Status:** Permissions, JWT/session lifecycle, public IDs, demo credentials, and API contracts accepted; implementation open
 
 **Records:**
 
@@ -125,7 +125,9 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 - [D-039 — Swagger Basic Auth with bcrypt](DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt)
 - [D-040 — HS256 tokens, refresh rotation, and immediate logout](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
 - [D-041 — In-memory demo accounts and manual grants](DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants)
+- [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing)
+- [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials)
 
 **Decision:** Authorize protected example operations through per-user grants. Use `@Public()` for anonymous routes and current server-side role/grant state for protected requests. An authenticated superadmin passes permission checks; superadmin-only routes remain exclusive to that role.
 
@@ -143,11 +145,11 @@ An admin role alone grants no protected permission. This replaces the unconditio
 ### Permission definitions and storage
 
 - Define stable `resource:action` keys near the feature, initially in `examples.permissions.ts`. Keys such as `article:read` or `article:update` describe capabilities; multiple endpoints may require the same key.
-- Protected routes declare required permissions through metadata such as `@RequirePermissions()`. `@Public()` permits anonymous access on that route without making the permission globally public. Validation still applies.
+- Protected permission routes declare a non-empty list through `@RequirePermissions(...)`; every listed grant is required. `@Public()` permits anonymous access on that route without making the permission globally public. Validation still applies. The complete policy rules are in [DOC-015 — Demo API Contracts: 3. Access metadata defaults](DOC-015-demo-api-contracts.md#3-access-metadata-defaults).
 - Store current per-user roles and grants in an in-memory auth adapter behind a `PermissionStore` contract. Keep storage code outside the application service layer; wire the adapter through DI.
 - Read role/grants once per protected request. Subsequent checks in the same process see store changes; already-authorized requests are not cancelled. No grant snapshot in a JWT is authoritative.
 - In-memory state resets on restart and is separate in each process. Shared persistence, caching, and invalidation strategies are deferred until needed.
-- Keep exactly two dummy accounts: one superadmin and one admin. Their account/credential data and bcrypt hashes stay in the in-memory adapter/fixture, not `.env`. Actual passwords/hashes and hashing parameters remain open.
+- Keep exactly two dummy usernames, `superadmin` and `admin`, both using public demo password `dev123`. Store bcrypt hashes in the in-memory adapter/fixture, not plaintext or `.env` account settings. Admin initially has `examples:read`; superadmin uses the privileged-role bypass. Hash generation remains pending.
 - Change grants manually in storage. No grant-management route is provided. Live store edits affect the next check; editing fixture source may require restarting the process and logging in again.
 
 ### JWT identity
@@ -158,13 +160,13 @@ An admin role alone grants no protected permission. This replaces the unconditio
 - Protected requests also require an active server-issued session bound to the JWT subject. Logout revokes that session and its refresh family; all of its access JWTs fail later checks with `401`, even for superadmin. Permission checks happen after authentication/session checks.
 - Keep refresh rotation within the same login session and coordinate it with revocation. Missing session state, including after restart, cannot authenticate an old token. Already-authorized requests are not retroactively cancelled.
 - Use minimal login and refresh, with signing-key/expiry values in `.env` and initial manual testing through Swagger. “Reset token” was clarified as refresh.
-- Exact token/session claims, transport, session-count/retry/replay details, key format/rotation, endpoint contracts, and software versions remain open. Accepted rules and remaining proposals are separated in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+- Token/session claims, transport, independent sessions, strict single-use refresh, and immediate session revocation on replay follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). Remaining key format/rotation, retention implementation, and software choices are tracked in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
 
 ### Swagger access
 
 - Protect Swagger using HTTP Basic Auth, with `SWAGGER_USERNAME` and a bcrypt `SWAGGER_PASSWORD_HASH` in `.env`. The hash is configuration, not a plaintext password or an API access token.
-- Cover enabled documentation UI/schema routes and keep the gate independent of API JWT/permission checks. Exact credential values, route/configuration handling, bcrypt parameters, and library versions remain open.
-- Follow [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Bcrypt is selected for both credential sources; parameters and implementation remain open. Token durations, signing, rotation, and immediate logout are accepted.
+- Cover `/docs`, `/docs/openapi.json`, `/docs/openapi.yaml`, and documentation assets/aliases. Keep the gate independent of API JWT/permission checks. Enabled Swagger with missing/invalid credentials must fail startup.
+- Follow [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Bcrypt starts at cost 12; deployment calibration, exact libraries, and environment-supplied Swagger credentials remain pending. The application demo password does not set Swagger credentials.
 
 ### Public user identifiers
 
@@ -174,12 +176,11 @@ An admin role alone grants no protected permission. This replaces the unconditio
 
 Sources and rationale are linked in [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access), [D-036 — Minimal JWT identity and server-side access state](DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state), and [D-037 — UUID v4 public user identifiers](DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers).
 
-### Open for the demo
+### API contracts and remaining choices
 
-- Exact endpoint paths, methods, input schemas, and response data. Envelope and access status conventions are accepted in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
-- Review the proposed endpoints, initial grants, metadata defaults, session profile, and configuration/hash parameters in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md), tracked as [D-042 — Minimal API contracts and initial demo grants (proposed)](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants).
-- Exact permission catalog and initial admin grants. Grant changes are manual in storage; no management endpoint is included.
-- Behavior for missing route metadata, multiple required permissions, and exact superadmin-only metadata.
+- Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for the six routes, schemas, initial grants, access metadata, token/session profile, and Swagger/bcrypt defaults.
+- Keep the accepted envelope and HTTP status conventions in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
+- Still open: exact internal contract methods, fixture hash generation, remaining runtime configuration, request-ID/logging and throttling settings, deployment cost calibration, and exact software versions.
 
 ### Deferred extension
 
@@ -248,7 +249,7 @@ Architecture references are neither artifact security audits nor approval to use
 
 ## 8. HTTP boundaries
 
-**Status:** Accepted; endpoint-specific schemas, identity, and tooling open
+**Status:** Accepted; API and identity contracts specified, tooling open
 
 **Records:**
 

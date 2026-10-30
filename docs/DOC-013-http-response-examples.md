@@ -1,13 +1,13 @@
 # DOC-013 — HTTP Status and Response Examples
 
-**Status:** Accepted reference and response conventions; endpoint-specific schemas open · **Updated:** 2026-10-29.
+**Status:** Accepted reference and response conventions · **Updated:** 2026-10-30.
 **Record:** [D-034 — HTTP status standards and response examples](DOC-003-decisions.md#d-034--http-status-standards-and-response-examples).
 
 **Decision:** Document common API statuses with usage and response examples, preserving standard HTTP semantics.
 
 **Reason:** Make status selection and client behavior consistent without requiring every status or feature in the initial template.
 
-Examples use the accepted envelope in [DOC-012 — HTTP Boundary Conventions: 4. Response envelope](DOC-012-http-conventions.md#4-response-envelope). They are illustrative payloads, not existing endpoints. Sample resource/operation IDs do not add CRUD or jobs to the demo. Envelope fields, machine error codes, and status mappings are accepted; exact endpoint schemas remain open.
+Examples use the accepted envelope in [DOC-012 — HTTP Boundary Conventions: 4. Response envelope](DOC-012-http-conventions.md#4-response-envelope). They are illustrative payloads, not existing endpoints. Sample resource/operation IDs do not add CRUD or jobs to the demo. Envelope fields, machine error codes, and status mappings are accepted; actual demo endpoint schemas are defined in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
 
 JSON responses use `Content-Type: application/json`. Examples below show bodies; real responses must also include the headers noted for their status. Request IDs and timestamps are placeholders. Read only the status section needed.
 

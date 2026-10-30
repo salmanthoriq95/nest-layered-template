@@ -1,6 +1,6 @@
 # DOC-012 — HTTP Boundary Conventions
 
-**Status:** Accepted; endpoint-specific details and tooling open · **Updated:** 2026-10-29.
+**Status:** Accepted; API schemas specified in DOC-015, tooling open · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-032 — HTTP input validation and XSS boundaries](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries)
@@ -105,9 +105,9 @@ Nest documents response mapping through interceptors and error handling through 
 
 ## 6. HTTP status rules
 
-**Status:** Accepted; exact routes and JWT profile/issuance remain open.
+**Status:** Accepted; route and token contracts specified in DOC-015.
 
-Use the actual operation result to choose the status, not the HTTP verb alone. A `POST` is not automatically resource creation. For the demo, use `200` for granted access, `401` for missing/invalid authentication on protected routes, and `403` for authenticated identities without access. JWT identity and current server-side grants follow [DOC-004 — Conventions: 4. Authorization](DOC-004-conventions.md#4-authorization); token profile and issuance details remain open.
+Use the actual operation result to choose the status, not the HTTP verb alone. A `POST` is not automatically resource creation. For the demo, use `200` for granted access, `401` for missing/invalid authentication on protected routes, and `403` for authenticated identities without access. JWT identity and current server-side grants follow [DOC-004 — Conventions: 4. Authorization](DOC-004-conventions.md#4-authorization); accepted routes, token results, and session claims are in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
 
 Envelope rules apply to JSON response bodies. `204`, `304`, and responses to `HEAD` must not carry a body; do not append an envelope. If a successful operation needs an enveloped result, choose an appropriate body-bearing status. [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-15), retrieved 2026-10-29.
 

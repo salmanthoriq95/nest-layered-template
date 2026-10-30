@@ -21,7 +21,7 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 
 - [x] Replace real CRUD scope with minimal access demos and extension placeholders. [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template)
 - [x] Retain public/superadmin rules and require per-user grants for other protected access. [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
-- [ ] Agree exact routes, input/result schemas, and remaining token/session parameters.
+- [x] Agree routes, input/result schemas, and token/session contracts. [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [x] Target solo developers or teams of 2–3. [D-005 — Scope and priorities](docs/DOC-003-decisions.md#d-005--scope-and-priorities)
 - [x] Prioritize comprehension, delivery, controlled evolution, cleanliness, debugging, and review.
 - [ ] Define a small first-release acceptance checklist for the access template.
@@ -54,12 +54,12 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Document common standard statuses with examples. [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md)
 - [x] Approve the detailed input policy and expanded envelope in [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md).
 - [x] Approve HTTP wiring and project-specific status mappings.
-- [ ] Agree the public, admin, and superadmin example paths and methods.
+- [x] Agree the public, admin, and superadmin example paths and methods.
 - [x] Agree the envelope, access success/denial statuses, and safe unexpected-error handling.
 - [x] Choose Swagger for initial API documentation/manual token testing. [D-038 — Minimal login, refresh, and environment configuration](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration)
-- [x] Prepare a reviewable [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) draft; its routes, inputs/results, grants, and additional defaults remain proposed.
-- [ ] Approve or revise [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants).
-- [ ] Agree exact endpoint input/result schemas and Swagger contracts.
+- [x] Document and accept [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md), including routes, inputs/results, grants, and access/session defaults.
+- [x] Approve [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants).
+- [x] Agree endpoint input/result schemas and Swagger contracts.
 
 Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle policies require a later application scope.
 
@@ -71,7 +71,7 @@ Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle p
 - [ ] Ensure placeholder paths perform no real I/O or misleading simulated persistence.
 - [ ] Document the future integration approval/preflight boundary.
 
-Database/ORM selection, schema, relationships, indexes, migrations, database seeds, transactions, and upload/payment implementations are deferred. Auth in-memory fixtures are part of the demo; exact fixture assignments remain open.
+Database/ORM selection, schema, relationships, indexes, migrations, database seeds, transactions, and upload/payment implementations are deferred. Auth fixture usernames, passwords, roles, and grants are accepted; actual hashes and UUID values remain pending.
 
 ## 6. Authentication, authorization, and data protection
 
@@ -86,15 +86,17 @@ Database/ORM selection, schema, relationships, indexes, migrations, database see
 - [x] Select minimal login and refresh; clarify that “reset token” means refresh. [D-038 — Minimal login, refresh, and environment configuration](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration)
 - [x] Keep signing-key and expiry settings in `.env`.
 - [x] Protect Swagger with HTTP Basic Auth using an environment-configured username and bcrypt password hash. [D-039 — Swagger Basic Auth with bcrypt](docs/DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt)
-- [ ] Agree Swagger bcrypt cost/input bounds, route coverage/configuration handling, and startup/error behavior before implementation.
+- [x] Agree Swagger routes, bcrypt defaults/input bounds, and startup failure for invalid enabled-documentation credentials. [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [x] Accept HS256/15-minute access tokens, opaque seven-day refresh rotation, and immediate access/refresh logout. [D-040 — HS256 tokens, refresh rotation, and immediate logout](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
 - [x] Keep one superadmin and one admin dummy account, including credential hashes, in memory; do not load application-account credentials from `.env`. [D-041 — In-memory demo accounts and manual grants](docs/DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants)
 - [x] Change grants manually in storage, without a management endpoint.
 - [x] Select bcrypt for application-account hashing as well as the separate Swagger password gate. [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing)
-- [ ] Agree actual dummy passwords/hashes, hashing parameters, and the proposed initial `examples:read` admin grant/catalog.
-- [ ] Agree Swagger-to-API token transport and login/refresh-throttling parameters.
-- [ ] Agree exact token claims, environment variable names/validation, key encoding/rotation, and session-count/retry policies.
-- [ ] Agree missing-metadata behavior, multiple-permission semantics, and superadmin-only metadata.
+- [x] Select `dev123` for both dummy logins; keep bcrypt hashes in memory fixtures. [D-044 — Public dummy login credentials](docs/DOC-003-decisions.md#d-044--public-dummy-login-credentials)
+- [x] Agree starting bcrypt cost 12 and initial admin grant `examples:read`.
+- [ ] Generate fixture hashes after exact software preflight and execution approval; calibrate cost before deployment.
+- [x] Agree Swagger-to-API token transport, JWT claims, issuer/audience defaults, and independent-session/replay rules.
+- [ ] Agree login/refresh-throttling thresholds, proxy policy, remaining environment settings/validation, key encoding/rotation, and retention implementation.
+- [x] Agree fail-closed metadata, all-required permission matching, and superadmin-only metadata.
 - [ ] Define identity, authentication, authorization, user, permission, and session contract methods before implementation.
 
 Database-backed resource catalogs, advanced delegation, account CRUD, registration, password recovery, ownership scopes, and all-device logout remain deferred. Login/refresh and immediate current-session logout are required. No grant-management API or additional authorization framework is selected.
@@ -133,10 +135,10 @@ External-call timeouts, retries, queues, and event idempotency belong to a later
 - [x] Agree colocated unit tests, HTTP tests in `test/`, and behavior-focused coverage. [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations)
 - [ ] Verify the permission-aware access table, including admin without a grant and superadmin bypass.
 - [ ] Verify expired/tampered JWT rejection and permission changes taking effect on subsequent protected checks.
-- [ ] Verify login, accepted refresh rotation/reuse behavior, environment validation, and Swagger use once remaining contracts are agreed.
+- [ ] Verify login, accepted refresh rotation/reuse behavior, environment validation, and Swagger use against the accepted contracts.
 - [ ] Verify immediate access/refresh logout, previous tokens from the same session, refresh/logout races, missing sessions after restart, and superadmin session checks.
 - [ ] Verify Swagger UI/schema access protection, Basic Auth challenges, valid/invalid credentials, literal hash loading, and independence from API authentication.
-- [ ] Verify validation, response envelopes, real status codes, and safe error details after the HTTP contract is approved.
+- [ ] Verify validation, response envelopes, real status codes, and safe error details against the accepted HTTP contract.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
 - [ ] Define relevant type checks, linting, and test commands after tooling approval.
 - [ ] Define Done for the demonstrative responses, boundaries, and documentation.
@@ -214,18 +216,19 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-029 — Public, admin, and superadmin demo access](docs/DOC-003-decisions.md#d-029--public-admin-and-superadmin-demo-access) | Public/superadmin rules retained; blanket admin allowance superseded |
 | [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions) | Accepted; tooling open |
 | [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations) | Accepted; tooling open |
-| [D-032 — HTTP input validation and XSS boundaries](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) | Accepted; endpoint schemas and tooling open |
+| [D-032 — HTTP input validation and XSS boundaries](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) | Accepted; API schemas specified, tooling open |
 | [D-033 — Uniform JSON response envelope](docs/DOC-003-decisions.md#d-033--uniform-json-response-envelope) | Accepted |
-| [D-034 — HTTP status standards and response examples](docs/DOC-003-decisions.md#d-034--http-status-standards-and-response-examples) | Accepted; exact endpoint contracts open |
-| [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) | Accepted; manual updates selected; initial grants/contracts open |
-| [D-036 — Minimal JWT identity and server-side access state](docs/DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state) | Accepted architecture; detailed token profile and tooling open |
+| [D-034 — HTTP status standards and response examples](docs/DOC-003-decisions.md#d-034--http-status-standards-and-response-examples) | Accepted; endpoint contracts specified |
+| [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) | Accepted; manual grants and route policies specified by follow-up records |
+| [D-036 — Minimal JWT identity and server-side access state](docs/DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state) | Accepted architecture/profile; implementation/tooling open |
 | [D-037 — UUID v4 public user identifiers](docs/DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers) | Accepted; database key design deferred |
 | [D-038 — Minimal login, refresh, and environment configuration](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration) | Requirements accepted; lifecycle specified by subsequent records |
 | [D-039 — Swagger Basic Auth with bcrypt](docs/DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt) | Requirements and Basic Auth accepted; implementation parameters open |
-| [D-040 — HS256 tokens, refresh rotation, and immediate logout](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout) | Accepted behavior; remaining contracts/configuration open |
-| [D-041 — In-memory demo accounts and manual grants](docs/DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants) | Accepted; credential values/hash parameters/initial grants open |
-| [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) | Proposed; awaiting review |
-| [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing) | Algorithm accepted; parameters/implementation open |
+| [D-040 — HS256 tokens, refresh rotation, and immediate logout](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout) | Accepted; API/session details specified |
+| [D-041 — In-memory demo accounts and manual grants](docs/DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants) | Accepted; credentials/defaults specified by follow-up records |
+| [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) | Accepted |
+| [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing) | Algorithm/defaults accepted; implementation open |
+| [D-044 — Public dummy login credentials](docs/DOC-003-decisions.md#d-044--public-dummy-login-credentials) | Accepted; actual fixture hashes pending |
 
 ## Next discussions
 
@@ -238,23 +241,21 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Select Swagger Basic Auth with a bcrypt hash in `.env`, separately from API authentication.
 - [x] Accept token lifetimes/signing, refresh rotation, immediate logout, two memory-only accounts, and manual grant changes.
 - [x] Choose bcrypt for application-account passwords.
-- [ ] Review the six routes, input/result schemas, initial admin grant, metadata defaults, and session/configuration proposals in [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md).
-- [ ] Agree actual fixture passwords/hashes and any remaining parameters before generating credentials or scaffolding.
+- [x] Accept the six routes, schemas, initial grants, metadata rules, session profile, and Swagger/bcrypt defaults in [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md).
+- [x] Select `dev123` for both application dummy passwords; Swagger credentials and JWT key remain separate.
+- [ ] Set minimal runtime configuration, request-ID/logging, throttling/proxy, and in-memory retention behavior; review the small reliability baseline without adding deployment infrastructure.
+- [ ] Finish remaining code/tooling defaults and a small first-release acceptance checklist.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.4.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Previous Git observation: local master contains `7483334` (`docs(auth): document login, refresh, and Swagger protection`); the working tree was clean when this token/account discussion began. Live remote state was not checked here.
-- Current progress: the maintainer requested a commit message and continuation of the contract discussion, then selected bcrypt for application credentials. [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) proposes six API routes, schemas, `examples:read` for admin, metadata defaults, session/replay choices, and Swagger/configuration/hash defaults. It remains Proposed; continuing the discussion is not approval of the new contract.
-- Next step/questions: obtain review of [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants), choose actual dummy passwords/hashes and remaining parameters, then complete software preflight before scaffolding. No fixture credentials or hashes have been generated.
-- Approvals: [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions), [D-031 — Minimal testing strategy and locations](docs/DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations), and [D-032–D-034 — HTTP validation, envelopes, and status conventions](docs/DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) are accepted. No new software execution or assistant commit/push is authorized by this design approval.
-- Latest approval: [D-035–D-037 — Per-user permissions, JWT identity, and public user identifiers](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) are accepted as design decisions. Exact external software steps still require their own preflight and explicit approval.
-- Latest scope request: [D-038 — Minimal login, refresh, and environment configuration](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration) is accepted at the requirement level. No exact package/version, proposed lifecycle default, software execution, or assistant commit/push is authorized by that request.
-- Earlier addition: [D-039 — Swagger Basic Auth with bcrypt](docs/DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt) selected documentation access protection. Application bcrypt is now accepted separately; credential sources and API permissions remain distinct. No hash generation, package execution, or assistant commit/push is authorized by these algorithm/configuration choices.
-- Latest decisions: [D-040–D-041 — Token lifecycle, immediate logout, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout) are accepted. Logout requires a live server-side session check; earlier delayed-access logout and environment-sourced account credentials are not the selected design. Exact software preflight/execution approval remains required.
-- Latest algorithm decision: [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing) is accepted. Proposed parameters and new endpoint/session defaults in [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) require their own maintainer approval.
+- Guide version: 4.5.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: local master contains `9be055d` (`docs(auth): define token lifecycle and draft demo API contracts`); the working tree was clean at the start of this approval update. Live remote state was not checked here.
+- Current progress: the maintainer accepted [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants), then selected both dummy passwords as `dev123` in [D-044 — Public dummy login credentials](docs/DOC-003-decisions.md#d-044--public-dummy-login-credentials). Routes, grants, metadata, schemas, session/replay rules, Swagger paths, and bcrypt defaults are accepted in [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md). Actual hashes remain ungenerated.
+- Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
+- Next step/questions: agree remaining minimal runtime/code defaults and first-release checks; evaluate exact Node/Nest/tooling components through the full preflight before scaffolding or hash generation. Avoid reopening accepted API/credential decisions.
+- Approval boundary: no exact external software/version, hashing command, installation/execution, or assistant commit/push is authorized by these design decisions. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains a proposed operational baseline.
 
 ## Implementation backlog
 

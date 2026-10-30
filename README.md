@@ -10,7 +10,7 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 - Use per-user in-memory grants. Public routes are anonymous; authenticated superadmins pass permission checks; superadmin-only routes stay restricted.
 - Use HS256 access JWTs (15-minute default) and rotating opaque refresh tokens (seven-day refresh window). Logout immediately invalidates the current session's access and refresh tokens through server-side checks.
 - Keep two dummy accounts, roles/grants, and sessions in memory. Edit grants manually in storage; no grant-management endpoint is included. Dummy-account credentials stay outside `.env`.
-- Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first. Exact credentials, contracts, and tooling remain open.
+- Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first. API contracts are accepted; tooling and remaining runtime settings are pending.
 - Use bcrypt for application and Swagger passwords. Application hashes stay in memory fixtures; Swagger Basic Auth uses its separate `.env` credentials.
 - Keep one modular, N-layered application with DI and clear boundaries.
 - Validate request inputs and use uniform JSON envelopes with standard HTTP statuses and safe error details.
@@ -20,6 +20,15 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 
 
 Designed for solo developers and teams of 2–3. Priorities: readable flows, fast delivery, easy debugging and review, and changes with controlled scope and cost.
+
+## Planned demo logins
+
+| Username | Password |
+| --- | --- |
+| `superadmin` | `dev123` |
+| `admin` | `dev123` |
+
+These public example credentials are approved for the planned in-memory fixtures; the application is not implemented yet. Fixtures will store bcrypt hashes. Swagger Basic Auth credentials and the JWT signing key remain separately configured through `.env`. See [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) for routes and initial grants.
 
 ## Project guide
 
@@ -39,7 +48,7 @@ Designed for solo developers and teams of 2–3. Priorities: readable flows, fas
 | [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md) | Accepted validation, XSS boundaries, envelopes, and shared HTTP wiring. |
 | [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md) | Common HTTP statuses, headers, and uniform response examples. |
 | [DOC-014 — Authentication Lifecycle](docs/DOC-014-authentication-lifecycle.md) | Token lifecycle, immediate logout, Swagger protection, and remaining policies. |
-| [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) | Proposed routes, inputs/results, initial grants, and remaining access/session defaults. |
+| [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) | Accepted routes, inputs/results, demo credentials/grants, and access/session defaults. |
 
 ## AI collaboration
 
