@@ -1,6 +1,6 @@
 # DOC-001 — AI Contributor Guide
 
-**Status:** Accepted · **Version:** 4.23.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Version:** 4.24.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -31,7 +31,8 @@ At session start or after compaction, read this guide, identify the task, then l
 | --- | --- |
 | Scope, feature, layer, contract, or integration changes | [DOC-004 — Conventions: 2. Scope and priorities](docs/DOC-004-conventions.md#2-scope-and-priorities), [DOC-004 — Conventions: 3. Architecture](docs/DOC-004-conventions.md#3-architecture), or [DOC-004 — Conventions: 5. External interaction examples](docs/DOC-004-conventions.md#5-external-interaction-examples), as applicable. |
 | Code layout, naming, typing, imports, or tests | Relevant sections of [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md). |
-| Runtime, compiler, validation, ORM, or scheduler choices | [DOC-011 — Code Conventions: 7. Tooling direction](docs/DOC-011-code-conventions.md#7-tooling-direction) and relevant [DOC-017 — Tooling Preflight](docs/DOC-017-tooling-preflight.md). Node 26's latest supported patch, Zod, Node Schedule, and Prisma are accepted directions; exact artifacts require preflight. Prisma is for future persistence; initial placeholders and native cleanup remain accepted. |
+| Scaffold configuration, compiler/lint/format choices, contracts, or first-release acceptance | [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md) and applicable [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md). Express, strict-only checking, basic lint, default Prettier, automatic watch, `@nestjs/config`/Zod, synchronous memory when appropriate, typed application errors, and unit+HTTP test commands are accepted. Review the completed first version together. |
+| Runtime, validator, ORM, scheduler, or exact software artifacts | [DOC-011 — Code Conventions: 7. Tooling direction](docs/DOC-011-code-conventions.md#7-tooling-direction) and relevant [DOC-017 — Tooling Preflight](docs/DOC-017-tooling-preflight.md). Node 26, Zod, Node Schedule, and future Prisma are accepted directions; exact artifacts require preflight. Persistence placeholders and native cleanup remain accepted. |
 | Request validation, response envelopes, or HTTP statuses | Relevant [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md); [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md) when status examples are needed. Check proposed versus accepted details. |
 | Endpoint inputs/results, route policy defaults, or demo accounts/grants | Relevant accepted [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md); unresolved implementation details remain open. |
 | Authentication, authorization, public access, or user identifiers | Relevant subsections of [DOC-004 — Conventions: 4. Authorization](docs/DOC-004-conventions.md#4-authorization). |

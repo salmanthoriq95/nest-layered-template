@@ -1,6 +1,6 @@
 # DOC-017 — Tooling Preflight
 
-**Status:** Node 26, Zod, Node Schedule, Prisma, and tooling directions accepted; artifact preflight incomplete · **Decision:** UNKNOWN · **Retrieved:** 2026-10-30.
+**Status:** Scaffold/tooling directions accepted; exact artifact preflight incomplete · **Decision:** UNKNOWN · **Retrieved:** 2026-10-30.
 **Records:**
 
 - [D-002 — Software supply chain policy](DOC-003-decisions.md#d-002--software-supply-chain-policy)
@@ -10,16 +10,17 @@
 - [D-064 — Zod validation direction](DOC-003-decisions.md#d-064--zod-validation-direction)
 - [D-067 — Node Schedule direction](DOC-003-decisions.md#d-067--node-schedule-direction)
 - [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction)
+- [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration)
 
-**Decision:** Use Node 26's latest supported patch, Zod, Node Schedule, and future Prisma persistence as design directions; keep artifact adoption, download, installation, and execution pending. None of the candidates below has installation clearance. Missing registry, provenance, maintenance, and transitive evidence prevents an ELIGIBLE decision.
+**Decision:** Use the accepted stack and [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md); keep artifact adoption, download, installation, and execution pending. None of the candidates below has installation clearance. Missing registry, provenance, maintenance, and transitive evidence prevents an ELIGIBLE decision.
 
 **Reason:** Identify a small compatible stack while applying the complete [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). This is an evidence ledger and proposal, not a completed audit or an installation manifest.
 
 ## 1. Candidate profile
 
-Accepted directions: Node 26's latest supported patch, Zod validation, Node Schedule, Prisma for future database persistence, npm, ESM/NodeNext, compilation through TypeScript, native Node tests/assertions and HTTP requests, and separate ESLint/typescript-eslint/Prettier checks. The current Node target is `26.13.0`; recheck the patch before installation review. The HTTP adapter and exact artifacts remain candidates. Keep accepted DI, test locations, validation behavior, auth, and logging policy.
+Accepted directions: Node 26's latest supported patch, Zod validation, Node Schedule, Prisma for future database persistence, npm, ESM/NodeNext, compilation through TypeScript, native Node tests/assertions and HTTP requests, and separate ESLint/typescript-eslint/Prettier checks. The current Node target is `26.13.0`; recheck the patch before installation review. Express is the selected HTTP adapter and `@nestjs/config`/Zod is the startup-configuration approach. Use basic lint, default Prettier, and the accepted watch/test profile; exact artifacts/configuration remain candidates. Keep accepted DI, test locations, validation behavior, auth, and logging policy.
 
-Use native Node facilities for environment loading, crypto/UUIDs, timers, HTTP delivery, and log files where they meet accepted contracts. Test literal bcrypt-hash loading before relying on any environment loader. Node Schedule is the calendar-scheduler direction; it does not replace accepted native cleanup or create a job. No additional config, logging, process-manager, or test-runner package is proposed initially. Build/watch commands and exact configuration still need review.
+Use native Node facilities for crypto/UUIDs, timers, HTTP delivery, and log files where they meet accepted contracts. Use the selected `@nestjs/config`/Zod approach for startup configuration, verifying literal bcrypt-hash loading. Node Schedule does not replace native cleanup or create a job. No extra logging, process-manager, or test-runner package is selected. Exact build/watch scripts and config files remain pending.
 
 Node's TypeScript stripping does not transform decorators or read `tsconfig.json`; compile the Nest application before running it. [Node TypeScript support](https://nodejs.org/api/typescript.html#typescript-features). Native testing and environment loading are documented in [Node test runner](https://nodejs.org/api/test.html) and [Node environment variables](https://nodejs.org/api/environment_variables.html). These are feasibility references, not execution approval.
 
@@ -39,6 +40,7 @@ All source links below were retrieved on **2026-10-30**. Node 26, Zod, and Node 
 | `@nestjs/swagger` | `12.0.5` | OpenAPI generation/UI; [tagged manifest](https://raw.githubusercontent.com/nestjs/swagger/12.0.5/package.json) | Active release; peers include Nest 12 and TypeScript `^5.5.0 || ^6.0.0`. |
 | `reflect-metadata` | `0.2.2` | Decorator metadata required by the proposed compiler profile | Version appears in Swagger's tagged manifest; direct published manifest/support evidence unavailable. |
 | `rxjs` | `7.8.2` | Nest observable/interceptor support; [tagged manifest](https://raw.githubusercontent.com/ReactiveX/rxjs/7.8.2/package.json) | Fits Nest's `^7.1.0` peer; formal support confirmation pending. |
+| `@nestjs/config` | Unresolved | Selected environment/configuration direction; [official Nest configuration guide](https://docs.nestjs.com/techniques/configuration) | No exact artifact reviewed in this assessment. Full support, advisory, dependency, script, provenance, and loader-behavior checks remain pending. |
 | `zod` | `4.6.7` | Selected validation direction, artifact review target; [tagged manifest](https://raw.githubusercontent.com/colinhacks/zod/v4.6.7/packages/zod/package.json) | Upstream release reviewed; formal support window, full graph checks, and published artifact remain unverified. |
 | `node-schedule` | Tagged review `2.1.0`; moving-source observation `2.1.2` | Selected calendar-scheduler direction; [tagged manifest](https://raw.githubusercontent.com/node-schedule/node-schedule/2.1.0/package.json), [moving manifest](https://raw.githubusercontent.com/node-schedule/node-schedule/master/package.json) | Exact published candidate unresolved. Broad Node range admits 26 but does not prove compatibility; advisory/provider/graph/artifact checks remain incomplete. |
 | `class-validator`, historical alternative | `0.15.1` | Earlier DTO-validation comparison; [tagged manifest](https://raw.githubusercontent.com/typestack/class-validator/v0.15.1/package.json) | Not selected. Version used by Swagger's development setup; support window and published artifact unverified. |
@@ -73,9 +75,9 @@ Versions/bundles come from the [official release index](https://nodejs.org/dist/
 
 - Nest 12's reviewed manifests use ESM. ESM/NodeNext is now the accepted compiler direction; exact settings remain unapproved.
 - TypeScript `7.0.2` was observed at the registry's latest endpoint. Its platform-specific compiler packages and the reviewed Swagger/linter peer ranges make it a **REVIEW** alternative, not an automatic upgrade. [TypeScript 7 registry metadata](https://registry.npmjs.org/typescript/latest). Prefer evaluating `6.0.3` for this candidate set while confirming its maintenance status.
-- Express is proposed for the initial HTTP adapter. Fastify and the newly released native Nest adapter remain alternatives needing their own compatibility/security review. The Express adapter brings transitive `multer` even though this template does not implement uploads; omission of an upload feature does not remove that dependency.
+- Express is selected for the initial HTTP adapter. Fastify and the native Nest adapter remain earlier comparison alternatives, not current selections. The Express adapter brings transitive `multer` even though this template does not implement uploads; omission of an upload feature does not remove that dependency.
 - Bcrypt remains the accepted algorithm. Compare pure-JavaScript `bcryptjs@3.0.3` with [native `bcrypt@6.0.0`](https://github.com/kelektiv/node.bcrypt.js/releases/tag/v6.0.0); artifact/build review and cost calibration are still needed. No benchmark or hashing command was run.
-- Native Node tests are now the accepted runner direction. Jest/Vitest were considered alternatives; neither is selected or audited here. Colocated `*.spec.ts` and HTTP `test/*.e2e-spec.ts` locations remain accepted.
+- Native Node tests are now the accepted runner direction. Jest/Vitest were considered alternatives; neither is selected or audited here. Colocated `*.spec.ts` and HTTP `test/*.e2e-spec.ts` locations remain accepted. `npm test` runs both scopes, with focused test commands and aggregate `npm run check`; script implementations remain pending.
 - npm is now the accepted package-manager direction; its exact version and bundle still need preflight. Nest CLI scaffolding is unnecessary for a manually prepared template, but exact setup commands remain unapproved.
 - Zod and Node Schedule are accepted directions; exact artifacts and integration remain open. Node Schedule's calendar rules do not replace the native cleanup timer. Prisma is selected for future database persistence; the initial template still has placeholders. Earlier Prisma 7 evidence does not select that major/version or clear Node 26 compatibility. [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md) and [DOC-019 — Drizzle Security and Compatibility Review](DOC-019-drizzle-review.md) retain comparison history.
 
@@ -139,7 +141,7 @@ Search results with broad names can include other packages. In particular, the `
 
 ## 5. Review and execution gate
 
-The maintainer accepted Node 26, Zod, Node Schedule, Prisma, and tooling directions, but no exact artifact is cleared here. Preserve the mandatory policy; do not treat an UNKNOWN result or agreement on a preferred stack as execution permission.
+The maintainer accepted the stack/scaffold directions and first-release criteria in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md), but no exact artifact is cleared here. Preserve the mandatory policy; do not treat an UNKNOWN result or agreement on a preferred stack as execution permission.
 
 Before installation/execution:
 
@@ -149,4 +151,4 @@ Before installation/execution:
 4. Report remaining exposure/mitigations and classifications without converting missing evidence into ELIGIBLE.
 5. Request explicit maintainer approval for a concrete download/install/execution scope only after the required evidence is reviewable. ELIGIBLE still would not authorize execution by itself.
 
-No package manager, runtime, installer, hashing script, application, or test suite has been executed. No `package.json`, lockfile, secret, application source, or runtime log was created. The accepted AI guide is version **4.23.0**, recording Node 26, Zod, Node Schedule, and future Prisma choices; artifact execution remains unapproved.
+No package manager, runtime, installer, hashing script, application, or test suite has been executed. No `package.json`, lockfile, secret, application source, or runtime log was created. The accepted AI guide is version **4.24.0**, recording the accepted scaffold profile and complete-result review; artifact execution remains unapproved.

@@ -74,7 +74,7 @@ HS256 requires a key of at least 256 bits. [RFC 7518: HMAC with SHA-2](https://w
 
 ## 3. JWT configuration
 
-**Status:** Accepted; loader/library implementation pending.
+**Status:** Accepted; `@nestjs/config`/Zod direction selected, exact artifacts/implementation pending.
 
 Use these environment names and startup rules. `TTL` means **Time To Live**: the configured lifetime. `_SECONDS` makes its unit explicit. Dummy-account credentials remain in memory; Swagger settings are separate in section 5. No real key or `.env` file is created here.
 
@@ -86,14 +86,14 @@ AUTH_REFRESH_TTL_SECONDS=604800
 
 - Require `JWT_SIGNING_KEY`: exactly 64 hexadecimal characters encoding 32 cryptographically random bytes. Validate its format before decoding; use the decoded bytes as the HS256 key. No fallback key is allowed.
 - If a duration variable is absent, use its documented default: `JWT_ACCESS_TTL_SECONDS=900` (15 minutes), `AUTH_REFRESH_TTL_SECONDS=604800` (seven days). A supplied value must be a positive integer in seconds; empty or invalid values must not silently use a default.
-- Validate configuration at startup. Missing/invalid key or invalid duration must stop startup with an error that names the setting without exposing its value.
+- Use `@nestjs/config` with Zod startup validation. Missing/invalid key or invalid duration must stop startup with an error that names the setting without exposing its value. This selects the configuration approach, not an exact package version or a JWT library.
 - Access TTL applies to newly issued access JWTs, capped by the session deadline. Refresh TTL sets the session deadline from login; refresh rotation does not restart that window. Revocation can reject either token before its expiry.
 - Keep the accepted `JWT_ISSUER` and `JWT_AUDIENCE` defaults in [DOC-015 — Demo API Contracts: 4. JWT/session details](DOC-015-demo-api-contracts.md#4-jwtsession-details).
 - Keep `.env` and real secrets outside Git. Commit `.env.example` with placeholders and documented units.
 - Rotate the signing key manually by updating configuration and restarting the application. Restart clears in-memory sessions, so users must log in again. Automatic rotation and simultaneous old/new signing keys are outside the initial implementation.
 - Do not log signing keys, passwords, or tokens. Key generation and software execution still require preflight and explicit approval.
 
-HS256 requires at least 256-bit keys; hex represents each byte with two characters. Validate hex strictly before decoding because malformed hex can be truncated. [RFC 7518: HMAC with SHA-2](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2), [Node.js Buffer encodings](https://nodejs.org/api/buffer.html#buffers-and-character-encodings), retrieved 2026-10-30. No configuration/JWT library is selected here.
+HS256 requires at least 256-bit keys; hex represents each byte with two characters. Validate hex strictly before decoding because malformed hex can be truncated. [RFC 7518: HMAC with SHA-2](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2), [Node.js Buffer encodings](https://nodejs.org/api/buffer.html#buffers-and-character-encodings), retrieved 2026-10-30. The configuration approach is accepted under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md); exact artifacts and JWT library selection remain pending.
 
 ## 4. HTTP and Swagger flow
 
@@ -125,7 +125,7 @@ Use `400` for schema failures, generic `401` for invalid credentials/tokens, and
 
 A reverse proxy receives client requests and forwards them to the API. For example, `client -> reverse proxy -> API`: the API's direct peer is the proxy. Without the correct trust configuration, clients behind it can share the proxy's IP-based quota. Forwarding headers such as `X-Forwarded-For` can carry the original IP, but client-supplied values are not inherently trustworthy.
 
-Proxy behavior follows [NestJS rate limiting: Proxies](https://docs.nestjs.com/security/rate-limiting#proxies) and [Express behind proxies](https://expressjs.com/en/guide/behind-proxies/), retrieved 2026-10-30. These references do not select an HTTP adapter or proxy product. `429` and retry guidance follow [RFC 6585, section 4](https://www.rfc-editor.org/rfc/rfc6585.html#section-4), retrieved 2026-10-30; the limits and required response headers are project choices.
+Proxy behavior follows [NestJS rate limiting: Proxies](https://docs.nestjs.com/security/rate-limiting#proxies) and [Express behind proxies](https://expressjs.com/en/guide/behind-proxies/), retrieved 2026-10-30. Express was later selected under [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration); no proxy product is selected. `429` and retry guidance follow [RFC 6585, section 4](https://www.rfc-editor.org/rfc/rfc6585.html#section-4), retrieved 2026-10-30; the limits and required response headers are project choices.
 
 ## 5. Swagger access protection
 
@@ -182,7 +182,7 @@ TRUSTED_PROXY_ADDRESSES=
 - At admission, remove expired timestamps before checking capacity. Keep only admitted timestamps still in the window; do not retain a history of rejected attempts. Admission must not race across concurrent credential checks.
 - Apply counting early enough to include matched endpoint requests that fail body validation/parsing, unsupported content type, or credentials. Main API and Swagger gates use their own scopes; public metadata does not bypass these quotas.
 - For a rejected request, compute `Retry-After = max(1, ceil((oldest active timestamp + window - now) / 1000))`. Retain the accepted `429` envelope with `RATE_LIMITED` and `Cache-Control: no-store`. A rejected request does not postpone the next available slot.
-- The empty proxy list is valid configuration; blank numeric settings are invalid. If no proxies are trusted, ignore forwarding headers for client identity. Configure the actual proxy path before deployment; an HTTP adapter is still unselected.
+- The empty proxy list is valid configuration; blank numeric settings are invalid. If no proxies are trusted, ignore forwarding headers for client identity. Configure the actual proxy path before deployment; Express is selected, while exact versions and proxy addresses remain pending.
 - Timer scheduling is best effort, not an expiry clock or an exact wall-clock job. Session validity and rate windows never depend on a cleanup callback firing on time. For the native timer, reject a converted cleanup delay above `2147483647` milliseconds rather than allowing the runtime to shorten it.
 - Unexpected faults during the synchronous cleanup pass follow the accepted fatal-process handling; do not swallow a programming fault and claim that cleanup succeeded.
 

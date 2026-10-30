@@ -43,10 +43,12 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Define naming for files, folders, classes, interfaces, types, functions, and variables.
 - [x] Agree strict typing, boundary types, and limits on `any` and assertions.
 - [x] Accept npm, ESM/NodeNext, TypeScript compilation through `tsc`, native Node tests/assertions/HTTP requests, and ESLint/typescript-eslint/Prettier as tooling directions. [D-060 — Initial tooling candidate review](docs/DOC-003-decisions.md#d-060--initial-tooling-candidate-review)
-- [ ] Choose remaining compiler flags/target, build/test commands, and lint/format settings after exact runtime/artifact preflight.
+- [x] Accept strict-only checking, basic lint, default Prettier, automatic watch, sync memory where appropriate, and typed application errors. [D-070 — Initial scaffold configuration](docs/DOC-003-decisions.md#d-070--initial-scaffold-configuration)
+- [ ] Prepare exact compiler target/remaining flags, config files, and build/watch/test script implementations for review with exact artifacts.
 - [x] Define direct imports, exports, and folder dependencies; defer aliases and barrel files.
 - [ ] Define `null`, `undefined`, optional properties, and defaults.
-- [ ] Define formatting, linting, comments, code documentation, and automated enforcement.
+- [x] Accept basic lint/default Prettier and retain existing comment/documentation guidance. [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md)
+- [ ] Implement automated enforcement after software preflight and execution approval.
 
 ## 4. API contracts
 
@@ -178,8 +180,8 @@ Third-party-call resilience and event idempotency belong to a later integration 
 - [ ] Verify Swagger UI/schema access protection, Basic Auth challenges, valid/invalid credentials, literal hash loading, and independence from API authentication.
 - [ ] Verify validation, response envelopes, real status codes, and safe error details against the accepted HTTP contract.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
-- [ ] Define relevant type checks, linting, and test commands after tooling approval.
-- [ ] Define Done for the demonstrative responses, boundaries, and documentation.
+- [x] Accept `npm test` for unit+HTTP tests, focused `test:unit`/`test:e2e`, and aggregate `npm run check`. Exact script implementations remain pending.
+- [x] Accept first-release criteria and complete-result review. Verification remains pending. [D-071 — First-release acceptance and review](docs/DOC-003-decisions.md#d-071--first-release-acceptance-and-review)
 
 No database, business-transaction, or provider integration tests are required before those integrations exist.
 
@@ -190,14 +192,16 @@ No database, business-transaction, or provider integration tests are required be
 - [x] Accept independent public `GET /health` on the API and logging worker, with standard 200 envelopes and no-store headers. [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 - [x] Define JWT configuration/startup rules and invalid enabled-Swagger credential handling. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
 - [x] Finalize limiter/cleanup settings, Swagger throttling, and proxy-list configuration. [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters)
-- [ ] Finalize tooling and exact internal contract methods before affected implementation; initial auth, logging, limiter/cleanup, and minimal process-health policies are accepted.
+- [x] Select Express and `@nestjs/config` with Zod startup validation; retain accepted auth/logging/limiter/health settings. [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md)
+- [ ] Review exact internal methods/types, config files, script implementations, and artifacts before affected implementation.
 
 [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
 ## 11. Developer experience and maintenance
 
 - [ ] Define first-checkout setup.
-- [ ] Define standard development, build, quality, and test commands.
+- [x] Accept automatic compiler/API/worker watch, combined/focused tests, and aggregate checks.
+- [ ] Prepare the exact development/build/quality/test script implementations and startup instructions.
 - [ ] Complete setup, contribution, and troubleshooting documentation.
 - [x] Maintain conventions and decision records with the task list. [D-004 — Decision records and conventions](docs/DOC-003-decisions.md#d-004--decision-records-and-conventions)
 - [ ] Add representative code examples for conventions.
@@ -295,6 +299,8 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-067 — Node Schedule direction](docs/DOC-003-decisions.md#d-067--node-schedule-direction) | Accepted design choice; exact artifact/configuration pending |
 | [D-068 — Additional persistence alternatives](docs/DOC-003-decisions.md#d-068--additional-persistence-alternatives) | Comparison retained; ORM direction resolved by D-069 |
 | [D-069 — Prisma ORM direction](docs/DOC-003-decisions.md#d-069--prisma-orm-direction) | Accepted future ORM; exact artifacts/integration pending |
+| [D-070 — Initial scaffold configuration](docs/DOC-003-decisions.md#d-070--initial-scaffold-configuration) | Accepted profile; exact artifacts/configuration pending |
+| [D-071 — First-release acceptance and review](docs/DOC-003-decisions.md#d-071--first-release-acceptance-and-review) | Accepted criteria and complete-result review; verification pending |
 
 ## Next discussions
 
@@ -327,18 +333,19 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Select Node 26's latest supported patch and Zod as design directions; preserve artifact/execution gates.
 - [x] Select Node Schedule after reviewing readable calendar syntax; current cleanup stays native and exact artifacts/jobs remain pending.
 - [x] Close the persistence-tool comparison with Prisma as the maintainer's choice; exact versions and integration remain pending.
-- [ ] Finish exact configuration/artifact choices, internal contracts, and a small first-release acceptance checklist.
+- [x] Accept the scaffold profile and first-release acceptance criteria in [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md).
+- [ ] Prepare exact config/script implementations, internal contract types, and artifacts for review.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.23.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: the maintainer committed the limiter/cleanup changes during this review. Latest observed local master is `43447ba` (`docs(auth): finalize rate limiting and cleanup conventions`); remaining changes document accepted tooling direction, LTS review, integration alternatives, and their references. Live remote state was not checked here.
-- Current progress: accepted directions are Node 26's latest supported patch, Zod, Node Schedule, and Prisma as the future ORM under [D-069 — Prisma ORM direction](docs/DOC-003-decisions.md#d-069--prisma-orm-direction). The ORM comparison is closed; earlier reports remain history. Initial persistence stays placeholders and auth stays in memory. Earlier Node `26.13.0`/npm `11.20.0`, Zod `4.6.7`, scheduler tag/source observations, and Prisma `7.10.1` are review evidence, not cleared artifacts or automatic version pins. Full graph/provider/provenance and Prisma/Node 26 compatibility evidence remain incomplete; overall UNKNOWN. No source, secret, hash, runtime log, or integration was generated.
+- Guide version: 4.24.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: the worktree was clean at the start of this update. Latest observed local master is `3f8e339` (`docs: finalize stack choices and record security preflight findings`). Current work documents the scaffold/acceptance decisions; live remote state was not checked.
+- Current progress: [D-070 — Initial scaffold configuration](docs/DOC-003-decisions.md#d-070--initial-scaffold-configuration) accepts Express, strict-only checking, basic lint, default Prettier, native watch, `@nestjs/config`/Zod, synchronous memory where appropriate, typed application errors, and combined/focused test commands. Repeated basic-lint wording in the reply was treated as reaffirmation; answers were matched by content. The maintainer separately selected complete-result review under [D-071 — First-release acceptance and review](docs/DOC-003-decisions.md#d-071--first-release-acceptance-and-review). Prior Node 26/Zod/Node Schedule/Prisma choices remain accepted; initial persistence stays placeholders. Exact artifacts, configuration/script files, method signatures, and verification remain pending. Preflight remains UNKNOWN, including the unresolved exact `@nestjs/config` version. No source, secret, hash, or runtime log was generated.
 - Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: carry the accepted Prisma choice forward instead of repeating ORM comparisons. Keep persistence placeholders, native cleanup, and independent logging intact. Before scaffolding, resolve exact initial-stack artifacts and full preflight under [DOC-017 — Tooling Preflight: 5. Review and execution gate](docs/DOC-017-tooling-preflight.md#5-review-and-execution-gate), then request concrete execution approval. When real persistence is requested, review the exact Prisma major/version, database/driver, Node 26 support, generator/migration scope, advisories, and provenance. Internal contracts, configs, first-release acceptance, Linux target `libatomic`, actual proxy addresses, and supervision remain pending as applicable.
-- Approval boundary: Node 26, Zod, Node Schedule, and Prisma are approved design directions, not installation/execution clearance. No hashing command, software installation/execution, assistant commit/push, database integration, client generation, migrations, new calendar job, or custom query wrapper is authorized. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed monitoring/backup/recovery details beyond accepted logging requirements.
+- Next step/questions: no preference question from this package remains open. Prepare a concrete configuration/script and contract draft for review while completing exact initial-stack preflight under [DOC-017 — Tooling Preflight: 5. Review and execution gate](docs/DOC-017-tooling-preflight.md#5-review-and-execution-gate). Do not infer a compiler target, unapproved extra strictness flags, custom formatter rules, type-aware lint, or exact contract types. Obtain concrete execution approval before installation/running software. First-release acceptance is settled but not verified. Preserve native cleanup, separate logging, in-memory auth, and future-only Prisma integration; actual deployment inputs remain separate.
+- Approval boundary: accepted stack/scaffold profiles and complete-result review do not clear software artifacts or authorize execution, hash generation, source scaffolding, database/client/migration work, new calendar jobs, commits, pushes, or publication. All prior secret exclusions and operating policies remain in force. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed broader monitoring/backup/recovery plans.
 
 ## Implementation backlog
 

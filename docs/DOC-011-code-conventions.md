@@ -15,6 +15,8 @@
 - [D-064 — Zod validation direction](DOC-003-decisions.md#d-064--zod-validation-direction)
 - [D-067 — Node Schedule direction](DOC-003-decisions.md#d-067--node-schedule-direction)
 - [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction)
+- [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration)
+- [D-071 — First-release acceptance and review](DOC-003-decisions.md#d-071--first-release-acceptance-and-review)
 
 **Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has in-memory account, permission, and session adapters. Keep unit tests beside source and HTTP tests in `test/`.
 
@@ -105,6 +107,8 @@ Abstract classes exist at runtime; TypeScript interfaces do not. An interface wi
 
 Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SDK types. Runtime DI tokens must remain value imports. Add persistence/provider contracts only when a real integration is requested; do not invent their methods now.
 
+In-memory implementations and their current contracts may be synchronous; use `Promise<T>` for actual async work. Preserve existing atomic auth/session and limiter behavior. Expected service failures use application-owned typed errors, translated at the HTTP boundary. Exact methods/types remain implementation review items. See [DOC-021 — Initial Scaffold Profile: 2. Boundary behavior](DOC-021-scaffold-profile.md#2-boundary-behavior).
+
 ## 4. Naming and typing
 
 | Item | Convention |
@@ -116,7 +120,7 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 | Decorator factories | `PascalCase`, e.g. `Public()` and `RequirePermissions()`. |
 | Module-level constants | `UPPER_SNAKE_CASE`. |
 
-- Enable TypeScript strict checking; explicitly type exported contract methods and public service results. Infer obvious local values.
+- Enable TypeScript `strict` initially without `noUncheckedIndexedAccess` or `exactOptionalPropertyTypes`. Explicitly type exported contract methods and public service results; infer obvious local values.
 - Avoid `any`. Receive unvalidated external data as `unknown`, then narrow or validate it. Do not use assertions to hide boundary mismatches.
 - Use direct relative imports initially. Add aliases, barrel files, or import-enforcement tooling only through a later agreement.
 - Comments explain reasons, non-obvious constraints, or contract behavior. Avoid comments that repeat code.
@@ -143,7 +147,9 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 - Add HTTP cases for invalid body/query/path inputs where accepted by actual routes, and success, denial, and unexpected-error envelopes. Do not invent endpoints solely for test coverage.
 - Exercise important logic through its public API. Do not test private methods, framework internals, getters, or constant responses merely to increase coverage; a simple response can be covered by its HTTP test.
 - Keep tests deterministic and independent of real databases, uploads, payment providers, and external networks. No database/vendor integration suite is needed while those integrations remain placeholders.
-- Use the native Node test runner, assertions, and HTTP client as the accepted testing direction. No numerical coverage target or extra test framework is selected. Exact runtime/artifacts and commands still require preflight and approval.
+- Use the native Node test runner, assertions, and HTTP client as the accepted testing direction. No numerical coverage target or extra test framework is selected. Exact runtime/artifacts and script implementations still require preflight and approval.
+
+`npm test` runs both unit and HTTP tests. Keep `test:unit` and `test:e2e` for focused runs; `npm run check` aggregates type checking, basic lint, default-Prettier verification, build, and all tests. Script implementations remain pending. First-release acceptance and complete-result review follow [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).
 
 Colocated unit tests also follow Nest's documented recommendation. [NestJS testing](https://docs.nestjs.com/fundamentals/testing), retrieved 2026-10-29.
 
@@ -161,7 +167,7 @@ JWT environment names, defaults, validation, and manual key rotation are accepte
 
 Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are agreed; implementation and deployment supervision remain pending.
 
-Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). Still open: exact internal contract methods, fixture hashes, formatter/linter settings, compiler/module configuration, exact software versions, and actual deployment proxy addresses. Software execution still requires preflight and explicit approval.
+Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile and acceptance criteria are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Exact internal methods/types, fixtures, config/script implementations, compiler target/remaining flags, software versions, and actual deployment proxy addresses remain open. Software execution still requires preflight and explicit approval.
 
 ## 7. Tooling direction
 
@@ -171,8 +177,8 @@ Limiter/cleanup settings, sliding windows, proxy-list validation, and timer life
 
 **Reason:** The maintainer accepted this small tooling profile while retaining explicit runtime and supply-chain review.
 
-- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Exact compiler flags, targets, build/watch/test commands, and lint/format settings remain review items.
+- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Use basic lint, default Prettier, automatic compiler/API/worker watching, and the accepted test-command behavior. Exact compiler target/remaining flags and configuration/script implementations remain review items under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md).
 - Use the latest supported Node 26 patch; the verified review target is `26.13.0` on 2026-10-30. Report security/compatibility findings and alternatives. Recheck the exact patch before installation review; do not introduce automatic upgrades.
 - Use Zod as the validation direction, preserving strict input handling and accepted HTTP contracts. Its exact artifact and Nest/Swagger adapters remain pending. Use Node Schedule for future calendar scheduling with explicit recurrence fields; exact artifacts and real job policies remain pending. The accepted native cleanup timer is unchanged.
-- Use Prisma as the future ORM direction. Keep generated types, query clients, and transaction details inside persistence adapters; services retain application-owned contracts. Exact Prisma version, database/driver, schema, migrations, and integration remain pending; general persistence stays placeholders initially. Earlier comparisons are retained in [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md). The HTTP adapter remains unselected.
+- Use Prisma as the future ORM direction. Keep generated types, query clients, and transaction details inside persistence adapters; services retain application-owned contracts. Exact Prisma version, database/driver, schema, migrations, and integration remain pending; general persistence stays placeholders initially. Earlier comparisons are retained in [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md). Express is the selected HTTP adapter; configuration uses `@nestjs/config` plus Zod startup validation. Exact artifacts remain pending.
 - Exact versions, resolved dependencies, artifact verification, installation, and execution remain subject to [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). Evidence is tracked in [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).

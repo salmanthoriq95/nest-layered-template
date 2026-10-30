@@ -692,3 +692,22 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Boundary: initial persistence stays placeholders, auth accounts/grants/sessions stay in memory, and logging keeps its independent process/file boundary. No schema, migrations, client generation, driver, database, real CRUD, installation, or execution is authorized by this design choice.
 - Version boundary: the earlier Prisma `7.10.1` example is a historical review target, not an approved version or a claim about the latest release. Recheck exact versions, Node 26 support, advisories, dependencies, scripts, and artifact provenance before future integration under the full supply-chain policy.
 - Details: [DOC-011 — Code Conventions: 7. Tooling direction](DOC-011-code-conventions.md#7-tooling-direction), [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).
+
+## D-070 — Initial scaffold configuration
+
+**Status:** Accepted profile; exact artifacts/configuration pending · **Date:** 2026-10-30.
+
+- Decision: use Express, TypeScript `strict` without the two proposed extra strictness flags, basic lint, default Prettier, native automatic watch, `@nestjs/config` with Zod, synchronous in-memory operations where appropriate, typed application errors, and `npm test` covering unit and HTTP tests. Provide focused test commands and an aggregate `npm run check`.
+- Reason: the maintainer explicitly chose this baseline to keep development familiar and understandable, without speculative async contracts or extra lint/format policy.
+- Approval: interpret the numbered reply by content. Basic lint was repeated; the following answers clearly selected default Prettier, watch, the configuration package, sync memory, typed errors, and both test scopes. This does not approve a custom formatting profile or type-aware lint.
+- Boundary: preserve all accepted auth/HTTP/logging behavior, initial placeholders, native cleanup, and independent processes. Exact scripts/config files, compiler target/remaining flags, contract signatures, artifacts, installation/execution, and Git writes remain separate review items.
+- Details: [DOC-021 — Initial Scaffold Profile: 1. Configuration profile](DOC-021-scaffold-profile.md#1-configuration-profile).
+
+## D-071 — First-release acceptance and review
+
+**Status:** Accepted criteria and review method; implementation/verification pending · **Date:** 2026-10-30.
+
+- Decision: review the completed first version together. Require passing build/type/lint/format and all unit/HTTP checks, a working agreed Swagger workflow, continued API service while the logging worker is unavailable, and usable README/`.env.example` instructions for both processes.
+- Reason: after the test-command answer, the maintainer explicitly selected “A — Tinjau hasil lengkap sekaligus” in the acceptance/review clarification.
+- Boundary: these are required outcomes, not reported test results. Incremental implementation/checking remains possible; no new feature, numerical coverage target, commit/push, publication, installation, or execution is authorized.
+- Details: [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).

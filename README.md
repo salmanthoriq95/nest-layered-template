@@ -2,7 +2,7 @@
 
 A modular NestJS backend starter with clear boundaries, explicit contracts, and flexible authorization.
 
-**Status:** design and documentation. Node 26, Zod, Node Schedule, and future Prisma persistence are selected directions; application scaffolding and artifact approval are pending.
+**Status:** design and documentation. Stack/scaffold directions and first-release criteria are accepted; source scaffolding and artifact approval remain pending. See [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md).
 
 ## Scope
 
@@ -57,6 +57,7 @@ These public example credentials are approved for the planned in-memory fixtures
 | [DOC-018 — Integration Alternatives](docs/DOC-018-integration-alternatives.md) | Prisma/Zod/Node Schedule choices, earlier comparisons, and scheduler syntax/trade-offs. |
 | [DOC-019 — Drizzle Security and Compatibility Review](docs/DOC-019-drizzle-review.md) | Known advisory ranges, Node 26 compatibility limits, and unresolved artifact evidence. |
 | [DOC-020 — Persistence Alternatives](docs/DOC-020-persistence-alternatives.md) | Historical Kysely/Knex/MikroORM comparisons and typing/security evidence; Prisma is selected. |
+| [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md) | Accepted Express/configuration, compiler/lint/format/watch, contract/error/test choices, and first-release criteria. |
 
 ## AI collaboration
 

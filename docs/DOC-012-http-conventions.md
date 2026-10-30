@@ -1,12 +1,13 @@
 # DOC-012 — HTTP Boundary Conventions
 
-**Status:** Accepted; Zod direction selected, exact artifacts/wiring pending · **Updated:** 2026-10-30.
+**Status:** Accepted; Express/Zod and typed application errors selected, exact artifacts/wiring pending · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-032 — HTTP input validation and XSS boundaries](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries)
 - [D-033 — Uniform JSON response envelope](DOC-003-decisions.md#d-033--uniform-json-response-envelope)
 - [D-034 — HTTP status standards and response examples](DOC-003-decisions.md#d-034--http-status-standards-and-response-examples)
 - [D-064 — Zod validation direction](DOC-003-decisions.md#d-064--zod-validation-direction)
+- [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration)
 
 **Decision:** Validate consumed request bodies, query strings, and path parameters before service logic. Give JSON success and error responses a consistent envelope and meaningful HTTP status.
 
@@ -98,6 +99,7 @@ Do not expose stack traces, vendor payloads, credentials, or rejected input valu
 
 - Keep shared HTTP-only validation, envelope types, response mapping, and error handling under `src/http/`. Feature-specific DTOs remain with the feature.
 - Wrap successful results once at the HTTP boundary, using an interceptor; map failures through a shared exception filter. Services return contract-defined results without the HTTP envelope.
+- Use the selected Express adapter. Translate application-owned typed service errors to the accepted statuses and safe envelopes in the HTTP boundary; keep Nest HTTP exceptions out of service contracts. Unexpected exceptions retain existing fault handling and logging.
 - Ensure application-handled parser/validation failures, guard denials, missing routes, and unexpected failures use the same error envelope. Assign request metadata early enough for these paths.
 - Preserve relevant protocol headers, including authentication challenges, allowed methods, and retry guidance. Avoid direct response writes that bypass shared response mapping.
 - HTTP tests must use the same boundary configuration as the running application. Check actual statuses, envelope shape, field validation, safe error messages, and request metadata.
