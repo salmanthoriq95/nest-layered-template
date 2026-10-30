@@ -42,7 +42,8 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Define source, root configuration, test, and documentation locations.
 - [x] Define naming for files, folders, classes, interfaces, types, functions, and variables.
 - [x] Agree strict typing, boundary types, and limits on `any` and assertions.
-- [ ] Choose remaining compiler/module settings after runtime/tooling selection.
+- [x] Accept npm, ESM/NodeNext, TypeScript compilation through `tsc`, native Node tests/assertions/HTTP requests, and ESLint/typescript-eslint/Prettier as tooling directions. [D-060 — Initial tooling candidate review](docs/DOC-003-decisions.md#d-060--initial-tooling-candidate-review)
+- [ ] Choose remaining compiler flags/target, build/test commands, and lint/format settings after exact runtime/artifact preflight.
 - [x] Define direct imports, exports, and folder dependencies; defer aliases and barrel files.
 - [ ] Define `null`, `undefined`, optional properties, and defaults.
 - [ ] Define formatting, linting, comments, code documentation, and automated enforcement.
@@ -71,7 +72,7 @@ Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle p
 - [ ] Ensure placeholder paths perform no real I/O or misleading simulated persistence.
 - [ ] Document the future integration approval/preflight boundary.
 
-Database/ORM selection, schema, relationships, indexes, migrations, database seeds, transactions, and upload/payment implementations are deferred. Auth fixture usernames, passwords, roles, and grants are accepted; actual hashes and UUID values remain pending.
+Prisma is the selected future ORM under [D-069 — Prisma ORM direction](docs/DOC-003-decisions.md#d-069--prisma-orm-direction). Exact Prisma/database/driver versions, schema, relationships, indexes, migrations, database seeds, transactions, and upload/payment implementations remain deferred. Auth fixture usernames, passwords, roles, and grants are accepted; actual hashes and UUID values remain pending.
 
 ## 6. Authentication, authorization, and data protection
 
@@ -109,6 +110,15 @@ Database-backed resource catalogs, advanced delegation, account CRUD, registrati
 The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005-supply-chain-security.md) is mandatory. These items track its application; they do not indicate a completed audit.
 
 - [x] Preserve the full adopted policy in a canonical English document. [D-002 — Software supply chain policy](docs/DOC-003-decisions.md#d-002--software-supply-chain-policy), [D-015 — Concise English documentation](docs/DOC-003-decisions.md#d-015--concise-english-documentation)
+- Initial evidence: [DOC-017 — Tooling Preflight](docs/DOC-017-tooling-preflight.md) records candidate versions, compatibility, advisories/KEV, retrieval failures, and unverified work. Overall UNKNOWN; the checks below remain incomplete for the full artifact/dependency graph.
+- [x] Adopt LTS-first runtime review, disclosure of security/compatibility issues with alternatives, and maintainer choice of exact versions. [D-061 — LTS-first runtime review](docs/DOC-003-decisions.md#d-061--lts-first-runtime-review)
+- [x] Choose the latest supported Node 26 patch after confirming LTS status; current review target `26.13.0`. Artifact clearance remains UNKNOWN. [D-063 — Node 26 runtime direction](docs/DOC-003-decisions.md#d-063--node-26-runtime-direction)
+- [x] Choose Zod for validation readability; exact artifacts and Nest/Swagger integration remain pending. [D-064 — Zod validation direction](docs/DOC-003-decisions.md#d-064--zod-validation-direction)
+- [x] Record Drizzle's known advisory and Node 26 evidence limits in [DOC-019 — Drizzle Security and Compatibility Review](docs/DOC-019-drizzle-review.md); overall UNKNOWN, not a completed audit.
+- [x] Retain additional persistence and Knex typing comparisons as history in [DOC-020 — Persistence Alternatives](docs/DOC-020-persistence-alternatives.md); Prisma is now the selected future ORM.
+- [x] Select Prisma as the future ORM direction while preserving initial placeholders and full artifact preflight. [D-069 — Prisma ORM direction](docs/DOC-003-decisions.md#d-069--prisma-orm-direction)
+- [ ] Resolve exact database/driver/tooling compatibility and full artifact evidence only when persistence is requested; keep initial placeholders.
+- [x] Select Node Schedule with explicit recurrence fields. Exact artifact/configuration and calendar jobs remain pending. [D-067 — Node Schedule direction](docs/DOC-003-decisions.md#d-067--node-schedule-direction)
 - [ ] Define a component inventory: exact name/version, source, and purpose.
 - [ ] Verify official support and maintenance.
 - [ ] Check current authoritative advisories and affected versions.
@@ -275,6 +285,16 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-057 — Concurrent logging delivery limit](docs/DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit) | Default and setting name accepted |
 | [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy) | All nine groups accepted; implementation pending |
 | [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters) | All six groups accepted; implementation pending |
+| [D-060 — Initial tooling candidate review](docs/DOC-003-decisions.md#d-060--initial-tooling-candidate-review) | Tooling direction accepted; exact candidates/preflight UNKNOWN |
+| [D-061 — LTS-first runtime review](docs/DOC-003-decisions.md#d-061--lts-first-runtime-review) | Accepted review policy; runtime direction resolved by D-063 |
+| [D-062 — ORM, scheduler, and validator comparison](docs/DOC-003-decisions.md#d-062--orm-scheduler-and-validator-comparison) | Comparison retained; Zod selected by D-064, further review in D-065/D-066 |
+| [D-063 — Node 26 runtime direction](docs/DOC-003-decisions.md#d-063--node-26-runtime-direction) | Accepted runtime line; artifact clearance UNKNOWN |
+| [D-064 — Zod validation direction](docs/DOC-003-decisions.md#d-064--zod-validation-direction) | Accepted design choice; exact artifact/configuration pending |
+| [D-065 — Drizzle security and compatibility review](docs/DOC-003-decisions.md#d-065--drizzle-security-and-compatibility-review) | Historical review; ORM direction resolved by D-069 |
+| [D-066 — Readable scheduling preference](docs/DOC-003-decisions.md#d-066--readable-scheduling-preference) | Accepted preference; scheduler direction resolved by D-067 |
+| [D-067 — Node Schedule direction](docs/DOC-003-decisions.md#d-067--node-schedule-direction) | Accepted design choice; exact artifact/configuration pending |
+| [D-068 — Additional persistence alternatives](docs/DOC-003-decisions.md#d-068--additional-persistence-alternatives) | Comparison retained; ORM direction resolved by D-069 |
+| [D-069 — Prisma ORM direction](docs/DOC-003-decisions.md#d-069--prisma-orm-direction) | Accepted future ORM; exact artifacts/integration pending |
 
 ## Next discussions
 
@@ -303,18 +323,22 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Accept a default maximum of ten active HTTP log deliveries per API process.
 - [x] Accept all nine logging operating groups in one review, as requested by the maintainer.
 - [x] Accept all six limiter/cleanup groups together, including the additional separate Swagger quota.
-- [ ] Finish remaining code/tooling defaults and a small first-release acceptance checklist.
+- [x] Accept npm, ESM/NodeNext, `tsc`, native Node testing, and ESLint/typescript-eslint/Prettier as the tooling direction.
+- [x] Select Node 26's latest supported patch and Zod as design directions; preserve artifact/execution gates.
+- [x] Select Node Schedule after reviewing readable calendar syntax; current cleanup stays native and exact artifacts/jobs remain pending.
+- [x] Close the persistence-tool comparison with Prisma as the maintainer's choice; exact versions and integration remain pending.
+- [ ] Finish exact configuration/artifact choices, internal contracts, and a small first-release acceptance checklist.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.19.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: local master contains `e19f252` (`docs(logging): finalize worker contracts and operating policy`). The three-file limiter/cleanup proposal was already uncommitted at this turn's start and is preserved. Live remote state was not checked here.
-- Current progress: the maintainer answered “setuju semua” to all six groups in [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters). Exact sliding-window admission/counting, environment defaults/validation, native timer lifecycle, replay-safe pruning, proxy-list configuration, and the separate Swagger quota are accepted. Related docs, earlier open-status references, and verification tasks are synchronized. The accepted logging policy remains recorded in [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy). No secret, fixture hash, runtime log, or application source has been generated.
+- Guide version: 4.23.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: the maintainer committed the limiter/cleanup changes during this review. Latest observed local master is `43447ba` (`docs(auth): finalize rate limiting and cleanup conventions`); remaining changes document accepted tooling direction, LTS review, integration alternatives, and their references. Live remote state was not checked here.
+- Current progress: accepted directions are Node 26's latest supported patch, Zod, Node Schedule, and Prisma as the future ORM under [D-069 — Prisma ORM direction](docs/DOC-003-decisions.md#d-069--prisma-orm-direction). The ORM comparison is closed; earlier reports remain history. Initial persistence stays placeholders and auth stays in memory. Earlier Node `26.13.0`/npm `11.20.0`, Zod `4.6.7`, scheduler tag/source observations, and Prisma `7.10.1` are review evidence, not cleared artifacts or automatic version pins. Full graph/provider/provenance and Prisma/Node 26 compatibility evidence remain incomplete; overall UNKNOWN. No source, secret, hash, runtime log, or integration was generated.
 - Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: no limiter/cleanup policy approval is pending in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](docs/DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). Prepare the tooling/dependency preflight, exact internal contract review, and first-release acceptance checklist as the next work areas; group related questions and do not reopen accepted policies. Exact software needs full preflight and explicit execution approval before scaffolding/installing/running. Actual proxy addresses and production supervision remain deployment inputs.
-- Approval boundary: no exact external software/version, hashing command, installation/execution, or assistant commit/push is authorized by these design decisions. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed monitoring/backup/recovery details beyond accepted logging requirements.
+- Next step/questions: carry the accepted Prisma choice forward instead of repeating ORM comparisons. Keep persistence placeholders, native cleanup, and independent logging intact. Before scaffolding, resolve exact initial-stack artifacts and full preflight under [DOC-017 — Tooling Preflight: 5. Review and execution gate](docs/DOC-017-tooling-preflight.md#5-review-and-execution-gate), then request concrete execution approval. When real persistence is requested, review the exact Prisma major/version, database/driver, Node 26 support, generator/migration scope, advisories, and provenance. Internal contracts, configs, first-release acceptance, Linux target `libatomic`, actual proxy addresses, and supervision remain pending as applicable.
+- Approval boundary: Node 26, Zod, Node Schedule, and Prisma are approved design directions, not installation/execution clearance. No hashing command, software installation/execution, assistant commit/push, database integration, client generation, migrations, new calendar job, or custom query wrapper is authorized. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed monitoring/backup/recovery details beyond accepted logging requirements.
 
 ## Implementation backlog
 

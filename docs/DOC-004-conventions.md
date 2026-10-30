@@ -62,10 +62,10 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 **Reason:** Demonstrate structure, DI, and access boundaries without implementing a real application.
 
-- Use Node.js and NestJS; exact versions and supporting tools still require preflight and explicit approval.
+- Use Node.js and NestJS. The maintainer selected the latest supported Node 26 patch under [D-063 — Node 26 runtime direction](DOC-003-decisions.md#d-063--node-26-runtime-direction), following [D-061 — LTS-first runtime review](DOC-003-decisions.md#d-061--lts-first-runtime-review). Disclose security/compatibility findings with alternatives; artifacts and supporting tools still require full preflight and explicit execution approval.
 - Demonstrate per-user permissions, signed JWT identity, and UUID v4 public user IDs. Keep two dummy accounts, grants, and session state in memory. Include login/refresh/logout; signing/expiry settings live in `.env`, while dummy-account credentials do not.
 - Real articles, categories, comments, relationships, lifecycle, and CRUD are outside the initial scope. Their earlier selection is historical.
-- Keep general feature persistence and third-party integration extension points as placeholders. Approved additions are auth in-memory storage and an independent logging process with local unexpected-error files; no ORM, database, or live external provider is selected. See [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
+- Keep general feature persistence and third-party integration extension points as placeholders. Prisma is the selected future ORM direction under [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction); no database, client, schema, or live provider is added. Initial storage remains in-memory auth and logging's local error files in its independent process. See [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 - Add provider-specific contracts, libraries, mappings, and implementations later when requested; do not design speculative provider APIs now.
 - Preserve simple flows, readable code, fast debugging/review, and controlled changes.
 - Include accepted unauthenticated process health endpoints for the API and logging worker under [DOC-010 — Reliability Strategy: Minimal health checks](DOC-010-reliability.md#minimal-health-checks). Broader reliability plans remain proposed; data backup and deployment recovery work follows relevant data/hosting needs.
@@ -88,13 +88,13 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 - Contracts define available operations, behavior, and responsibility boundaries.
 - Preserve the modular main API while giving the logging worker its own lifecycle under [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker). Background internal HTTP and send-failure fallback follow [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery). Local addressing, authentication, ingestion, queues, file settings, and initial launch/shutdown follow the accepted [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md); production supervision and exact software remain separate.
 - Design boundaries to contain the impact of domain, ORM, and provider changes.
-- Follow the agreed layout, abstract-class DI contracts, naming, typing, and import rules in [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Tooling and exact method signatures remain open.
+- Follow the agreed layout, abstract-class DI contracts, naming, typing, import rules, and tooling direction in [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Exact tool artifacts/configuration and internal method signatures remain open.
 - Deployment follows each project's needs and resources; logical layers do not prescribe physical tiers. Reference: [Microsoft N-tier guide](https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/n-tier), retrieved 2026-10-28.
 - Exported Nest providers form a module's public API. Reference: [NestJS modules](https://docs.nestjs.com/modules), retrieved 2026-10-28.
 
 ### Implementation conventions
 
-**Status:** Code conventions and API contracts accepted; exact internal methods and tooling remain open.
+**Status:** Code conventions, API contracts, and tooling direction accepted; exact internal methods and tool artifacts/configuration pending.
 
 Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Unit tests stay beside source; HTTP tests stay in `test/`.
 
@@ -203,7 +203,7 @@ Persistent resource catalogs, advanced delegation, account CRUD, registration, p
 - [D-010 — Behavioral contracts and integration boundaries](DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [D-011 — External interaction examples](DOC-003-decisions.md#d-011--external-interaction-examples)
 
-**Decision:** Prepare general persistence/integration placeholders, the approved in-memory authorization adapter, and logging's separate process/file boundary. Do not select a database, ORM, or live external provider.
+**Decision:** Prepare general persistence/integration placeholders, the approved in-memory authorization adapter, and logging's separate process/file boundary. Prisma is the future ORM direction under [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction); database selection and actual integration remain deferred.
 
 **Reason:** Let a consuming project add the required contract, library, and adapter later while keeping external details outside service logic.
 
@@ -257,7 +257,7 @@ Architecture references are neither artifact security audits nor approval to use
 
 ## 8. HTTP boundaries
 
-**Status:** Accepted; API and identity contracts specified, tooling open
+**Status:** Accepted; API/identity contracts and Zod direction specified, exact artifacts/wiring pending
 
 **Records:**
 

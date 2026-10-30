@@ -1,11 +1,12 @@
 # DOC-012 — HTTP Boundary Conventions
 
-**Status:** Accepted; API schemas specified in DOC-015, tooling open · **Updated:** 2026-10-30.
+**Status:** Accepted; Zod direction selected, exact artifacts/wiring pending · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-032 — HTTP input validation and XSS boundaries](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries)
 - [D-033 — Uniform JSON response envelope](DOC-003-decisions.md#d-033--uniform-json-response-envelope)
 - [D-034 — HTTP status standards and response examples](DOC-003-decisions.md#d-034--http-status-standards-and-response-examples)
+- [D-064 — Zod validation direction](DOC-003-decisions.md#d-064--zod-validation-direction)
 
 **Decision:** Validate consumed request bodies, query strings, and path parameters before service logic. Give JSON success and error responses a consistent envelope and meaningful HTTP status.
 
@@ -18,7 +19,7 @@
 - Keep HTTP validation schemas/DTOs in the owning feature's `dto/` location when a route actually accepts input. They are distinct from framework-independent service contracts.
 - Validation and normalization apply only to actual route inputs; no unused write endpoints, schemas, or domain models are required for the access demo.
 
-Nest supports validation through pipes. Its built-in `ValidationPipe` requires additional libraries; no validator library, exact version, or configuration is selected here. [NestJS validation](https://docs.nestjs.com/techniques/validation), retrieved 2026-10-29.
+Use Zod through a shared Nest pipe, preserving the accepted field policy and safe validation-error envelope. Use strict object schemas where extra fields must be rejected. Exact artifacts, pipe implementation, and Swagger mapping remain pending. The earlier built-in `ValidationPipe` option is not selected. [DOC-018 — Integration Alternatives: 4. Validator alternatives](DOC-018-integration-alternatives.md#4-validator-alternatives).
 
 ## 2. Input policy
 

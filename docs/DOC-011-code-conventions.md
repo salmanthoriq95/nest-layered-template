@@ -1,6 +1,6 @@
 # DOC-011 — Code Conventions
 
-**Status:** Accepted layout, DI, naming, typing, and test strategy; tooling open · **Updated:** 2026-10-30.
+**Status:** Layout, DI, naming, typing, tests, and tooling direction accepted; exact artifacts/configuration pending · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
@@ -9,6 +9,12 @@
 - [D-040 — HS256 tokens, refresh rotation, and immediate logout](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
 - [D-041 — In-memory demo accounts and manual grants](DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants)
 - [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy)
+- [D-060 — Initial tooling candidate review](DOC-003-decisions.md#d-060--initial-tooling-candidate-review)
+- [D-061 — LTS-first runtime review](DOC-003-decisions.md#d-061--lts-first-runtime-review)
+- [D-063 — Node 26 runtime direction](DOC-003-decisions.md#d-063--node-26-runtime-direction)
+- [D-064 — Zod validation direction](DOC-003-decisions.md#d-064--zod-validation-direction)
+- [D-067 — Node Schedule direction](DOC-003-decisions.md#d-067--node-schedule-direction)
+- [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction)
 
 **Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has in-memory account, permission, and session adapters. Keep unit tests beside source and HTTP tests in `test/`.
 
@@ -68,7 +74,7 @@ docs/
 - `examples` contains public, permission-protected, and superadmin-only response demonstrations, with feature-owned permission constants.
 - `auth` contains login/refresh/logout, identity/session verification, route policy, and authorization behavior. Account credentials, current role/grants, and session/refresh state stay behind application-owned contracts. Use a shared source of current role/grant data where adapters expose different views.
 - Keep exactly two dummy usernames, `superadmin` and `admin`, in the in-memory user fixture/store. Both use demo password `dev123`, stored as bcrypt hashes after approved generation. Edit grants manually; no management controller or source-file reload feature is included. Initial grants follow [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
-- Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). The test runner remains unselected.
+- Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). Native Node tests are the accepted runner direction; exact compilation/commands remain pending.
 - Keep tooling configuration at the root initially. Add runtime configuration structure when its actual settings are agreed.
 - `.gitkeep` only tracks an empty extension location. It performs no operation and is not a provider.
 
@@ -137,7 +143,7 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 - Add HTTP cases for invalid body/query/path inputs where accepted by actual routes, and success, denial, and unexpected-error envelopes. Do not invent endpoints solely for test coverage.
 - Exercise important logic through its public API. Do not test private methods, framework internals, getters, or constant responses merely to increase coverage; a simple response can be covered by its HTTP test.
 - Keep tests deterministic and independent of real databases, uploads, payment providers, and external networks. No database/vendor integration suite is needed while those integrations remain placeholders.
-- No numerical coverage target or additional test framework is selected. Commands and tools require a later preflight and approval.
+- Use the native Node test runner, assertions, and HTTP client as the accepted testing direction. No numerical coverage target or extra test framework is selected. Exact runtime/artifacts and commands still require preflight and approval.
 
 Colocated unit tests also follow Nest's documented recommendation. [NestJS testing](https://docs.nestjs.com/fundamentals/testing), retrieved 2026-10-29.
 
@@ -156,3 +162,17 @@ JWT environment names, defaults, validation, and manual key rotation are accepte
 Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are agreed; implementation and deployment supervision remain pending.
 
 Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). Still open: exact internal contract methods, fixture hashes, formatter/linter settings, compiler/module configuration, exact software versions, and actual deployment proxy addresses. Software execution still requires preflight and explicit approval.
+
+## 7. Tooling direction
+
+**Status:** Accepted direction; exact software versions, configuration files, and execution pending.
+
+**Decision:** Use npm, ESM/NodeNext, TypeScript compilation through `tsc`, native Node tests/assertions/HTTP requests, and separate ESLint/typescript-eslint/Prettier checks.
+
+**Reason:** The maintainer accepted this small tooling profile while retaining explicit runtime and supply-chain review.
+
+- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Exact compiler flags, targets, build/watch/test commands, and lint/format settings remain review items.
+- Use the latest supported Node 26 patch; the verified review target is `26.13.0` on 2026-10-30. Report security/compatibility findings and alternatives. Recheck the exact patch before installation review; do not introduce automatic upgrades.
+- Use Zod as the validation direction, preserving strict input handling and accepted HTTP contracts. Its exact artifact and Nest/Swagger adapters remain pending. Use Node Schedule for future calendar scheduling with explicit recurrence fields; exact artifacts and real job policies remain pending. The accepted native cleanup timer is unchanged.
+- Use Prisma as the future ORM direction. Keep generated types, query clients, and transaction details inside persistence adapters; services retain application-owned contracts. Exact Prisma version, database/driver, schema, migrations, and integration remain pending; general persistence stays placeholders initially. Earlier comparisons are retained in [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md). The HTTP adapter remains unselected.
+- Exact versions, resolved dependencies, artifact verification, installation, and execution remain subject to [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). Evidence is tracked in [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).

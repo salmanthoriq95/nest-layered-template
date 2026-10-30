@@ -598,3 +598,97 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Approval: the maintainer answered “setuju semua” to the numbered 1–6 proposal. Existing login/refresh quotas and cleanup-retention constraints retain their earlier approvals.
 - Boundary: exact software/preflight, internal method signatures, actual deployment proxy addresses, and implementation remain separate. No source, `.env`, runtime execution, commit, or push is included in this documentation approval.
 - Details: [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters).
+
+## D-060 — Initial tooling candidate review
+
+**Status:** Tooling direction accepted; exact candidates/preflight UNKNOWN · **Date:** 2026-10-30.
+
+- Decision: use npm, ESM/NodeNext, TypeScript compilation through `tsc`, native Node tests/assertions/HTTP requests, and ESLint/typescript-eslint/Prettier as the tooling direction. Continue reviewing candidate versions in [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md) before any artifact adoption or execution.
+- Reason: the maintainer accepted the proposed convention profile to keep tooling small and understandable while retaining supply-chain control.
+- Approval: the maintainer explicitly agreed to the tooling direction, then requested Node 24/LTS review and alternatives to ORM, scheduler, and validator integrations. This does not adopt Express, class-validator, or other candidate libraries.
+- Evidence boundary: this is an incomplete initial assessment, not an audit completion or software selection. Registry access, full dependency resolution, support commitments, provider signals, and artifact integrity/provenance remain incomplete; the outcome is UNKNOWN.
+- Approval boundary: accepted tooling conventions do not waive preflight or authorize a commit/push, software download/install/execution, or a new ORM/scheduler/validator integration. Details: [DOC-011 — Code Conventions: 7. Tooling direction](DOC-011-code-conventions.md#7-tooling-direction).
+
+## D-061 — LTS-first runtime review
+
+**Status:** Accepted review policy; runtime direction resolved by D-063 · **Date:** 2026-10-30.
+
+- Decision: prioritize the latest supported Node LTS release/current patch. Check Node 24's current patch alongside the newest LTS line, disclose security and compatibility findings, offer alternatives, and let the maintainer choose the exact runtime before adoption.
+- Reason: the maintainer wants supported runtime updates and control over security/compatibility trade-offs.
+- Original boundary: “TLS” was interpreted as LTS in this runtime context. Neither Node `24.22.2` nor `26.13.0` was adopted by that request. [D-063 — Node 26 runtime direction](#d-063--node-26-runtime-direction) later selects Node 26; full preflight and explicit execution approval remain mandatory.
+- Details: [DOC-017 — Tooling Preflight: Node LTS comparison](DOC-017-tooling-preflight.md#node-lts-comparison).
+
+## D-062 — ORM, scheduler, and validator comparison
+
+**Status:** Comparison retained; validator resolved by D-064, further review in D-065/D-066 · **Date:** 2026-10-30.
+
+- Decision: document alternative persistence tools, calendar schedulers, and schema validators with syntax, trade-offs, compatibility, and unresolved security evidence. The maintainer clarified that “worker” meant scheduler.
+- Reason: the maintainer had poor experiences with the customary integrations and wants understandable alternatives before choosing.
+- Original boundary: this authorized comparison only. General persistence remains placeholders; no ORM/database is added. The accepted native cleanup timer and independent logging process remain separate. [D-064 — Zod validation direction](#d-064--zod-validation-direction) later selects Zod as a design choice; no artifact is cleared for installation/execution.
+- Details: [DOC-018 — Integration Alternatives](DOC-018-integration-alternatives.md).
+
+## D-063 — Node 26 runtime direction
+
+**Status:** Accepted runtime line; artifact clearance UNKNOWN · **Date:** 2026-10-30.
+
+- Decision: use the latest supported Node 26 patch after confirming its LTS status. The verified review target on this date is `26.13.0`, bundled with npm `11.20.0`; recheck the latest patch before preparing installation.
+- Reason: the maintainer chose Node 26 if its LTS status was confirmed. Official release metadata confirms that Node 26 entered LTS on 2026-10-28.
+- Boundary: this resolves the runtime-line choice in [D-061 — LTS-first runtime review](#d-061--lts-first-runtime-review), not software eligibility or execution. It does not introduce automatic upgrades, installation, platform selection, or a version file before full preflight and explicit execution approval.
+- Details: [DOC-017 — Tooling Preflight: Node LTS comparison](DOC-017-tooling-preflight.md#node-lts-comparison).
+
+## D-064 — Zod validation direction
+
+**Status:** Accepted design choice; exact artifact/configuration pending · **Date:** 2026-10-30.
+
+- Decision: use Zod for request-validation schemas. Retain accepted field normalization, unknown-field rejection, safe validation errors, HTTP envelopes, and Swagger contracts.
+- Reason: the maintainer prefers Zod's readability.
+- Boundary: `4.6.7` remains the current review target, not an independently approved artifact. Exact package/adapter versions, schemas, Swagger mapping, and installation/execution remain subject to preflight and approval. This resolves the validator comparison in [D-062 — ORM, scheduler, and validator comparison](#d-062--orm-scheduler-and-validator-comparison).
+- Details: [DOC-018 — Integration Alternatives: 4. Validator alternatives](DOC-018-integration-alternatives.md#4-validator-alternatives).
+
+## D-065 — Drizzle security and compatibility review
+
+**Status:** Review retained; ORM direction resolved by D-069 · **Date:** 2026-10-30.
+
+- Decision: review Drizzle's security and Node 26 compatibility, using stable `drizzle-orm@0.45.4` as the current review target. Keep database, driver, Drizzle Kit, and integration choices open.
+- Reason: the maintainer has used Drizzle comfortably and wants current evidence before choosing a future persistence implementation.
+- Boundary: this is not approval to add an ORM or database to the placeholder-only template. The known identifier-injection advisory is fixed before the review target, but artifact clearance and full driver/tooling compatibility remain UNKNOWN.
+- Details: [DOC-019 — Drizzle Security and Compatibility Review](DOC-019-drizzle-review.md).
+
+## D-066 — Readable scheduling preference
+
+**Status:** Accepted preference; scheduler direction resolved by D-067 · **Date:** 2026-10-30.
+
+- Decision: compare durations, numeric time units, and explicit calendar fields instead of requiring maintainers to read cron expressions. Keep intervals distinct from daily wall-clock schedules. The earlier node-cron/Croner examples are not selected.
+- Reason: the maintainer finds cron expressions difficult to read and requested forms such as `1h`, `14:00:00`, or calculated durations.
+- Original boundary: no custom scheduling API, parser, library, job, timezone default, or lifecycle change was approved by that comparison. [D-067 — Node Schedule direction](#d-067--node-schedule-direction) later selects Node Schedule as a design direction. The native cleanup timer and independent logging process retain their accepted behavior.
+- Details: [DOC-018 — Integration Alternatives: 6. Readable scheduling options](DOC-018-integration-alternatives.md#6-readable-scheduling-options).
+
+## D-067 — Node Schedule direction
+
+**Status:** Accepted design choice; exact artifact/configuration pending · **Date:** 2026-10-30.
+
+- Decision: use Node Schedule as the scheduler direction, with explicit recurrence fields rather than requiring cron strings.
+- Reason: the maintainer selected Node Schedule after reviewing readable duration and calendar alternatives.
+- Boundary: exact published version, Node 26 compatibility, dependency/advisory/provenance checks, installation, and execution remain pending. This does not create a calendar job, adopt the sample timezone, replace the accepted native cleanup timer, or merge logging into the API process.
+- Evidence boundary: earlier tagged review target `2.1.0` and current moving-source manifest `2.1.2` are distinct observations. Registry metadata was inaccessible; neither establishes the exact artifact to install.
+- Details: [DOC-018 — Integration Alternatives: Node Schedule: explicit calendar fields](DOC-018-integration-alternatives.md#node-schedule-explicit-calendar-fields).
+
+## D-068 — Additional persistence alternatives
+
+**Status:** Comparison retained; ORM direction resolved by D-069 · **Date:** 2026-10-30.
+
+- Decision: compare Kysely, Knex, and MikroORM as additional persistence options, including syntax, abstraction costs, Node 26 declarations, and unresolved security evidence. Keep Drizzle/Prisma out of this new comparison while preserving earlier records.
+- Reason: the maintainer requested options beyond Drizzle and Prisma before choosing a persistence direction.
+- Boundary: no database, driver, ORM/query builder, migrations, provider contracts, or real CRUD are added. The template retains general persistence placeholders and in-memory auth storage. Comparison targets remain UNKNOWN for installation/execution until full preflight and approval.
+- Details: [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md).
+
+## D-069 — Prisma ORM direction
+
+**Status:** Accepted future ORM direction; exact artifacts/integration pending · **Date:** 2026-10-30.
+
+- Decision: use Prisma when a consuming project adds database persistence. Close the ORM/query-builder comparison without adding a database implementation to the initial template.
+- Reason: the maintainer prefers Prisma for its perceived ecosystem maturity. This records the maintainer's selection, not a verified ranking of every alternative.
+- Resolves: the unselected ORM direction in [D-068 — Additional persistence alternatives](#d-068--additional-persistence-alternatives); the earlier [D-065 — Drizzle security and compatibility review](#d-065--drizzle-security-and-compatibility-review) remains historical evidence, not the selected direction.
+- Boundary: initial persistence stays placeholders, auth accounts/grants/sessions stay in memory, and logging keeps its independent process/file boundary. No schema, migrations, client generation, driver, database, real CRUD, installation, or execution is authorized by this design choice.
+- Version boundary: the earlier Prisma `7.10.1` example is a historical review target, not an approved version or a claim about the latest release. Recheck exact versions, Node 26 support, advisories, dependencies, scripts, and artifact provenance before future integration under the full supply-chain policy.
+- Details: [DOC-011 — Code Conventions: 7. Tooling direction](DOC-011-code-conventions.md#7-tooling-direction), [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).
