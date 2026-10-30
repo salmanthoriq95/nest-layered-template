@@ -63,7 +63,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 **Reason:** Demonstrate structure, DI, and access boundaries without implementing a real application.
 
 - Use Node.js and NestJS; exact versions and supporting tools still require preflight and explicit approval.
-- Demonstrate per-user permissions with an in-memory role/grant store, public metadata, signed JWT identity, and UUID v4 public user IDs. Use minimal login and refresh; signing/expiry settings live in `.env`. Detailed token policies remain open.
+- Demonstrate per-user permissions, signed JWT identity, and UUID v4 public user IDs. Keep two dummy accounts, grants, and session state in memory. Include login/refresh/logout; signing/expiry settings live in `.env`, while dummy-account credentials do not.
 - Real articles, categories, comments, relationships, lifecycle, and CRUD are outside the initial scope. Their earlier selection is historical.
 - Keep general feature persistence and third-party integration extension points as placeholders. The auth module's in-memory access store is an approved exception; no ORM, database, or real external I/O is required.
 - Add provider-specific contracts, libraries, mappings, and implementations later when requested; do not design speculative provider APIs now.
@@ -123,6 +123,9 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 - [D-037 — UUID v4 public user identifiers](DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers)
 - [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration)
 - [D-039 — Swagger Basic Auth with bcrypt](DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt)
+- [D-040 — HS256 tokens, refresh rotation, and immediate logout](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
+- [D-041 — In-memory demo accounts and manual grants](DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants)
+- [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing)
 
 **Decision:** Authorize protected example operations through per-user grants. Use `@Public()` for anonymous routes and current server-side role/grant state for protected requests. An authenticated superadmin passes permission checks; superadmin-only routes remain exclusive to that role.
 
@@ -144,20 +147,24 @@ An admin role alone grants no protected permission. This replaces the unconditio
 - Store current per-user roles and grants in an in-memory auth adapter behind a `PermissionStore` contract. Keep storage code outside the application service layer; wire the adapter through DI.
 - Read role/grants once per protected request. Subsequent checks in the same process see store changes; already-authorized requests are not cancelled. No grant snapshot in a JWT is authoritative.
 - In-memory state resets on restart and is separate in each process. Shared persistence, caching, and invalidation strategies are deferred until needed.
+- Keep exactly two dummy accounts: one superadmin and one admin. Their account/credential data and bcrypt hashes stay in the in-memory adapter/fixture, not `.env`. Actual passwords/hashes and hashing parameters remain open.
+- Change grants manually in storage. No grant-management route is provided. Live store edits affect the next check; editing fixture source may require restarting the process and logging in again.
 
 ### JWT identity
 
 - Use signed JWTs for minimal identity and validation claims. Verify the signature and expected issuer, audience, and validity period, then resolve current access state using the subject.
+- Use HS256 with a random key of at least 256 bits and a default 15-minute access lifetime. Refresh tokens are opaque, hashed server-side, rotated on use, and limited to a seven-day refresh window from login.
 - Keep permission lists and privileged role decisions in the server-side store. Do not add custom permission encryption inside JWTs.
-- Token encryption does not prevent bearer-token reuse after a leak; permission lookup alone does not provide logout or full token revocation.
+- Protected requests also require an active server-issued session bound to the JWT subject. Logout revokes that session and its refresh family; all of its access JWTs fail later checks with `401`, even for superadmin. Permission checks happen after authentication/session checks.
+- Keep refresh rotation within the same login session and coordinate it with revocation. Missing session state, including after restart, cannot authenticate an old token. Already-authorized requests are not retroactively cancelled.
 - Use minimal login and refresh, with signing-key/expiry values in `.env` and initial manual testing through Swagger. “Reset token” was clarified as refresh.
-- JWT library/version, signing profile, key format/rotation, lifetimes, transport, refresh policy, and logout/revocation remain open. Accepted requirements and proposed defaults are separated in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+- Exact token/session claims, transport, session-count/retry/replay details, key format/rotation, endpoint contracts, and software versions remain open. Accepted rules and remaining proposals are separated in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
 
 ### Swagger access
 
 - Protect Swagger using HTTP Basic Auth, with `SWAGGER_USERNAME` and a bcrypt `SWAGGER_PASSWORD_HASH` in `.env`. The hash is configuration, not a plaintext password or an API access token.
 - Cover enabled documentation UI/schema routes and keep the gate independent of API JWT/permission checks. Exact credential values, route/configuration handling, bcrypt parameters, and library versions remain open.
-- Follow [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Application-user password hashing and the earlier token baseline are still undecided.
+- Follow [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Bcrypt is selected for both credential sources; parameters and implementation remain open. Token durations, signing, rotation, and immediate logout are accepted.
 
 ### Public user identifiers
 
@@ -170,13 +177,13 @@ Sources and rationale are linked in [D-035 — Per-user permissions and public a
 ### Open for the demo
 
 - Exact endpoint paths, methods, input schemas, and response data. Envelope and access status conventions are accepted in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
-- Approve or revise the login/refresh baseline in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md), including credentials/fixtures, lifetimes, signing profile, rotation, transport, and logout behavior.
-- Exact permission catalog, grant fixtures, and how superadmin changes grants. No grant-management endpoint is selected.
+- Review the proposed endpoints, initial grants, metadata defaults, session profile, and configuration/hash parameters in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md), tracked as [D-042 — Minimal API contracts and initial demo grants (proposed)](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants).
+- Exact permission catalog and initial admin grants. Grant changes are manual in storage; no management endpoint is included.
 - Behavior for missing route metadata, multiple required permissions, and exact superadmin-only metadata.
 
 ### Deferred extension
 
-Persistent resource catalogs, advanced delegation, account CRUD, registration, password recovery, and external identity providers remain deferred. Minimal login/refresh is now required; advanced session and revocation behavior needs an explicit decision.
+Persistent resource catalogs, advanced delegation, account CRUD, registration, password recovery, external identity providers, and all-device logout remain deferred. Login, refresh, and immediate current-session logout are required.
 
 ## 5. External interaction examples
 
@@ -193,7 +200,7 @@ Persistent resource catalogs, advanced delegation, account CRUD, registration, p
 **Reason:** Let a consuming project add the required contract, library, and adapter later while keeping external details outside service logic.
 
 - Document where contracts and implementations would be added and how DI would connect them.
-- Keep the demo independent of databases and external services. The in-memory role/grant adapter follows [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access). Additional credential/refresh storage responsibilities remain proposed in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+- Keep the demo independent of databases and external services. Auth account, role/grant, and session/refresh state are in-memory adapters behind contracts, following [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md). General feature persistence and live integrations remain placeholders.
 - Do not add repositories, schema, migrations, real upload/payment behavior, or vendor SDK wrappers merely to populate a layer.
 - Real integrations require a new agreed scope and the normal supply chain preflight/approval process.
 

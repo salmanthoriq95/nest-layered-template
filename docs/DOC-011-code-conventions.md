@@ -6,14 +6,16 @@
 - [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
 - [D-031 — Minimal testing strategy and locations](DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations)
 - [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
+- [D-040 — HS256 tokens, refresh rotation, and immediate logout](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
+- [D-041 — In-memory demo accounts and manual grants](DOC-003-decisions.md#d-041--in-memory-demo-accounts-and-manual-grants)
 
-**Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has an in-memory access adapter. Keep unit tests beside source and HTTP tests in `test/`.
+**Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has in-memory account, permission, and session adapters. Keep unit tests beside source and HTTP tests in `test/`.
 
 **Reason:** Make a small feature easy to trace and move while keeping HTTP, application behavior, and external implementations separate.
 
 ## 1. Minimal layout
 
-This is the agreed layout, not existing source code. It includes the permission model added after the first layout. Minimal login/refresh is selected; its detailed lifecycle, exact routes, and contract methods remain open. Add test files where the behavior requires them.
+This is the agreed layout, not existing source code. It includes the permission and session-lifecycle decisions added after the first layout. Exact routes, credentials, and contract methods remain open. Add test files where the behavior requires them.
 
 ```text
 src/
@@ -33,15 +35,22 @@ src/
         .gitkeep
     auth/
       auth.module.ts
+      auth.controller.ts
+      authentication.service.ts
       permissions.guard.ts
       permissions.guard.spec.ts
       authorization.service.ts
       contracts/
+        authentication-service.contract.ts
         identity-provider.contract.ts
         authorization-service.contract.ts
         permission-store.contract.ts
+        user-store.contract.ts
+        session-store.contract.ts
       persistence/
         in-memory-permission.store.ts
+        in-memory-user.store.ts
+        in-memory-session.store.ts
 test/
   app.e2e-spec.ts
 docs/
@@ -49,7 +58,8 @@ docs/
 
 - `main.ts` boots the application; `app.module.ts` composes feature modules.
 - `examples` contains public, permission-protected, and superadmin-only response demonstrations, with feature-owned permission constants.
-- `auth` contains identity verification, guard metadata handling, and authorization behavior. Its in-memory adapter supplies current role/grants through a contract. Minimal login/refresh follows [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md); detailed token/storage policies remain proposed.
+- `auth` contains login/refresh/logout, identity/session verification, route policy, and authorization behavior. Account credentials, current role/grants, and session/refresh state stay behind application-owned contracts. Use a shared source of current role/grant data where adapters expose different views.
+- Keep exactly two dummy accounts in the in-memory user fixture/store. Edit grant data manually; do not add a management controller or source-file reload feature. Credential values and password hashing remain open.
 - Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). The test runner remains unselected.
 - Keep tooling configuration at the root initially. Add runtime configuration structure when its actual settings are agreed.
 - `.gitkeep` only tracks an empty extension location. It performs no operation and is not a provider.
@@ -64,9 +74,10 @@ docs/
 | Module | Register providers, bind contracts to implementations, and expose only required providers. |
 | Guard | Use the identity boundary, read route policy, and delegate permission decisions through the authorization contract. |
 | Authorization service | Evaluate required grants and privileged-role rules using current state from the permission-store contract. |
-| Persistence/integrations | Keep general feature locations unused; the auth in-memory access adapter is an approved implementation. |
+| Authentication service | Coordinate credential verification, token issuance/refresh, and current-session logout through identity/user/session contracts. |
+| Persistence/integrations | Keep general feature locations unused; auth account, permission, and session state use in-memory adapters. |
 
-The controller depends on a service contract. The guard uses identity-provider and authorization-service contracts; the authorization service reads the permission-store contract. Keep route metadata and HTTP objects outside service contracts. Modules bind implementations through DI; services do not depend on controllers or concrete storage adapters.
+Controllers depend on service contracts. The guard uses identity/session verification and the authorization-service contract; the authorization service reads the permission-store contract. Authentication services use user/session contracts to coordinate the accepted token lifecycle. Keep HTTP metadata, storage code, and library-specific types outside these contracts. Modules bind implementations through DI.
 
 Use explicit constructor injection. Import another feature through its module and exported contracts, without reaching into its concrete implementations. Nest module exports define the public provider API. [NestJS modules](https://docs.nestjs.com/modules), retrieved 2026-10-29.
 
@@ -109,6 +120,8 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 
 - Cover the current access table: guest, authenticated caller with/without the required grant, and superadmin against public, permission-protected, and superadmin-only routes. Include a caller with an admin role but no required grant.
 - Exercise JWT verification with valid, expired, and tampered test tokens using controlled test keys and in-memory fixtures. Keep the actual guard active. Test doubles remain useful for isolated policy decisions.
+- Verify that logout invalidates every access/refresh credential for the current session, including earlier access tokens from before refresh, and that superadmin cannot bypass a revoked/missing session. Test refresh/logout races and restart with cleared sessions.
+- Keep the shipped dummy account set to one admin and one superadmin. Exercise grant-present/absent cases by changing the admin fixture in isolated tests; a third runtime account is not required.
 - Verify that changing grants affects the next protected check without issuing a new token. This does not require a grant-management API.
 - Add HTTP cases for invalid body/query/path inputs where accepted by actual routes, and success, denial, and unexpected-error envelopes. Do not invent endpoints solely for test coverage.
 - Exercise important logic through its public API. Do not test private methods, framework internals, getters, or constant responses merely to increase coverage; a simple response can be covered by its HTTP test.
@@ -123,4 +136,8 @@ For a future database or external provider: agree the behavior, add an applicati
 
 HTTP validation, input policy, response envelopes, and boundary wiring are accepted in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md). Status conventions and examples are in [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md).
 
-Still open: exact contract methods, permission catalog/fixtures, grant updates, token profile and issuance, remaining route-policy details, endpoint contracts, request-ID format and log integration, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.
+Token durations/signing/refresh behavior, immediate logout, two memory-only accounts, and manual grant changes are accepted in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+
+Bcrypt is selected for application credential verification, with parameters/implementation still open. Proposed endpoint/grant and token/session details are in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
+
+Still open: exact contract methods, actual credentials/hashes, approval of initial grants and metadata/transport rules, request-ID/log settings, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.

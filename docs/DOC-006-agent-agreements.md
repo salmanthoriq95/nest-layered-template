@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 4.2.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Guide version:** 4.4.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,8 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.4.0 | 2026-10-30 | Accept bcrypt for application credentials as well as the separate Swagger gate. Add task-based routing to proposed endpoint/grant contracts; routes, metadata/session defaults, and hash parameters are not approved by the hashing choice. | [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing), [D-042 — Minimal API contracts and initial demo grants (proposed)](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) |
+| 4.3.0 | 2026-10-30 | Accept HS256/15-minute access JWTs, opaque seven-day refresh rotation, and immediate access/refresh logout through server-side sessions. Require two memory-only dummy accounts and manual storage grant changes, with no management API. Dummy credentials do not come from `.env`; exact hashing/configuration details remain open. | [D-040–D-041 — Token lifecycle, immediate logout, and in-memory accounts/grants](DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout) |
 | 4.2.0 | 2026-10-30 | Add Swagger HTTP Basic Auth with a bcrypt password hash in `.env`, covering documentation UI/schema access separately from API JWT permissions. Token baseline, bcrypt parameters, and exact library versions remain open. | [D-039 — Swagger Basic Auth with bcrypt](DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt) |
 | 4.1.0 | 2026-10-30 | Add approved minimal login/refresh scope, `.env` signing/expiry configuration, and Swagger-first token testing. Detailed lifetimes, signing, rotation, transport, and logout remain proposed; software approval gates are unchanged. | [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration) |
 | 4.0.0 | 2026-10-29 | Replace unconditional admin access with per-user permissions, in-memory role/grant lookup, and public route metadata. Accept minimal JWT identity and UUID v4 public user IDs. General feature persistence remains placeholders; software/Git approval gates are unchanged. | [D-035–D-037 — Per-user permissions, JWT identity, and public user identifiers](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) |

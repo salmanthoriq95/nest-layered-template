@@ -8,8 +8,10 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 
 - Demonstrate public, permission-protected, and superadmin-only access with allow/deny responses.
 - Use per-user in-memory grants. Public routes are anonymous; authenticated superadmins pass permission checks; superadmin-only routes stay restricted.
-- Use minimal signed JWT login/refresh and current server-side role/grant lookup, with UUID v4 public user IDs. Configure signing/expiry in `.env`; try the API through Swagger first. Detailed token policies and exact tooling remain open.
-- Protect Swagger with HTTP Basic Auth and a bcrypt password hash configured in `.env`.
+- Use HS256 access JWTs (15-minute default) and rotating opaque refresh tokens (seven-day refresh window). Logout immediately invalidates the current session's access and refresh tokens through server-side checks.
+- Keep two dummy accounts, roles/grants, and sessions in memory. Edit grants manually in storage; no grant-management endpoint is included. Dummy-account credentials stay outside `.env`.
+- Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first. Exact credentials, contracts, and tooling remain open.
+- Use bcrypt for application and Swagger passwords. Application hashes stay in memory fixtures; Swagger Basic Auth uses its separate `.env` credentials.
 - Keep one modular, N-layered application with DI and clear boundaries.
 - Validate request inputs and use uniform JSON envelopes with standard HTTP statuses and safe error details.
 - Prepare general persistence and external integration placeholders, alongside the auth module's in-memory access store behind a contract. Add database/provider implementations when a consuming project needs them.
@@ -36,7 +38,8 @@ Designed for solo developers and teams of 2–3. Priorities: readable flows, fas
 | [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md) | Accepted code layout, contracts, naming, and minimal test strategy. |
 | [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md) | Accepted validation, XSS boundaries, envelopes, and shared HTTP wiring. |
 | [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md) | Common HTTP statuses, headers, and uniform response examples. |
-| [DOC-014 — Authentication Lifecycle](docs/DOC-014-authentication-lifecycle.md) | Accepted login/refresh requirements and proposed token policies. |
+| [DOC-014 — Authentication Lifecycle](docs/DOC-014-authentication-lifecycle.md) | Token lifecycle, immediate logout, Swagger protection, and remaining policies. |
+| [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) | Proposed routes, inputs/results, initial grants, and remaining access/session defaults. |
 
 ## AI collaboration
 
