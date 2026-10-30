@@ -93,7 +93,7 @@ AUTH_REFRESH_TTL_SECONDS=604800
 - Rotate the signing key manually by updating configuration and restarting the application. Restart clears in-memory sessions, so users must log in again. Automatic rotation and simultaneous old/new signing keys are outside the initial implementation.
 - Do not log signing keys, passwords, or tokens. Key generation and software execution still require preflight and explicit approval.
 
-HS256 requires at least 256-bit keys; hex represents each byte with two characters. Validate hex strictly before decoding because malformed hex can be truncated. [RFC 7518: HMAC with SHA-2](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2), [Node.js Buffer encodings](https://nodejs.org/api/buffer.html#buffers-and-character-encodings), retrieved 2026-10-30. The configuration approach is accepted under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md); exact artifacts and JWT library selection remain pending.
+HS256 requires at least 256-bit keys; hex represents each byte with two characters. Validate hex strictly before decoding because malformed hex can be truncated. [RFC 7518: HMAC with SHA-2](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2), [Node.js Buffer encodings](https://nodejs.org/api/buffer.html#buffers-and-character-encodings), retrieved 2026-10-30. The configuration approach is accepted under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Jose is the selected JWT implementation under [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations); exact artifact clearance remains pending.
 
 ## 4. HTTP and Swagger flow
 
@@ -144,7 +144,7 @@ SWAGGER_PASSWORD_HASH='<bcrypt-hash>'
 - Do not expose or log credentials, authorization headers, or the hash. When Swagger is enabled, missing or invalid credentials/hash must fail startup. The application demo password `dev123` does not configure this gate.
 - Before Basic Auth, apply the accepted separate sliding-window quota of 60 requests per IP per 60 seconds across protected UI/schema/assets routes together. Settings and counting follow [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](#limiter-and-cleanup-parameters); Swagger requests do not consume login/refresh quotas.
 
-Bcrypt defaults are accepted in [DOC-015 — Demo API Contracts: 5. Swagger and credential parameters](DOC-015-demo-api-contracts.md#5-swagger-and-credential-parameters): start at cost 12, with at least 10 after deployment calibration. Reject passwords beyond 72 UTF-8 bytes rather than silently truncating. Deployment calibration and exact library/version remain open. [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#bcrypt), retrieved 2026-10-30.
+Bcrypt defaults are accepted in [DOC-015 — Demo API Contracts: 5. Swagger and credential parameters](DOC-015-demo-api-contracts.md#5-swagger-and-credential-parameters): start at cost 12, with at least 10 after deployment calibration. Reject passwords beyond 72 UTF-8 bytes rather than silently truncating. Native bcrypt, review baseline `6.0.0`, is selected under [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations); deployment calibration and artifact clearance remain open. [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#bcrypt), retrieved 2026-10-30.
 
 ## 6. Remaining decisions and verification
 

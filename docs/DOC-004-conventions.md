@@ -273,7 +273,7 @@ Follow [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md) for 
 
 ## 9. Minimal testing
 
-**Status:** Strategy accepted; runner and commands open
+**Status:** Strategy, native runner, and build/test behavior accepted; script implementations pending
 
 **Record:** [D-031 — Minimal testing strategy and locations](DOC-003-decisions.md#d-031--minimal-testing-strategy-and-locations).
 
@@ -282,3 +282,5 @@ Follow [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md) for 
 **Reason:** Keep tests easy to locate, useful for changes, and small enough for a template.
 
 Follow [DOC-011 — Code Conventions: 5. Minimal testing strategy](DOC-011-code-conventions.md#5-minimal-testing-strategy). Cover the access matrix and actual HTTP boundaries without databases, live external providers, or tests of framework internals.
+
+Build success requires type checking and executed unit/HTTP tests against compiled JavaScript, using separate build/test configurations and outputs. Application artifacts exclude tests. `npm run check` also includes basic lint and default-Prettier verification. [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)

@@ -695,7 +695,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-070 — Initial scaffold configuration
 
-**Status:** Accepted profile; exact artifacts/configuration pending · **Date:** 2026-10-30.
+**Status:** Accepted profile; refined by [D-073 — ESNext and verified application builds](#d-073--esnext-and-verified-application-builds) and [D-074 — Internal contract inputs and values](#d-074--internal-contract-inputs-and-values); exact artifacts/configuration pending · **Date:** 2026-10-30.
 
 - Decision: use Express, TypeScript `strict` without the two proposed extra strictness flags, basic lint, default Prettier, native automatic watch, `@nestjs/config` with Zod, synchronous in-memory operations where appropriate, typed application errors, and `npm test` covering unit and HTTP tests. Provide focused test commands and an aggregate `npm run check`.
 - Reason: the maintainer explicitly chose this baseline to keep development familiar and understandable, without speculative async contracts or extra lint/format policy.
@@ -711,3 +711,50 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: after the test-command answer, the maintainer explicitly selected “A — Tinjau hasil lengkap sekaligus” in the acceptance/review clarification.
 - Boundary: these are required outcomes, not reported test results. Incremental implementation/checking remains possible; no new feature, numerical coverage target, commit/push, publication, installation, or execution is authorized.
 - Details: [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).
+
+## D-072 — JWT and native bcrypt implementations
+
+**Status:** Accepted implementation directions; artifact clearance UNKNOWN · **Date:** 2026-10-30.
+
+- Decision: use `jose` behind the identity contract and native `bcrypt` for application/Swagger password checks. The selected bcrypt review baseline is `6.0.0`; jose's current review target remains `6.2.14`.
+- Reason: the maintainer explicitly selected jose and native bcrypt from the presented alternatives.
+- Boundary: preserve HS256/session rules and bcrypt cost/length limits. These choices do not clear published artifacts, native binaries, install hooks, or execution. Bcryptjs and Nest JWT remain historical alternatives.
+- Details: [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](DOC-021-scaffold-profile.md#5-implementation-selections), [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).
+
+## D-073 — ESNext and verified application builds
+
+**Status:** Accepted target and build/test behavior; scripts/configuration pending · **Date:** 2026-10-30.
+
+- Decision: target `ESNext` with the accepted strict/ESM/NodeNext profile. Separate build/test configurations and outputs. Require type checking and executed unit/HTTP tests against compiled JavaScript before build success; exclude tests from application artifacts.
+- Reason: the maintainer chose ESNext and separate configurations, then confirmed the recommendation to execute compiled tests as part of build verification.
+- Clarification: TypeScript compilation does not run behavioral tests. Shipping artifacts without tests does not remove the build-time test requirement or imply identical behavior in every environment.
+- Boundary: keep focused test commands and aggregate checks without recursive command composition or redundant full-suite runs. Exact flags, paths, scripts, and software execution remain review items.
+- Refines: compiler-target/build details left open in [D-070 — Initial scaffold configuration](#d-070--initial-scaffold-configuration); first-release review criteria in D-071 remain accepted.
+- Details: [DOC-021 — Initial Scaffold Profile: Build and test artifacts](DOC-021-scaffold-profile.md#build-and-test-artifacts).
+
+## D-074 — Internal contract inputs and values
+
+**Status:** Accepted conventions; complete signatures pending · **Date:** 2026-10-30.
+
+- Decision: prefer named input objects, allow direct single-value lookups, return `undefined` for missing storage records, and store session times as epoch milliseconds with explicit unit names.
+- Reason: the maintainer selected these conventions to make contract inputs and internal values consistent.
+- Boundary: preserve application-owned types, typed errors, and sync memory where appropriate. HTTP envelope `null` fields, JWT NumericDate seconds, environment TTL seconds, and monotonic limiter timing are unchanged. Complete method types and unrelated optional/default rules remain open.
+- Details: [DOC-011 — Code Conventions: 3. Contracts and DI](DOC-011-code-conventions.md#3-contracts-and-di), [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](DOC-021-scaffold-profile.md#5-implementation-selections).
+
+## D-075 — Stable public demo fixtures
+
+**Status:** Accepted fixture policy; generation pending · **Date:** 2026-10-30.
+
+- Decision: generate the two accounts' UUID v4 IDs and separately salted bcrypt hashes once, then commit them as public demo fixtures instead of regenerating them at startup. Both demo passwords remain `dev123`.
+- Reason: the maintainer selected stable fixtures for consistent demo identities and a simpler startup.
+- Boundary: generation requires approved software execution. No IDs or hashes were generated by this decision. JWT/Swagger/logging secrets and real account data remain outside Git.
+- Details: [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](DOC-021-scaffold-profile.md#5-implementation-selections).
+
+## D-076 — Dependency ranges and committed lockfile
+
+**Status:** Accepted versioning policy; exact ranges/artifacts pending · **Date:** 2026-10-30.
+
+- Decision: use dependency version ranges with a committed `package-lock.json`; repeat installs use `npm ci` after approval. Review exact range expressions and resolved versions before adopting them.
+- Reason: the maintainer chose ranges with a lockfile over exact direct-dependency declarations.
+- Boundary: a range is not approval for future resolutions. Every dependency/lockfile change still requires full preflight and explicit approval for affected software steps. No package manifest, lockfile, installation, or update was created by this policy.
+- Details: [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](DOC-021-scaffold-profile.md#5-implementation-selections), [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md).

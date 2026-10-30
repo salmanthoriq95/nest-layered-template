@@ -17,6 +17,10 @@
 - [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction)
 - [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration)
 - [D-071 — First-release acceptance and review](DOC-003-decisions.md#d-071--first-release-acceptance-and-review)
+- [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
+- [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
+- [D-075 — Stable public demo fixtures](DOC-003-decisions.md#d-075--stable-public-demo-fixtures)
+- [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)
 
 **Decision:** Keep files together by feature with controller/service/contract boundaries. Reserve general persistence/integration locations; auth has in-memory account, permission, and session adapters. Keep unit tests beside source and HTTP tests in `test/`.
 
@@ -109,6 +113,8 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 
 In-memory implementations and their current contracts may be synchronous; use `Promise<T>` for actual async work. Preserve existing atomic auth/session and limiter behavior. Expected service failures use application-owned typed errors, translated at the HTTP boundary. Exact methods/types remain implementation review items. See [DOC-021 — Initial Scaffold Profile: 2. Boundary behavior](DOC-021-scaffold-profile.md#2-boundary-behavior).
 
+Prefer named input objects for operations with multiple fields, e.g. `login({ username, password })`. Simple single-value lookups such as `findById(id)` may take that value directly. Storage lookups return `undefined` when no record exists. This convention does not replace required `null` fields in HTTP envelopes. [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
+
 ## 4. Naming and typing
 
 | Item | Convention |
@@ -124,6 +130,8 @@ In-memory implementations and their current contracts may be synchronous; use `P
 - Avoid `any`. Receive unvalidated external data as `unknown`, then narrow or validate it. Do not use assertions to hide boundary mismatches.
 - Use direct relative imports initially. Add aliases, barrel files, or import-enforcement tooling only through a later agreement.
 - Comments explain reasons, non-obvious constraints, or contract behavior. Avoid comments that repeat code.
+- Store internal session times as epoch milliseconds with unit-bearing names such as `expiresAtMs`. JWT NumericDate claims and environment TTLs stay in seconds; limiter elapsed time stays monotonic. Other optional-property/default conventions remain open.
+- Generate dummy-account UUID v4 IDs and separately salted bcrypt hashes once after execution approval, then commit the public demo fixtures. Keep both passwords as `dev123`; no startup regeneration or real secrets in fixtures. [D-075 — Stable public demo fixtures](DOC-003-decisions.md#d-075--stable-public-demo-fixtures)
 
 ## 5. Minimal testing strategy
 
@@ -151,6 +159,8 @@ In-memory implementations and their current contracts may be synchronous; use `P
 
 `npm test` runs both unit and HTTP tests. Keep `test:unit` and `test:e2e` for focused runs; `npm run check` aggregates type checking, basic lint, default-Prettier verification, build, and all tests. Script implementations remain pending. First-release acceptance and complete-result review follow [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).
 
+Use separate build/test configurations and output locations. Build success requires type checking and executed unit/HTTP tests against compiled JavaScript; compilation alone does not run tests. Application artifacts exclude test files, and deployment/startup does not rerun the suite. Share the application compiler profile between builds and tests, and compose commands without recursive calls or redundant full-suite runs. Exact paths/scripts remain pending. [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
+
 Colocated unit tests also follow Nest's documented recommendation. [NestJS testing](https://docs.nestjs.com/fundamentals/testing), retrieved 2026-10-29.
 
 ## 6. Extension path and remaining choices
@@ -167,7 +177,7 @@ JWT environment names, defaults, validation, and manual key rotation are accepte
 
 Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are agreed; implementation and deployment supervision remain pending.
 
-Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile and acceptance criteria are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Exact internal methods/types, fixtures, config/script implementations, compiler target/remaining flags, software versions, and actual deployment proxy addresses remain open. Software execution still requires preflight and explicit approval.
+Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile, ESNext target, contract/value conventions, fixture/versioning policies, and acceptance criteria are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Complete internal signatures, actual fixture values, config/script implementations, remaining compiler flags, exact dependency ranges/resolutions, and deployment proxy addresses remain open. Software execution still requires preflight and explicit approval.
 
 ## 7. Tooling direction
 
@@ -177,8 +187,10 @@ Limiter/cleanup settings, sliding windows, proxy-list validation, and timer life
 
 **Reason:** The maintainer accepted this small tooling profile while retaining explicit runtime and supply-chain review.
 
-- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Use basic lint, default Prettier, automatic compiler/API/worker watching, and the accepted test-command behavior. Exact compiler target/remaining flags and configuration/script implementations remain review items under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md).
+- Compile the application before execution; do not rely on Node type stripping for Nest decorators. Target `ESNext` with ESM/NodeNext and strict-only checking. Use basic lint, default Prettier, automatic compiler/API/worker watching, and the accepted build/test behavior. Remaining flags and exact configuration/script implementations still require review under [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md).
 - Use the latest supported Node 26 patch; the verified review target is `26.13.0` on 2026-10-30. Report security/compatibility findings and alternatives. Recheck the exact patch before installation review; do not introduce automatic upgrades.
 - Use Zod as the validation direction, preserving strict input handling and accepted HTTP contracts. Its exact artifact and Nest/Swagger adapters remain pending. Use Node Schedule for future calendar scheduling with explicit recurrence fields; exact artifacts and real job policies remain pending. The accepted native cleanup timer is unchanged.
 - Use Prisma as the future ORM direction. Keep generated types, query clients, and transaction details inside persistence adapters; services retain application-owned contracts. Exact Prisma version, database/driver, schema, migrations, and integration remain pending; general persistence stays placeholders initially. Earlier comparisons are retained in [DOC-020 — Persistence Alternatives](DOC-020-persistence-alternatives.md). Express is the selected HTTP adapter; configuration uses `@nestjs/config` plus Zod startup validation. Exact artifacts remain pending.
 - Exact versions, resolved dependencies, artifact verification, installation, and execution remain subject to [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). Evidence is tracked in [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md).
+- Use jose for JWT signing/verification and native bcrypt for account/Swagger password checks, with bcrypt `6.0.0` as the selected review baseline. Preserve existing algorithms and behavior; artifacts remain UNKNOWN. [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations)
+- Use dependency version ranges and commit `package-lock.json`; repeat installs use `npm ci` after approval. Exact ranges/resolutions require review. A range does not authorize future updates or bypass preflight when the lockfile changes. [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile)

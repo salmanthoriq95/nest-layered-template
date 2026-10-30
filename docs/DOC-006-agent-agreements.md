@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 4.24.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Guide version:** 4.25.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,7 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.25.0 | 2026-10-30 | Select jose/native bcrypt, ESNext, separate build/test outputs with compiled tests required for build success, named inputs, missing-lookup `undefined`, epoch-millisecond session times, stable public demo fixtures, and dependency ranges with a committed lockfile. Keep artifact/execution gates. | [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations), [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds), [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values), [D-075 — Stable public demo fixtures](DOC-003-decisions.md#d-075--stable-public-demo-fixtures), [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile) |
 | 4.24.0 | 2026-10-30 | Accept Express, strict-only checking, basic lint, default Prettier, automatic watch, `@nestjs/config`/Zod, synchronous memory where appropriate, typed application errors, and combined unit/HTTP test commands. Accept first-release criteria and complete-result review; keep artifact/execution gates. | [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration), [D-071 — First-release acceptance and review](DOC-003-decisions.md#d-071--first-release-acceptance-and-review) |
 | 4.23.0 | 2026-10-30 | Select Prisma as the future ORM direction based on the maintainer's preference for its ecosystem maturity. Close the library comparison; retain initial persistence placeholders, in-memory auth, exact-version/preflight gates, and independent logging. | [D-069 — Prisma ORM direction](DOC-003-decisions.md#d-069--prisma-orm-direction) |
 | 4.22.0 | 2026-10-30 | Select Node Schedule as the scheduler direction with readable calendar fields. Preserve native cleanup and separate logging. Compare Kysely, Knex, and MikroORM without selecting persistence or clearing software execution. | [D-067 — Node Schedule direction](DOC-003-decisions.md#d-067--node-schedule-direction), [D-068 — Additional persistence alternatives](DOC-003-decisions.md#d-068--additional-persistence-alternatives) |
