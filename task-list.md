@@ -5,7 +5,7 @@
 
 Living discussion and implementation checklist for `nest-layered-template`. Read only task sections relevant to the current request.
 
-**Current scope:** public, permission-protected, and superadmin-only responses; two in-memory dummy accounts; manual in-memory grants; HS256 access JWTs (15-minute default), opaque rotating refresh tokens (seven-day refresh window), and immediate current-session logout. JWT signing/expiry and Swagger Basic Auth settings live in `.env`; dummy-account credentials do not. General feature persistence/integrations remain placeholders. [D-040–D-041 — Token lifecycle and in-memory accounts/grants](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
+**Current scope:** public, permission-protected, and superadmin-only responses; two in-memory dummy accounts; manual in-memory grants; HS256 access JWTs (15-minute default), opaque rotating refresh tokens (seven-day refresh window), and immediate current-session logout. JWT signing/expiry and Swagger Basic Auth settings live in `.env`; dummy-account credentials do not. General feature persistence/integrations remain placeholders. An independent logging process handles async logs and unexpected-fault JSON files, with development-only request context. The API and worker expose independent unauthenticated health endpoints. [D-040–D-041 — Token lifecycle and in-memory accounts/grants](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout), [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md), [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 
 ## Working rules
 
@@ -29,7 +29,7 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 ## 2. Architecture and module boundaries
 
 - [x] Keep N-layered organization, DI, and clear behavioral boundaries. [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts)
-- [x] Keep one modular application; deployment follows each project's needs. [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature)
+- [x] Keep a modular main API; deployment follows each project's needs. Logging has an independent process. [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature), [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker)
 - [x] Keep persistence and external implementation details outside services. [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [x] Define the smallest example/auth module layout and controller/service responsibilities. [D-030 — Minimal code layout and conventions](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
 - [x] Choose abstract-class contracts and runtime DI tokens for demonstrated boundaries.
@@ -65,7 +65,7 @@ Real resource CRUD, pagination, sorting, money/date formats, and API lifecycle p
 
 ## 5. Data and transactions
 
-**Current scope:** general feature persistence/integrations remain placeholders; auth has in-memory account, role/grant, and session adapters. [D-040–D-041 — Token lifecycle and in-memory accounts/grants](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout)
+**Current scope:** general feature persistence/integrations remain placeholders; auth has in-memory account, role/grant, and session adapters. The independent logging worker owns local unexpected-error file persistence. [D-040–D-041 — Token lifecycle and in-memory accounts/grants](docs/DOC-003-decisions.md#d-040--hs256-tokens-refresh-rotation-and-immediate-logout), [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md)
 
 - [ ] Describe how a future project adds persistence contracts, libraries, implementations, and DI wiring.
 - [ ] Ensure placeholder paths perform no real I/O or misleading simulated persistence.
@@ -95,7 +95,10 @@ Database/ORM selection, schema, relationships, indexes, migrations, database see
 - [x] Agree starting bcrypt cost 12 and initial admin grant `examples:read`.
 - [ ] Generate fixture hashes after exact software preflight and execution approval; calibrate cost before deployment.
 - [x] Agree Swagger-to-API token transport, JWT claims, issuer/audience defaults, and independent-session/replay rules.
-- [ ] Agree login/refresh-throttling thresholds, proxy policy, remaining environment settings/validation, key encoding/rotation, and retention implementation.
+- [x] Accept JWT environment names, 64-character hex key encoding, startup validation, duration defaults, and manual key rotation/restart. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
+- [x] Accept login/refresh rate limits, environment configuration, in-memory counters, 429 headers, and explicit proxy trust. [D-050 — Login and refresh rate limits and proxy trust](docs/DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
+- [x] Accept periodic cleanup every 60 seconds by default, configurable through `.env`, preserving request-time validity, refresh replay evidence, accounts, and grants. [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup)
+- [ ] Define remaining limiter and cleanup implementation/settings, including timer lifecycle and exact environment names.
 - [x] Agree fail-closed metadata, all-required permission matching, and superadmin-only metadata.
 - [ ] Define identity, authentication, authorization, user, permission, and session contract methods before implementation.
 
@@ -126,9 +129,14 @@ The full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005
 ## 8. Errors and resilience
 
 - [x] Define access-denied and unexpected-error envelopes and HTTP statuses.
-- [ ] Define minimal request/error context and redaction for debugging.
+- [x] Accept structured async logs, UUID request IDs, base fields/severity, unexpected-fault persistence, and development-only request context. Secrets stay excluded in all modes. [D-046 — Asynchronous logging and development diagnostics](docs/DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics)
+- [x] Require a separate logging process that can continue after an API-only crash. [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker)
+- [x] Choose background internal HTTP through a logging-contract adapter, best-effort delivery, and safe local stderr diagnostics on send failure. API responses do not wait or change. [D-049 — Best-effort internal HTTP logging delivery](docs/DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery)
+- [ ] Define ingestion parameters/protection, delivery bounds, queue/shutdown behavior, and worker supervision.
+- [x] Select one daily `.json` file containing an array of unexpected-error records. [D-048 — Daily JSON error files](docs/DOC-003-decisions.md#d-048--daily-json-error-files)
+- [ ] Resolve file path/date timezone/schema, access controls, retention/rotation/limits, development-mode configuration/capture limits, and pre-startup failure capture.
 
-External-call timeouts, retries, queues, and event idempotency belong to a later real integration scope.
+Third-party-call resilience and event idempotency belong to a later integration scope. Logging's approved internal HTTP delivery still needs its own bounds and operating parameters under [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md).
 
 ## 9. Testing and completion criteria
 
@@ -137,6 +145,9 @@ External-call timeouts, retries, queues, and event idempotency belong to a later
 - [ ] Verify expired/tampered JWT rejection and permission changes taking effect on subsequent protected checks.
 - [ ] Verify login, accepted refresh rotation/reuse behavior, environment validation, and Swagger use against the accepted contracts.
 - [ ] Verify immediate access/refresh logout, previous tokens from the same session, refresh/logout races, missing sessions after restart, and superadmin session checks.
+- [ ] Verify login/refresh quotas, success/failure counting, IP/endpoint separation, required 429 headers, counter reset, and ignored untrusted forwarding headers.
+- [ ] Verify expiry rejection between cleanup runs, retained replay evidence, and preserved accounts/grants after cleanup.
+- [ ] Verify unauthenticated health endpoints on the API and worker, 200 envelopes/no-store headers, and API health while the worker is unavailable.
 - [ ] Verify Swagger UI/schema access protection, Basic Auth challenges, valid/invalid credentials, literal hash loading, and independence from API authentication.
 - [ ] Verify validation, response envelopes, real status codes, and safe error details against the accepted HTTP contract.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
@@ -148,8 +159,10 @@ No database, business-transaction, or provider integration tests are required be
 ## 10. Configuration and operations
 
 - [x] Retain minimum monitoring, backup, and DR planning guidance. [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery)
-- [ ] Review which minimal logging/health demonstrations belong in the initial template.
-- [ ] Define only configuration/startup behavior needed by the selected demo.
+- [x] Include async logging, a separate worker, and best-effort internal HTTP; keep unapproved ingestion/file parameters open. [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md)
+- [x] Accept independent public `GET /health` on the API and logging worker, with standard 200 envelopes and no-store headers. [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
+- [x] Define JWT configuration/startup rules and invalid enabled-Swagger credential handling. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
+- [ ] Finalize any remaining operational settings after logging, throttling, retention, and health scope decisions.
 
 [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
@@ -193,9 +206,9 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-006 — N-layered architecture, DI, and contracts](docs/DOC-003-decisions.md#d-006--n-layered-architecture-di-and-contracts) | Accepted |
 | [D-007 — Configurable authorization](docs/DOC-003-decisions.md#d-007--configurable-authorization) | Initial model defined by [D-035 — Per-user permissions and public access](docs/DOC-003-decisions.md#d-035--per-user-permissions-and-public-access); advanced delegation deferred |
 | [D-008 — Upload and payment isolation](docs/DOC-003-decisions.md#d-008--upload-and-payment-isolation) | Superseded by [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) |
-| [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature) | Accepted |
+| [D-009 — One modular application with layers per feature](docs/DOC-003-decisions.md#d-009--one-modular-application-with-layers-per-feature) | Main API organization accepted; separate logging process added |
 | [D-010 — Behavioral contracts and integration boundaries](docs/DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries) | Accepted |
-| [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) | Separation retained; initial real I/O deferred; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
+| [D-011 — External interaction examples](docs/DOC-003-decisions.md#d-011--external-interaction-examples) | Separation retained; feature integrations deferred; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
 | [D-012 — Resource identity and access policies](docs/DOC-003-decisions.md#d-012--resource-identity-and-access-policies) | Database-backed implementation deferred; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
 | [D-013 — Public GitHub repository](docs/DOC-003-decisions.md#d-013--public-github-repository) | Accepted |
 | [D-014 — Descriptive project name](docs/DOC-003-decisions.md#d-014--descriptive-project-name) | Accepted |
@@ -209,7 +222,7 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-022 — Community conduct and reporting](docs/DOC-003-decisions.md#d-022--community-conduct-and-reporting) | Reporting accepted; conduct wording proposed |
 | [D-023 — Document identifiers and descriptive references](docs/DOC-003-decisions.md#d-023--document-identifiers-and-descriptive-references) | Accepted |
 | [D-024 — Article, category, and comment examples](docs/DOC-003-decisions.md#d-024--article-category-and-comment-examples) | Superseded by placeholder-only scope; [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) |
-| [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery) | Requirement accepted; baseline proposed |
+| [D-025 — Minimum monitoring, backup, and disaster recovery](docs/DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery) | Requirement/logging/liveness accepted; broader baseline proposed |
 | [D-026 — Direct master workflow for this repository](docs/DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository) | Accepted until explicitly changed |
 | [D-027 — Conventional Commits message format](docs/DOC-003-decisions.md#d-027--conventional-commits-message-format) | Accepted |
 | [D-028 — Placeholder-only access demonstration template](docs/DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template) | Minimal scope retained; auth state extended |
@@ -229,6 +242,14 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) | Accepted |
 | [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing) | Algorithm/defaults accepted; implementation open |
 | [D-044 — Public dummy login credentials](docs/DOC-003-decisions.md#d-044--public-dummy-login-credentials) | Accepted; actual fixture hashes pending |
+| [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation) | Accepted; implementation pending |
+| [D-046 — Asynchronous logging and development diagnostics](docs/DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics) | Requirements accepted; file/operating details open |
+| [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker) | Process boundary/internal HTTP accepted; supervision open |
+| [D-048 — Daily JSON error files](docs/DOC-003-decisions.md#d-048--daily-json-error-files) | Daily array grouping accepted; operating details open |
+| [D-049 — Best-effort internal HTTP logging delivery](docs/DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery) | Accepted; ingestion/operating parameters open |
+| [D-050 — Login and refresh rate limits and proxy trust](docs/DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust) | Policy/defaults accepted; implementation/deployment parameters open |
+| [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup) | Policy accepted; scheduling/settings open |
+| [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints) | Accepted; implementation pending |
 
 ## Next discussions
 
@@ -241,21 +262,28 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Select Swagger Basic Auth with a bcrypt hash in `.env`, separately from API authentication.
 - [x] Accept token lifetimes/signing, refresh rotation, immediate logout, two memory-only accounts, and manual grant changes.
 - [x] Choose bcrypt for application-account passwords.
-- [x] Accept the six routes, schemas, initial grants, metadata rules, session profile, and Swagger/bcrypt defaults in [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md).
+- [x] Accept authentication/access routes, schemas, initial grants, metadata rules, session profile, and Swagger/bcrypt defaults in [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md).
 - [x] Select `dev123` for both application dummy passwords; Swagger credentials and JWT key remain separate.
-- [ ] Set minimal runtime configuration, request-ID/logging, throttling/proxy, and in-memory retention behavior; review the small reliability baseline without adding deployment infrastructure.
+- [x] Accept the JWT configuration proposal, including names, hex key format, validation, duration defaults, and manual rotation/restart. Explain TTL as Time To Live.
+- [x] Accept logging/request-ID requirements, background delivery, unexpected-fault files, development diagnostics, and an independent logging process.
+- [x] Explain per-event files and accept the maintainer's choice of a single JSON array file per day.
+- [x] Accept internal HTTP logging delivery and safe stderr fallback while API requests continue.
+- [x] Accept login/refresh quotas and proxy trust; explain how a reverse proxy affects client IP and rate limiting.
+- [x] Accept in-memory cleanup without delaying expiry/revocation or deleting required replay evidence, dummy accounts, or grants.
+- [x] Accept [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints): independent public `GET /health` on the API and worker, with standard 200 envelopes and no-store headers.
+- [ ] Resolve remaining worker, limiter, and cleanup operating parameters before implementation.
 - [ ] Finish remaining code/tooling defaults and a small first-release acceptance checklist.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.5.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: local master contains `9be055d` (`docs(auth): define token lifecycle and draft demo API contracts`); the working tree was clean at the start of this approval update. Live remote state was not checked here.
-- Current progress: the maintainer accepted [D-042 — Minimal API contracts and initial demo grants](docs/DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants), then selected both dummy passwords as `dev123` in [D-044 — Public dummy login credentials](docs/DOC-003-decisions.md#d-044--public-dummy-login-credentials). Routes, grants, metadata, schemas, session/replay rules, Swagger paths, and bcrypt defaults are accepted in [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md). Actual hashes remain ungenerated.
+- Guide version: 4.12.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: local master contains `8387997` (`docs(auth): accept API contracts and define demo credentials`). The JWT configuration documentation changes were already present when the logging discussion began and are preserved. Live remote state was not checked here.
+- Current progress: JWT configuration, logging/worker delivery, rate limits/proxy trust, periodic cleanup, and [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints) are accepted. The five operational discussion topics are resolved at the policy level. The API and worker each expose public `GET /health` with a standard 200 envelope, `status: ok`, and no-store; API liveness is independent of worker availability. No key, fixture hash, runtime log, or application source has been generated.
 - Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: agree remaining minimal runtime/code defaults and first-release checks; evaluate exact Node/Nest/tooling components through the full preflight before scaffolding or hash generation. Avoid reopening accepted API/credential decisions.
-- Approval boundary: no exact external software/version, hashing command, installation/execution, or assistant commit/push is authorized by these design decisions. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains a proposed operational baseline.
+- Next step/questions: prepare remaining implementation choices and first-release checks without reopening the five accepted policies. Worker ingestion/protection, delivery bounds/retry/flush, process launch, development selector/capture limits, daily-file settings, pre-startup diagnostics, and exact limiter/scheduler/environment parameters remain open, along with tooling/internal contracts. Complete full software preflight and obtain explicit execution approval before installation or running new software. Dependency readiness and broader monitoring/backup/recovery plans remain proposed; accepting basic liveness does not approve them.
+- Approval boundary: no exact external software/version, hashing command, installation/execution, or assistant commit/push is authorized by these design decisions. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed monitoring/backup/recovery details beyond accepted logging requirements.
 
 ## Implementation backlog
 

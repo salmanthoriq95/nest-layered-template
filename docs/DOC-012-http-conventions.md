@@ -52,7 +52,7 @@ Success example:
   "data": { "access": "granted" },
   "error": null,
   "meta": {
-    "requestId": "req_example_001",
+    "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810",
     "timestamp": "2026-10-29T03:00:00.000Z"
   }
 }
@@ -73,7 +73,7 @@ Validation-failure example; the field is illustrative, not an agreed endpoint in
     ]
   },
   "meta": {
-    "requestId": "req_example_001",
+    "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810",
     "timestamp": "2026-10-29T03:00:00.000Z"
   }
 }
@@ -86,7 +86,7 @@ Validation-failure example; the field is illustrative, not an agreed endpoint in
 | `message` | Short human-readable summary. Clients branch on status and stable error codes. |
 | `data` | Operation result, or `null` for an error. Its schema belongs to the endpoint contract. |
 | `error` | `null` on success; otherwise `{ code, details }`. `details` is an array, empty when no safe field details apply. |
-| `meta.requestId` | Server-assigned correlation identifier. Its format and log integration remain open. |
+| `meta.requestId` | Server-generated UUID v4, shared with logs under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). |
 | `meta.timestamp` | Response creation time as a UTC ISO 8601 string. |
 
 Do not expose stack traces, vendor payloads, credentials, or rejected input values in errors. Messages and field names in examples are illustrative. Request IDs and timestamps are sample values, not fixed runtime output. Pagination metadata is deferred until a consuming application needs collections.
@@ -111,4 +111,4 @@ Use the actual operation result to choose the status, not the HTTP verb alone. A
 
 Envelope rules apply to JSON response bodies. `204`, `304`, and responses to `HEAD` must not carry a body; do not append an envelope. If a successful operation needs an enveloped result, choose an appropriate body-bearing status. [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-15), retrieved 2026-10-29.
 
-Common codes, required headers, and an example for each are in [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md). That reference does not add CRUD, queues, rate limiting, or external integrations to the template.
+Common codes, required headers, and an example for each are in [DOC-013 — HTTP Status and Response Examples](DOC-013-http-response-examples.md). That reference alone does not add application features. Login/refresh rate limits and required `429` headers are separately accepted in [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust).

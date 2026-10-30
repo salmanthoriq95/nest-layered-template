@@ -1,27 +1,47 @@
 # DOC-010 — Reliability Strategy
 
-**Status:** Requirement accepted; baseline proposed · **Updated:** 2026-10-29.
-**Record:** [D-025 — Minimum monitoring, backup, and disaster recovery](DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery).
+**Status:** Logging and minimal liveness accepted; broader reliability baseline proposed · **Updated:** 2026-10-30.
+**Records:**
+
+- [D-025 — Minimum monitoring, backup, and disaster recovery](DOC-003-decisions.md#d-025--minimum-monitoring-backup-and-disaster-recovery)
+- [D-046 — Asynchronous logging and development diagnostics](DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics)
+- [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker)
+- [D-052 — Minimal process health endpoints](DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 
 **Decision:** Include minimum monitoring, backup, and disaster recovery planning in the template. Keep implementation and operational settings subject to maintainer approval.
 
 **Reason:** Help a solo developer or small team detect failures, protect data, and recover through a short, understandable process.
 
-**Current template scope:** access demos and extension placeholders only, following [D-028 — Placeholder-only access demonstration template](DOC-003-decisions.md#d-028--placeholder-only-access-demonstration-template). Database/file backup and real disaster recovery work are deferred until a consuming project has relevant data and hosting. Do not add fake backup jobs, database health checks, or recovery claims to the initial demo.
+**Current template scope:** access demos, auth in-memory state, general integration placeholders, an independent logging process with local unexpected-error files, and minimal liveness endpoints for both processes. Database/upload backups and deployment recovery work remain deferred until relevant application data and hosting exist. Log-file limits/retention are open in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Do not add fake backup jobs, database health checks, or recovery claims to the demo.
 
-The following baseline is proposed, not implemented. No provider, software, schedule, threshold, retention period, recovery target, or deployment topology has been selected. New software still requires the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md).
+Accepted async logging, development diagnostics, unexpected-error JSON persistence, and an independent logging process are specified in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Minimal health checks below are accepted; broader monitoring, backup, and recovery plans remain proposals. No reliability provider, exact software, alert schedule/threshold, log-retention period, or recovery target is selected. New software still requires the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md).
 
 ## 1. Monitoring
 
-**Status:** Proposed.
+**Status:** Logging and minimal process liveness accepted; readiness, alerts, and broader monitoring details proposed.
 
-- Expose bounded health/readiness checks for the application and critical dependencies, plus an external availability check.
-- Record structured errors with timestamps and request IDs; redact secrets and sensitive data.
+- Expose the accepted minimal liveness endpoints below. Dependency readiness checks and external availability monitoring remain proposed.
+- Follow accepted [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md) for structured logs, UUID request IDs, background internal HTTP, safe stderr fallback, secret exclusion, development-only context, and separate-worker daily JSON arrays. Ingestion parameters, file paths, and operating details remain open.
 - Observe request traffic, latency, errors, and resource saturation.
 - Alert on unavailable service, sustained failures, resource exhaustion, and failed or stale backups.
 - Assign an alert recipient and link each actionable alert to a short response procedure. Confirm thresholds, intervals, log retention, and delivery channels per project.
 
 The signal selection follows [Google SRE monitoring guidance](https://sre.google/sre-book/monitoring-distributed-systems/), retrieved 2026-10-29.
+
+### Minimal health checks
+
+**Status:** Accepted; implementation pending.
+**Record:** [D-052 — Minimal process health endpoints](DOC-003-decisions.md#d-052--minimal-process-health-endpoints).
+
+**Decision:** Expose `GET /health` on both the main API and the independent logging worker, using each process's own address. Allow calls without authentication (`@Public()` on the API). Return HTTP `200`, message `Service is running`, and `data: { "status": "ok" }` inside the standard envelope, with `Cache-Control: no-store`.
+
+**Reason:** Give each process a small, independently observable liveness endpoint that confirms it can respond to requests.
+
+Check the responding process only. API health remains independent of logging-worker availability, consistent with best-effort logging. Broader dependency readiness, monitoring schedules, alerts, and deployment tooling remain separate proposals. This does not select a health library or authorize software execution.
+
+See [DOC-015 — Demo API Contracts: Health responses](DOC-015-demo-api-contracts.md#health-responses) for the shared response example. Health reachability alone does not verify file persistence or log delivery.
+
+Liveness and readiness are distinct health-check purposes. [NestJS health checks](https://docs.nestjs.com/recipes/terminus), [Kubernetes probe concepts](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/), retrieved 2026-10-30. These references do not select a package or deployment platform.
 
 ## 2. Backup
 

@@ -100,6 +100,7 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Decision: use this modular organization as the foundation.
 - Consequences: keep feature flows together for tracing and localized changes. Exact modules, folders, and intermodule communication remain open.
 - Follow-up: the minimal module/folder layout and export rules were accepted in [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions).
+- Logging extension: the main API retains this modular organization. [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker) adds a separate operational process for logging; business features are not split into services.
 - Review when: feature boundaries no longer fit the domain, cross-dependencies obstruct change, or deployment needs evolve.
 
 ## D-010 — Behavioral contracts and integration boundaries
@@ -240,10 +241,11 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-025 — Minimum monitoring, backup, and disaster recovery
 
-**Status:** Requirement accepted; baseline proposed · **Date:** 2026-10-29.
+**Status:** Requirement, logging, and minimal liveness accepted; remaining baseline proposed · **Date:** 2026-10-29.
 
 - Decision: add minimum monitoring, backup, and disaster recovery strategy to the template's scope.
 - Reason: the maintainer wants a small, understandable reliability foundation that supports failure detection and recovery.
+- Follow-up: [D-046 — Asynchronous logging and development diagnostics](DOC-003-decisions.md#d-046--asynchronous-logging-and-development-diagnostics), [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker), and [D-052 — Minimal process health endpoints](DOC-003-decisions.md#d-052--minimal-process-health-endpoints) accept logging and basic liveness requirements; they do not approve all monitoring, backup, or recovery proposals.
 - Open: approve the proposed [DOC-010 — Reliability Strategy](DOC-010-reliability.md), then choose project-specific tools, schedules, retention, alerting, RPO/RTO, and recovery procedures. No implementation or recovery guarantee is claimed.
 
 ## D-026 — Direct master workflow for this repository
@@ -395,7 +397,8 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Logout: revoke the current login session. Every protected access request must verify a server-issued session reference and its binding to the authenticated subject after JWT verification. Missing or revoked state returns `401`, including for superadmin. All access tokens previously issued for that session become unusable on later checks; its refresh tokens cannot mint replacements.
 - Consistency: refreshing stays within the same login session. Refresh consumption/rotation and logout must not allow a revoked session to produce a new active branch. Already-authorized requests cannot be retroactively cancelled.
 - Follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) accepts transport, route/claim/result schemas, independent sessions, expiry caps, strict rotation, and immediate whole-session revocation on refresh replay.
-- Limits: key encoding/rotation, state-retention implementation, and exact software remain open. All-device logout is not selected. This replaces the earlier unapproved proposal to let access JWTs remain usable after logout.
+- Configuration follow-up: [D-045 — JWT configuration, validation, and key rotation](DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation) accepts environment names, hex key encoding, startup validation, duration defaults, and manual key rotation.
+- Limits: state-retention implementation and exact software remain open. All-device logout is not selected. This replaces the earlier unapproved proposal to let access JWTs remain usable after logout.
 - References: [OWASP session invalidation](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#manual-session-expiration), [OWASP REST JWT state](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html#jwt), retrieved 2026-10-30. Detailed rules: [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md). No exact software version or execution approval is implied.
 
 ## D-041 — In-memory demo accounts and manual grants
@@ -439,3 +442,88 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Boundary: this choice applies only to the two application demo accounts. Swagger Basic Auth credentials and the JWT signing key remain separately configured through `.env`; neither receives this password as a default.
 - Pending: generate fixture hashes only after full software preflight and explicit execution approval. No hash, signing key, or `.env` file has been generated.
 - Details: [DOC-015 — Demo API Contracts: 1. Routes and initial grants](DOC-015-demo-api-contracts.md#1-routes-and-initial-grants).
+
+## D-045 — JWT configuration, validation, and key rotation
+
+**Status:** Accepted · **Date:** 2026-10-30.
+
+- Decision: use `JWT_SIGNING_KEY`, `JWT_ACCESS_TTL_SECONDS`, and `AUTH_REFRESH_TTL_SECONDS`. Require a key generated from 32 random bytes, encoded as exactly 64 hexadecimal characters and decoded before HS256 use. Missing/invalid keys or supplied durations that are not positive integers stop startup without exposing values. Absent duration variables use 900 and 604800 seconds respectively.
+- Reason: the maintainer accepted the complete configuration proposal to keep setup predictable, validate mistakes early, and make lifetime units explicit. `TTL` means Time To Live.
+- Rotation: replace the key manually and restart. Restart clears in-memory sessions and requires fresh login. Automatic rotation and overlapping signing keys are outside the initial implementation.
+- Boundary: access expiry remains capped by the session deadline; refresh rotation does not extend that deadline. Issuer/audience and separate Swagger settings retain their earlier accepted defaults. No actual key, `.env`, software selection, or execution is authorized or generated by this decision.
+- Details: [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration).
+
+## D-046 — Asynchronous logging and development diagnostics
+
+**Status:** Requirements accepted; file layout and operational details open · **Date:** 2026-10-30.
+
+- Decision: use JSON console/stdout logs, UUID v4 request correlation, the proposed request metadata, and HTTP severity levels. Emit logs asynchronously in the background so responses do not wait for persistence. Persist unexpected application faults to local `.json` files. Additional body/query/header context is development-only; secrets stay excluded in every environment.
+- Reason: the maintainer accepted the logging baseline with async behavior, error-file persistence, and development-only request diagnostics, then explicitly allowed responses to finish before background file writes.
+- Clarification: persist unexpected faults such as application bugs, not expected validation failures. Failure classification replaces the ambiguous “>500” threshold; catching a fault at the global HTTP boundary does not make it expected. Syntax/build errors before logger startup need a separate capture decision.
+- Boundary: this adds real local logging persistence without adding a database or real domain persistence. Exact development selector, redaction/capture limits, buffering/failure behavior, file operating details, and pre-startup capture remain open. No logging package or implementation is selected or executed.
+- Follow-up: [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker) places output and persistence in a separate process.
+- File grouping: [D-048 — Daily JSON error files](DOC-003-decisions.md#d-048--daily-json-error-files) selects one array-based JSON file per day.
+- Details: [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
+
+## D-047 — Independent logging worker
+
+**Status:** Process boundary accepted; internal HTTP selected later, supervision open · **Date:** 2026-10-30.
+
+- Decision: separate logging from the main API into an independently running process that owns log output and unexpected-error persistence. Keep the API modular and layered; this adds a dedicated logging process rather than splitting business features.
+- Reason: the maintainer wants the logging worker to remain alive and continue processing received events when the backend crashes.
+- Boundary: process isolation does not recover events that were never sent or guarantee survival of a shared host failure. Keep transport/file details outside application services through contracts and DI. No broker, process manager, additional runtime/package, or execution is approved.
+- Follow-up: [D-048 — Daily JSON error files](DOC-003-decisions.md#d-048--daily-json-error-files) selects daily arrays; [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery) selects transport and send-failure behavior.
+- Open: exact ingestion contract/protection, timeouts, acknowledgments/retries, queue bounds, startup/shutdown/supervision, and file operating details.
+- Details: [DOC-016 — Logging Conventions: 4. Worker and delivery boundary](DOC-016-logging-conventions.md#4-worker-and-delivery-boundary).
+
+## D-048 — Daily JSON error files
+
+**Status:** Accepted; file operating details open · **Date:** 2026-10-30.
+
+- Decision: the independent logging worker groups unexpected-error records into one `.json` file per day, whose top-level value is a JSON array. Coordinate updates to preserve a valid document under concurrent events.
+- Reason: after the per-event file option was explained, the maintainer explicitly chose one daily file containing an array of errors.
+- Open: date timezone, file path/naming, record schema, write/recovery strategy, access controls, retention, and file-size limits. Transport was later selected in [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery); worker supervision remains open. No runtime file has been created.
+- Details: [DOC-016 — Logging Conventions: 5. File layout and remaining choices](DOC-016-logging-conventions.md#5-file-layout-and-remaining-choices).
+
+## D-049 — Best-effort internal HTTP logging delivery
+
+**Status:** Accepted; ingestion and operational parameters open · **Date:** 2026-10-30.
+
+- Decision: the API depends on a logging contract; an adapter sends sanitized events to the independent worker through internal HTTP in the background. The worker handles normal output and daily unexpected-error persistence. API responses do not wait for delivery or file writes.
+- Reason: the maintainer accepted the proposed simple transport and best-effort behavior for the initial version, keeping delivery details outside main application services.
+- Failure behavior: if sending fails, keep serving API requests and emit a sanitized local `stderr` diagnostic. Do not change the API response or recursively send that fallback through the failed logger transport.
+- Delivery limits: events not yet received by the worker can be lost if the API crashes or delivery fails. This is not a durable or zero-loss delivery guarantee.
+- Open: ingestion address/path/schema/protection, timeouts, acknowledgment/retry details, queue bounds, shutdown flushing, worker supervision, and remaining file/development settings. No exact software, broker, process manager, installation, execution, commit, or push is approved by this design decision.
+- Details: [DOC-016 — Logging Conventions: 4. Worker and delivery boundary](DOC-016-logging-conventions.md#4-worker-and-delivery-boundary).
+
+## D-050 — Login and refresh rate limits and proxy trust
+
+**Status:** Policy accepted; exact parameters and implementation open · **Date:** 2026-10-30.
+
+- Decision: default to 5 login requests and 30 refresh requests per 60 seconds, counted separately per client IP and endpoint, including successes and failures. Configure limits/periods through `.env`; invalid settings stop startup. Counters stay in API-process memory and reset on restart.
+- Reason: the maintainer accepted the complete initial rate-limit proposal for the template, with adjustable defaults and a small in-memory implementation.
+- Rejection: return `429` with the accepted envelope, `RATE_LIMITED`, `Retry-After` reflecting the remaining wait, and `Cache-Control: no-store`.
+- Proxy trust: default to the direct peer's IP and no trusted proxy. Proxy deployments must explicitly identify trusted proxies before using forwarded client IP; a raw client-supplied header is not authoritative.
+- Cleanup follow-up: [D-051 — Periodic in-memory state cleanup](DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup) accepts periodic removal of expired counters while preserving rate-limit semantics.
+- Open: exact environment names, limiter/window algorithm, cleanup implementation, deployment-specific trust configuration, and exact software/preflight. This does not select a proxy product, HTTP adapter, rate-limit package, distributed counter store, or execution command.
+- Details: [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust).
+
+## D-051 — Periodic in-memory state cleanup
+
+**Status:** Policy accepted; implementation and setting name open · **Date:** 2026-10-30.
+
+- Decision: clean expired session/refresh state and rate-limit counters periodically, using a default 60-second interval configurable through `.env`. Keep validity checks on requests independent of this schedule. Preserve consumed refresh-token evidence until the session deadline; keep dummy accounts and grants available.
+- Reason: the maintainer accepted periodic memory cleanup while retaining immediate expiry/revocation enforcement and refresh replay detection.
+- Boundary: remove only runtime state that no longer affects the accepted token or rate-limit behavior. Cleanup runs in the API's process-local state; the logging worker does not own this state. No new persistence, scheduler package, runtime execution, or Git write is authorized.
+- Open: exact environment name/validation, timer startup/shutdown behavior, scheduling mechanism, and limiter-specific removal implementation.
+- Details: [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
+
+## D-052 — Minimal process health endpoints
+
+**Status:** Accepted; implementation pending · **Date:** 2026-10-30.
+
+- Decision: expose unauthenticated `GET /health` on the API and logging worker at their respective addresses. Respond with `200`, the standard envelope, message `Service is running`, `data: { "status": "ok" }`, and `Cache-Control: no-store`.
+- Reason: provide a minimal liveness check for each independently running process.
+- Approval: the maintainer accepted every row of the minimal health-check proposal.
+- Boundary: check the responding process. The API's health does not depend on worker availability. Dependency readiness, monitoring schedules/alerts, and deployment tooling remain separate decisions. This approval selects no library, runtime/version, or execution command.
+- Details: [DOC-010 — Reliability Strategy: Minimal health checks](DOC-010-reliability.md#minimal-health-checks), [DOC-015 — Demo API Contracts: Health responses](DOC-015-demo-api-contracts.md#health-responses).

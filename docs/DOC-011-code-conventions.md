@@ -17,6 +17,10 @@
 
 This is the agreed layout, not existing source code. It includes the permission and session-lifecycle decisions added after the first layout. API routes and demo passwords are accepted; exact internal contract methods and fixture hashes remain pending. Add test files where the behavior requires them.
 
+The tree below covers the main API. The independently running logging worker and its transport/file layout are not mapped into folders yet; follow [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md) without inventing those choices.
+
+API and worker health endpoints are accepted in [DOC-015 — Demo API Contracts: Health responses](DOC-015-demo-api-contracts.md#health-responses); exact health file placement remains open.
+
 ```text
 src/
   main.ts
@@ -75,7 +79,7 @@ docs/
 | Guard | Use the identity boundary, read route policy, and delegate permission decisions through the authorization contract. |
 | Authorization service | Evaluate required grants and privileged-role rules using current state from the permission-store contract. |
 | Authentication service | Coordinate credential verification, token issuance/refresh, and current-session logout through identity/user/session contracts. |
-| Persistence/integrations | Keep general feature locations unused; auth account, permission, and session state use in-memory adapters. |
+| Persistence/integrations | Keep general feature locations unused; auth state uses in-memory adapters. The separate logging worker owns approved error-file persistence behind its boundary. |
 
 Controllers depend on service contracts. The guard uses identity/session verification and the authorization-service contract; the authorization service reads the permission-store contract. Authentication services use user/session contracts to coordinate the accepted token lifecycle. Keep HTTP metadata, storage code, and library-specific types outside these contracts. Modules bind implementations through DI.
 
@@ -123,6 +127,9 @@ Contract files contain no Nest decorators, HTTP objects, ORM types, or vendor SD
 - Verify that logout invalidates every access/refresh credential for the current session, including earlier access tokens from before refresh, and that superadmin cannot bypass a revoked/missing session. Test refresh/logout races and restart with cleared sessions.
 - Keep the shipped dummy account set to one admin and one superadmin. Exercise grant-present/absent cases by changing the admin fixture in isolated tests; a third runtime account is not required.
 - Verify that changing grants affects the next protected check without issuing a new token. This does not require a grant-management API.
+- Verify login/refresh quota accounting and separation, `429` envelopes/retry/no-store headers, restart-reset counters, and proxy IP handling. Untrusted forwarding headers must not change a client's rate-limit identity.
+- Verify expiry rejection between cleanup runs and replay detection after rotation/cleanup. Cleanup must retain needed refresh evidence and leave accounts/grants available, following [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
+- Verify unauthenticated health responses on each process, standard envelopes/no-store headers, and API health while the logging worker is unavailable.
 - Add HTTP cases for invalid body/query/path inputs where accepted by actual routes, and success, denial, and unexpected-error envelopes. Do not invent endpoints solely for test coverage.
 - Exercise important logic through its public API. Do not test private methods, framework internals, getters, or constant responses merely to increase coverage; a simple response can be covered by its HTTP test.
 - Keep tests deterministic and independent of real databases, uploads, payment providers, and external networks. No database/vendor integration suite is needed while those integrations remain placeholders.
@@ -140,4 +147,8 @@ Token durations/signing/refresh behavior, immediate logout, two memory-only acco
 
 Bcrypt, its starting cost, demo passwords, and endpoint/grant and token/session contracts are accepted in [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). Exact packages, hash generation, and deployment cost calibration remain pending.
 
-Still open: exact internal contract methods, fixture hashes, remaining runtime configuration, request-ID/log settings, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.
+JWT environment names, defaults, validation, and manual key rotation are accepted in [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration).
+
+Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, and best-effort internal HTTP delivery are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Ingestion parameters, worker/file layout, and operating details remain open.
+
+Still open: exact internal contract methods, fixture hashes, remaining operational settings, missing-value rules, formatter/linter settings, compiler/module configuration, and exact software versions. Software execution still requires preflight and explicit approval.

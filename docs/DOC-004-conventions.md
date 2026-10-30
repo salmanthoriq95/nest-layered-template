@@ -65,10 +65,10 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 - Use Node.js and NestJS; exact versions and supporting tools still require preflight and explicit approval.
 - Demonstrate per-user permissions, signed JWT identity, and UUID v4 public user IDs. Keep two dummy accounts, grants, and session state in memory. Include login/refresh/logout; signing/expiry settings live in `.env`, while dummy-account credentials do not.
 - Real articles, categories, comments, relationships, lifecycle, and CRUD are outside the initial scope. Their earlier selection is historical.
-- Keep general feature persistence and third-party integration extension points as placeholders. The auth module's in-memory access store is an approved exception; no ORM, database, or real external I/O is required.
+- Keep general feature persistence and third-party integration extension points as placeholders. Approved additions are auth in-memory storage and an independent logging process with local unexpected-error files; no ORM, database, or live external provider is selected. See [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 - Add provider-specific contracts, libraries, mappings, and implementations later when requested; do not design speculative provider APIs now.
 - Preserve simple flows, readable code, fast debugging/review, and controlled changes.
-- Minimum reliability guidance remains documented in [DOC-010 — Reliability Strategy](DOC-010-reliability.md). Real data backup and recovery work is deferred until relevant data and deployment exist.
+- Include accepted unauthenticated process health endpoints for the API and logging worker under [DOC-010 — Reliability Strategy: Minimal health checks](DOC-010-reliability.md#minimal-health-checks). Broader reliability plans remain proposed; data backup and deployment recovery work follows relevant data/hosting needs.
 
 ## 3. Architecture
 
@@ -81,11 +81,12 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 - [D-010 — Behavioral contracts and integration boundaries](DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
 
-**Decision:** Use N-layered architecture in one application organized by feature, with DI and behavioral contracts; keep external implementations outside services.
+**Decision:** Use N-layered architecture in a main API organized by feature, with DI and behavioral contracts; keep external implementations outside services. Logging runs in a separate process.
 
 **Reason:** Localize changes and make feature flows easy to trace.
 
 - Contracts define available operations, behavior, and responsibility boundaries.
+- Preserve the modular main API while giving the logging worker its own lifecycle under [D-047 — Independent logging worker](DOC-003-decisions.md#d-047--independent-logging-worker). Background internal HTTP and send-failure fallback follow [D-049 — Best-effort internal HTTP logging delivery](DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery); ingestion parameters, launch, and file operating details remain open.
 - Design boundaries to contain the impact of domain, ORM, and provider changes.
 - Follow the agreed layout, abstract-class DI contracts, naming, typing, and import rules in [DOC-011 — Code Conventions](DOC-011-code-conventions.md). Tooling and exact method signatures remain open.
 - Deployment follows each project's needs and resources; logical layers do not prescribe physical tiers. Reference: [Microsoft N-tier guide](https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/n-tier), retrieved 2026-10-28.
@@ -128,6 +129,9 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 - [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing)
 - [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials)
+- [D-045 — JWT configuration, validation, and key rotation](DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
+- [D-050 — Login and refresh rate limits and proxy trust](DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
+- [D-051 — Periodic in-memory state cleanup](DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup)
 
 **Decision:** Authorize protected example operations through per-user grants. Use `@Public()` for anonymous routes and current server-side role/grant state for protected requests. An authenticated superadmin passes permission checks; superadmin-only routes remain exclusive to that role.
 
@@ -159,8 +163,9 @@ An admin role alone grants no protected permission. This replaces the unconditio
 - Keep permission lists and privileged role decisions in the server-side store. Do not add custom permission encryption inside JWTs.
 - Protected requests also require an active server-issued session bound to the JWT subject. Logout revokes that session and its refresh family; all of its access JWTs fail later checks with `401`, even for superadmin. Permission checks happen after authentication/session checks.
 - Keep refresh rotation within the same login session and coordinate it with revocation. Missing session state, including after restart, cannot authenticate an old token. Already-authorized requests are not retroactively cancelled.
+- Apply accepted [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup) to expired session/refresh state and counters. Request-time validity checks and refresh replay evidence must survive cleanup; leave dummy accounts and grants available.
 - Use minimal login and refresh, with signing-key/expiry values in `.env` and initial manual testing through Swagger. “Reset token” was clarified as refresh.
-- Token/session claims, transport, independent sessions, strict single-use refresh, and immediate session revocation on replay follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). Remaining key format/rotation, retention implementation, and software choices are tracked in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+- Token/session claims, transport, independent sessions, strict single-use refresh, and immediate session revocation on replay follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md). JWT environment names, hex key encoding, startup validation, duration defaults, and manual key rotation follow accepted [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration). Retention implementation and software choices remain open.
 
 ### Swagger access
 
@@ -178,9 +183,10 @@ Sources and rationale are linked in [D-035 — Per-user permissions and public a
 
 ### API contracts and remaining choices
 
-- Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for the six routes, schemas, initial grants, access metadata, token/session profile, and Swagger/bcrypt defaults.
+- Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for routes, independent process health responses, schemas, initial grants, access metadata, token/session profile, and Swagger/bcrypt defaults.
 - Keep the accepted envelope and HTTP status conventions in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
-- Still open: exact internal contract methods, fixture hash generation, remaining runtime configuration, request-ID/logging and throttling settings, deployment cost calibration, and exact software versions.
+- Request IDs use server-generated UUID v4 values under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Internal HTTP delivery and safe stderr fallback are accepted.
+- Follow accepted [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust) for login/refresh quotas, environment configuration, process-local counters, 429 headers, and explicit proxy trust. Remaining limiter/deployment parameters are open alongside contract methods, fixture hashes, worker operating settings, cost calibration, and exact software versions.
 
 ### Deferred extension
 
@@ -188,7 +194,7 @@ Persistent resource catalogs, advanced delegation, account CRUD, registration, p
 
 ## 5. External interaction examples
 
-**Status:** General persistence/integration placeholders; auth in-memory access store explicitly included
+**Status:** General persistence/integration placeholders; auth memory storage and logging process/file persistence included
 
 **Records:**
 
@@ -196,12 +202,13 @@ Persistent resource catalogs, advanced delegation, account CRUD, registration, p
 - [D-010 — Behavioral contracts and integration boundaries](DOC-003-decisions.md#d-010--behavioral-contracts-and-integration-boundaries)
 - [D-011 — External interaction examples](DOC-003-decisions.md#d-011--external-interaction-examples)
 
-**Decision:** Prepare general persistence/integration placeholders and the approved in-memory authorization adapter. Do not select a database, ORM, or live external provider.
+**Decision:** Prepare general persistence/integration placeholders, the approved in-memory authorization adapter, and logging's separate process/file boundary. Do not select a database, ORM, or live external provider.
 
 **Reason:** Let a consuming project add the required contract, library, and adapter later while keeping external details outside service logic.
 
 - Document where contracts and implementations would be added and how DI would connect them.
-- Keep the demo independent of databases and external services. Auth account, role/grant, and session/refresh state are in-memory adapters behind contracts, following [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md). General feature persistence and live integrations remain placeholders.
+- Keep feature demos independent of databases and third-party services. Auth account, role/grant, and session/refresh state are in-memory adapters behind contracts, following [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md). General feature persistence and live integrations remain placeholders.
+- The logging worker's local error files and background internal HTTP delivery are approved, following [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Transport and file details remain outside main application services. No exact library/version is selected; ingestion and file operating parameters remain open.
 - Do not add repositories, schema, migrations, real upload/payment behavior, or vendor SDK wrappers merely to populate a layer.
 - Real integrations require a new agreed scope and the normal supply chain preflight/approval process.
 

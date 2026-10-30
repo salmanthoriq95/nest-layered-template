@@ -5,8 +5,10 @@
 
 - [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials)
+- [D-050 — Login and refresh rate limits and proxy trust](DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
+- [D-052 — Minimal process health endpoints](DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 
-**Decision:** Expose three authentication operations and three access demonstrations, using explicit access metadata, one example permission, and the accepted JSON envelope.
+**Decision:** Expose three authentication operations, three access demonstrations, and independent API/worker health endpoints. Use explicit API access metadata, one example permission, and the accepted JSON envelope.
 
 **Reason:** Make the agreed authentication/authorization behavior directly testable without real domain CRUD or a grant-management API.
 
@@ -22,10 +24,33 @@ The maintainer accepted the contracts and defaults below, then selected `dev123`
 | `GET /examples/public` | `@Public()` | None | `200`, `{ "access": "granted" }` |
 | `GET /examples/admin` | `@RequirePermissions('examples:read')` | Valid access JWT | `200`, `{ "access": "granted" }` |
 | `GET /examples/superadmin` | `@SuperadminOnly()` | Valid access JWT | `200`, `{ "access": "granted" }` |
+| `GET /health` | `@Public()` | None | `200`, `{ "status": "ok" }` |
 
-The Success column shows `data` only; every API JSON response uses [DOC-012 — HTTP Boundary Conventions: 4. Response envelope](DOC-012-http-conventions.md#4-response-envelope). Messages are `Signed in`, `Token refreshed`, `Logged out`, and `Access granted`.
+The table describes the main API. The Success column shows `data` only; every API JSON response uses [DOC-012 — HTTP Boundary Conventions: 4. Response envelope](DOC-012-http-conventions.md#4-response-envelope). Messages are `Signed in`, `Token refreshed`, `Logged out`, `Access granted`, and `Service is running`.
 
 Implement these as local access-policy decorators. Protected requests require valid JWT/session authentication before permission or privileged-role decisions. Refresh does not require an unexpired access JWT, but still requires its own valid credential.
+
+### Health responses
+
+The logging worker also exposes its own unauthenticated `GET /health` at its address, with no request inputs. Both processes return HTTP `200`, `Cache-Control: no-store`, and the following standard envelope when responding:
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Service is running",
+  "data": { "status": "ok" },
+  "error": null,
+  "meta": {
+    "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810",
+    "timestamp": "2026-10-30T00:00:00.000Z"
+  }
+}
+```
+
+Metadata values are illustrative. Each endpoint checks its responding process; API health stays independent of logging-worker availability. Liveness does not assert successful log persistence or dependency readiness. See [DOC-010 — Reliability Strategy: Minimal health checks](DOC-010-reliability.md#minimal-health-checks).
+
+### Initial grants
 
 | Username | Demo password | Role | Initial explicit grants |
 | --- | --- | --- | --- |
@@ -59,7 +84,7 @@ Login and refresh return the following `data` shape. Tokens are placeholders, no
 
 `expiresIn` is the actual access-token lifetime in seconds, reflecting configured TTL and any session-deadline cap. Token responses use `Cache-Control: no-store`. Do not return password hashes, signing keys, or a grant snapshot. API requests use `Authorization: Bearer ...`; refresh credentials are submitted in the JSON body.
 
-Use generic `401`/`UNAUTHENTICATED` responses for invalid credentials, JWTs, refresh tokens, or session state; use `403`/`FORBIDDEN` for authenticated callers without access. Validation uses `400`/`VALIDATION_ERROR`; unexpected failures use a safe `500`/`INTERNAL_ERROR`. Rate-limit thresholds and implementation remain open.
+Use generic `401`/`UNAUTHENTICATED` responses for invalid credentials, JWTs, refresh tokens, or session state; use `403`/`FORBIDDEN` for authenticated callers without access. Validation uses `400`/`VALIDATION_ERROR`; unexpected failures use a safe `500`/`INTERNAL_ERROR`. Login/refresh limits use `429`/`RATE_LIMITED` and the headers specified in [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust); policy is accepted, implementation pending.
 
 Bcrypt commonly limits input to 72 bytes. The selected implementation must preserve this contract without silently truncating input. [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#bcrypt), retrieved 2026-10-30.
 
@@ -103,4 +128,12 @@ Bcrypt is selected for application and Swagger passwords. Use cost 12 for both a
 
 When Swagger is enabled, fail startup on missing or invalid documentation credentials/hash. Verify exact bcrypt hash loading, including `$` characters.
 
-Still open: fixture hash generation, deployment cost calibration, remaining configuration/key encoding/rotation details, request-ID format, rate-limit thresholds/proxy policy, exact service/store method signatures, and software versions. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.
+JWT environment names, key encoding, startup validation, duration defaults, and manual rotation follow accepted [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration).
+
+UUID request correlation and async logging requirements are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md), including the independent logging process and unexpected-fault files.
+
+Login/refresh quotas and proxy trust policy are accepted in [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust).
+
+Periodic cleanup, request-time expiry enforcement, and refresh replay retention are accepted in [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
+
+Still open: fixture hash generation, deployment cost calibration, worker ingestion/file parameters, limiter implementation/deployment parameters, cleanup implementation/settings, exact service/store method signatures, and software versions. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.

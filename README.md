@@ -12,11 +12,13 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 - Keep two dummy accounts, roles/grants, and sessions in memory. Edit grants manually in storage; no grant-management endpoint is included. Dummy-account credentials stay outside `.env`.
 - Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first. API contracts are accepted; tooling and remaining runtime settings are pending.
 - Use bcrypt for application and Swagger passwords. Application hashes stay in memory fixtures; Swagger Basic Auth uses its separate `.env` credentials.
-- Keep one modular, N-layered application with DI and clear boundaries.
+- Apply environment-configured login/refresh limits per client IP and endpoint, with process-local counters and explicit proxy trust when deployed behind a reverse proxy.
+- Keep a modular, N-layered main API with DI and clear boundaries; run logging in an independent process.
+- Send logs to the independent worker through background internal HTTP, with UUID correlation and development-only request details. The worker persists unexpected faults to one daily JSON array file; exclude secrets in every mode. Delivery is best effort; failures produce a safe local stderr diagnostic while the API keeps serving. Remaining operating parameters are open.
 - Validate request inputs and use uniform JSON envelopes with standard HTTP statuses and safe error details.
 - Prepare general persistence and external integration placeholders, alongside the auth module's in-memory access store behind a contract. Add database/provider implementations when a consuming project needs them.
 - Initial scope has no real article/category/comment CRUD, database, ORM, upload, or payment integration.
-- Keep minimum monitoring, backup, and recovery guidance as planning material; real operational settings require a deployment and relevant data.
+- Expose independent, unauthenticated health endpoints on the API and logging worker. Keep broader monitoring, backup, and recovery guidance as planning material; operational settings follow actual data/hosting needs.
 
 
 Designed for solo developers and teams of 2–3. Priorities: readable flows, fast delivery, easy debugging and review, and changes with controlled scope and cost.
@@ -43,12 +45,13 @@ These public example credentials are approved for the planned in-memory fixtures
 | [DOC-007 — Git Conventions](docs/DOC-007-git-conventions.md) | Direct master workflow, Conventional Commits, and Git write authorization. |
 | [DOC-008 — Licensing and Community Scope](docs/DOC-008-licensing.md) | MIT selection, alternatives, and downstream responsibility. |
 | [DOC-009 — Code of Conduct](CODE_OF_CONDUCT.md) | Draft participation standards and GitHub reporting. |
-| [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) | Proposed monitoring, backup, and disaster recovery baseline. |
+| [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) | Accepted logging/liveness scope and proposed broader monitoring, backup, and recovery plans. |
 | [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md) | Accepted code layout, contracts, naming, and minimal test strategy. |
 | [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md) | Accepted validation, XSS boundaries, envelopes, and shared HTTP wiring. |
 | [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md) | Common HTTP statuses, headers, and uniform response examples. |
-| [DOC-014 — Authentication Lifecycle](docs/DOC-014-authentication-lifecycle.md) | Token lifecycle, immediate logout, Swagger protection, and remaining policies. |
-| [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) | Accepted routes, inputs/results, demo credentials/grants, and access/session defaults. |
+| [DOC-014 — Authentication Lifecycle](docs/DOC-014-authentication-lifecycle.md) | Tokens, logout, configuration, login/refresh limits, proxy trust, and Swagger protection. |
+| [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) | Accepted routes, process health responses, demo credentials/grants, and access/session defaults. |
+| [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md) | Async logs, development diagnostics, unexpected-fault files, and the independent worker boundary. |
 
 ## AI collaboration
 

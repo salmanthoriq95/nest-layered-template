@@ -11,6 +11,9 @@
 - [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing)
 - [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials)
+- [D-045 — JWT configuration, validation, and key rotation](DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
+- [D-050 — Login and refresh rate limits and proxy trust](DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
+- [D-051 — Periodic in-memory state cleanup](DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup)
 
 **Decision:** Issue HS256 access JWTs through minimal login, rotate opaque refresh tokens, and revoke both token classes on logout through server-side session state. Keep two dummy accounts and manual grants in memory. Configure JWT signing/expiry and Swagger Basic Auth through `.env`.
 
@@ -49,7 +52,7 @@ The 15-minute and seven-day values are accepted project defaults, configurable t
 - Link tokens from one login to a server-issued session reference. Refresh rotates credentials within that same session rather than creating an unrelated active session.
 - Every protected request verifies the JWT and its subject/session binding, then checks active server-side session state before authorization. Missing or revoked sessions return `401`; superadmin does not bypass this authentication check.
 - Logout revokes the session and its refresh credentials. All access tokens issued for that session become unusable at the next check. Already-authorized requests cannot be retroactively cancelled.
-- Coordinate logout and refresh atomically so a revoked session cannot create a fresh active branch. Use the accepted `sub`/`sid` binding in [DOC-015 — Demo API Contracts: 4. JWT/session details](DOC-015-demo-api-contracts.md#4-jwtsession-details). Internal method signatures and retention implementation remain open.
+- Coordinate logout and refresh atomically so a revoked session cannot create a fresh active branch. Use the accepted `sub`/`sid` binding in [DOC-015 — Demo API Contracts: 4. JWT/session details](DOC-015-demo-api-contracts.md#4-jwtsession-details). Cleanup follows the policy below; internal method signatures and implementation remain open.
 
 Server-side invalidation is needed to enforce logout before a token's cryptographic expiry. [OWASP session invalidation](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#manual-session-expiration), retrieved 2026-10-30.
 
@@ -57,25 +60,43 @@ Refresh rotation and reuse detection follow the principles in [RFC 9700: Refresh
 
 HS256 requires a key of at least 256 bits. [RFC 7518: HMAC with SHA-2](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2), retrieved 2026-10-30.
 
-## 3. Proposed configuration
+### In-memory cleanup
 
-The setting names and loader policy below remain proposed; default durations and `.env` as their source are accepted. `JWT_ISSUER` and `JWT_AUDIENCE`, with their defaults, are accepted in [DOC-015 — Demo API Contracts: 4. JWT/session details](DOC-015-demo-api-contracts.md#4-jwtsession-details). No real key or `.env` file is created here. Dummy-account credentials remain in memory; the Swagger gate has separate environment settings in section 5.
+**Status:** Policy accepted; scheduling implementation and environment name pending.
+
+- Periodically remove expired session/refresh state and rate-limit counters from API-process memory. The default interval is 60 seconds, configurable through `.env`.
+- Check validity on every relevant request. Expired or revoked credentials remain unusable between cleanup runs; cleanup never grants an expiry grace period or delays logout.
+- Retain consumed refresh-token relationships until the session deadline so reuse detection remains possible. Do not delete replay evidence early merely because a token was rotated.
+- Remove rate-limit counters only once they can no longer affect their configured limit/window. The selected limiter algorithm must preserve this boundary.
+- Keep dummy accounts and grants available; this cleanup concerns expiring runtime state. Restart behavior remains unchanged.
+- Exact setting name, validation details, timer lifecycle, and scheduling mechanism remain open. No scheduler package, command, or runtime execution is selected by this policy.
+
+## 3. JWT configuration
+
+**Status:** Accepted; loader/library implementation pending.
+
+Use these environment names and startup rules. `TTL` means **Time To Live**: the configured lifetime. `_SECONDS` makes its unit explicit. Dummy-account credentials remain in memory; Swagger settings are separate in section 5. No real key or `.env` file is created here.
 
 ```dotenv
-JWT_SIGNING_KEY=<required-random-secret>
+JWT_SIGNING_KEY=<64-hex-characters-from-32-random-bytes>
 JWT_ACCESS_TTL_SECONDS=900
 AUTH_REFRESH_TTL_SECONDS=604800
 ```
 
-- Use explicit seconds for durations; parse and validate environment strings at startup. Fail on missing/invalid signing configuration or non-positive durations.
+- Require `JWT_SIGNING_KEY`: exactly 64 hexadecimal characters encoding 32 cryptographically random bytes. Validate its format before decoding; use the decoded bytes as the HS256 key. No fallback key is allowed.
+- If a duration variable is absent, use its documented default: `JWT_ACCESS_TTL_SECONDS=900` (15 minutes), `AUTH_REFRESH_TTL_SECONDS=604800` (seven days). A supplied value must be a positive integer in seconds; empty or invalid values must not silently use a default.
+- Validate configuration at startup. Missing/invalid key or invalid duration must stop startup with an error that names the setting without exposing its value.
+- Access TTL applies to newly issued access JWTs, capped by the session deadline. Refresh TTL sets the session deadline from login; refresh rotation does not restart that window. Revocation can reject either token before its expiry.
+- Keep the accepted `JWT_ISSUER` and `JWT_AUDIENCE` defaults in [DOC-015 — Demo API Contracts: 4. JWT/session details](DOC-015-demo-api-contracts.md#4-jwtsession-details).
 - Keep `.env` and real secrets outside Git. Commit `.env.example` with placeholders and documented units.
-- Define key encoding and rotation behavior before implementing signing. Use the accepted issuer/audience profile. Do not provide a fallback signing key or log keys, passwords, or tokens.
+- Rotate the signing key manually by updating configuration and restarting the application. Restart clears in-memory sessions, so users must log in again. Automatic rotation and simultaneous old/new signing keys are outside the initial implementation.
+- Do not log signing keys, passwords, or tokens. Key generation and software execution still require preflight and explicit approval.
 
-Nest documents environment-based authentication configuration and startup validation. [NestJS authentication](https://docs.nestjs.com/security/authentication), retrieved 2026-10-30. No configuration library is selected here.
+HS256 requires at least 256-bit keys; hex represents each byte with two characters. Validate hex strictly before decoding because malformed hex can be truncated. [RFC 7518: HMAC with SHA-2](https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2), [Node.js Buffer encodings](https://nodejs.org/api/buffer.html#buffers-and-character-encodings), retrieved 2026-10-30. No configuration/JWT library is selected here.
 
 ## 4. HTTP and Swagger flow
 
-Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for the six routes, inputs/results, initial admin grant, access metadata, and session/Swagger defaults.
+Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for API routes, inputs/results, initial admin grant, access metadata, and session/Swagger defaults. The API and worker each expose an unauthenticated health endpoint under that contract.
 
 Login and refresh skip the access-JWT requirement but still validate their own credentials. Swagger security metadata must reflect this; documenting a route does not authenticate it. Do not put live credentials or tokens in saved OpenAPI examples.
 
@@ -84,6 +105,26 @@ Use Swagger's Authorize control for access JWTs via `Authorization: Bearer ...`,
 Bearer documentation is supported by [NestJS OpenAPI security](https://docs.nestjs.com/openapi/security#bearer-authentication), retrieved 2026-10-30.
 
 Use `400` for schema failures, generic `401` for invalid credentials/tokens, and `429` for configured limits, within the existing error envelope. Generic login errors reduce account enumeration. [OWASP authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#authentication-and-error-messages), retrieved 2026-10-30.
+
+### Rate limiting and proxy trust
+
+**Status:** Policy accepted; exact environment names, limiter algorithm, and implementation/tooling pending.
+
+| Scope | Default limit | Period |
+| --- | --- | --- |
+| `POST /auth/login` | 5 requests | 60 seconds |
+| `POST /auth/refresh` | 30 requests | 60 seconds |
+
+- Count successful and failed requests in separate counters for each resolved client IP and endpoint. One endpoint's counter does not consume the other's quota.
+- Configure limits and periods through `.env`, using these defaults when settings are absent. Supplied invalid values stop startup. Exact variable names remain open.
+- Keep counters in the API process's memory; restart resets them. Shared counters across API instances are outside this initial policy.
+- Reject requests over the limit with HTTP `429`, the standard envelope and `RATE_LIMITED` code, `Retry-After` reflecting the remaining wait in seconds, and `Cache-Control: no-store`.
+- Default to no trusted proxy: derive client IP from the direct connection. Do not accept a client-supplied forwarding header as authoritative.
+- When deployed behind a reverse proxy, configure the actual trusted proxies explicitly. The selected HTTP adapter must resolve forwarded client IP through that trust configuration; do not enable blanket trust or manually take an arbitrary header entry.
+
+A reverse proxy receives client requests and forwards them to the API. For example, `client -> reverse proxy -> API`: the API's direct peer is the proxy. Without the correct trust configuration, clients behind it can share the proxy's IP-based quota. Forwarding headers such as `X-Forwarded-For` can carry the original IP, but client-supplied values are not inherently trustworthy.
+
+Proxy behavior follows [NestJS rate limiting: Proxies](https://docs.nestjs.com/security/rate-limiting#proxies) and [Express behind proxies](https://expressjs.com/en/guide/behind-proxies/), retrieved 2026-10-30. These references do not select an HTTP adapter or proxy product. `429` and retry guidance follow [RFC 6585, section 4](https://www.rfc-editor.org/rfc/rfc6585.html#section-4), retrieved 2026-10-30; the limits and required response headers are project choices.
 
 ## 5. Swagger access protection
 
@@ -105,7 +146,7 @@ Bcrypt defaults are accepted in [DOC-015 — Demo API Contracts: 5. Swagger and 
 
 ## 6. Remaining decisions and verification
 
-- Agree login/refresh-throttling thresholds, proxy policy, remaining environment names/validation, key encoding/rotation, and state-retention implementation. The route, transport, session/replay, and Swagger contracts are accepted.
+- Implement the accepted cleanup policy after resolving its remaining environment/scheduling details and limiter parameters (environment names, algorithm, and deployment-specific trusted proxy addresses). Login/refresh limits and proxy trust policy are accepted above, alongside JWT configuration, route, transport, session/replay, and Swagger contracts. UUID request correlation and background internal HTTP logging are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md); worker ingestion/file parameters remain open.
 - Generate bcrypt fixture hashes for the approved `dev123` passwords only after software preflight and explicit execution approval. Calibrate cost before deployment. No bcrypt package or generation script is approved for execution yet.
 - Choose runtime, JWT, validation, configuration, Swagger, password-verification, and testing components through the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). No exact software version or artifact audit is completed by this document.
 - After approval, verify login success/failure, expiry, token-type separation, rotation/reuse, logout semantics, configuration failures, secret redaction, and Swagger access. Keep test keys and fixtures separate from deployed credentials.

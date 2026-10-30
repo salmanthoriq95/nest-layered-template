@@ -45,7 +45,7 @@ Semantics follow [RFC 9110: HTTP Semantics, section 15](https://www.rfc-editor.o
   "message": "Access granted",
   "data": {"access":"granted"},
   "error": null,
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -60,7 +60,7 @@ Identify the new resource with `Location` when available. Resource creation is o
   "message": "Resource created",
   "data": {"id":"example-resource"},
   "error": null,
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -75,7 +75,7 @@ Use only for genuinely accepted asynchronous work. No queue/job feature is selec
   "message": "Processing accepted",
   "data": {"id":"example-operation","state":"pending"},
   "error": null,
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -100,7 +100,7 @@ The `400` policy covers body/query/path validation. Example field rules are illu
   "message": "Request validation failed",
   "data": null,
   "error": {"code":"VALIDATION_ERROR","details":[{"field":"query.example","code":"INVALID_TYPE","message":"Must be a string"}]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -115,7 +115,7 @@ A real response must include `WWW-Authenticate` for the selected authentication 
   "message": "Authentication required",
   "data": null,
   "error": {"code":"UNAUTHENTICATED","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -128,7 +128,7 @@ A real response must include `WWW-Authenticate` for the selected authentication 
   "message": "Access denied",
   "data": null,
   "error": {"code":"FORBIDDEN","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -141,7 +141,7 @@ A real response must include `WWW-Authenticate` for the selected authentication 
   "message": "Not found",
   "data": null,
   "error": {"code":"NOT_FOUND","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -156,7 +156,7 @@ Include `Allow` with the supported methods. `Allow: GET` is an illustrative head
   "message": "Method not allowed",
   "data": null,
   "error": {"code":"METHOD_NOT_ALLOWED","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -169,7 +169,7 @@ Include `Allow` with the supported methods. `Allow: GET` is an illustrative head
   "message": "Request conflicts with current state",
   "data": null,
   "error": {"code":"CONFLICT","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -182,7 +182,7 @@ Include `Allow` with the supported methods. `Allow: GET` is an illustrative head
   "message": "Request content too large",
   "data": null,
   "error": {"code":"CONTENT_TOO_LARGE","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -195,7 +195,7 @@ Include `Allow` with the supported methods. `Allow: GET` is an illustrative head
   "message": "Unsupported request content type",
   "data": null,
   "error": {"code":"UNSUPPORTED_MEDIA_TYPE","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -210,13 +210,13 @@ Reserved for an agreed semantic/domain failure; ordinary request-schema failures
   "message": "Request violates an operation rule",
   "data": null,
   "error": {"code":"UNPROCESSABLE_CONTENT","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
 ## 429 — Too Many Requests
 
-May include `Retry-After`, e.g. `Retry-After: 60`, when a retry delay is known. No limiter is implemented by this reference.
+HTTP permits `Retry-After` when a retry delay is known. For this template's login/refresh limits, require `Retry-After` with the remaining wait in seconds and `Cache-Control: no-store`, under accepted [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust). A value such as `Retry-After: 60` is illustrative; calculate the actual wait. Implementation remains pending.
 
 ```json
 {
@@ -225,7 +225,7 @@ May include `Retry-After`, e.g. `Retry-After: 60`, when a retry delay is known. 
   "message": "Too many requests",
   "data": null,
   "error": {"code":"RATE_LIMITED","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -238,7 +238,7 @@ May include `Retry-After`, e.g. `Retry-After: 60`, when a retry delay is known. 
   "message": "An unexpected error occurred",
   "data": null,
   "error": {"code":"INTERNAL_ERROR","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -253,7 +253,7 @@ Not a generic code for provider business rejections. External integrations remai
   "message": "Invalid upstream response",
   "data": null,
   "error": {"code":"BAD_GATEWAY","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -268,7 +268,7 @@ May include `Retry-After` when a retry delay is known.
   "message": "Service temporarily unavailable",
   "data": null,
   "error": {"code":"SERVICE_UNAVAILABLE","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
 
@@ -283,6 +283,6 @@ Use only when acting as a gateway/proxy to an upstream service.
   "message": "Upstream response timed out",
   "data": null,
   "error": {"code":"GATEWAY_TIMEOUT","details":[]},
-  "meta": { "requestId": "req_example_001", "timestamp": "2026-10-29T03:00:00.000Z" }
+  "meta": { "requestId": "3f996c7f-5ee1-43eb-9f34-9fc92476a810", "timestamp": "2026-10-29T03:00:00.000Z" }
 }
 ```
