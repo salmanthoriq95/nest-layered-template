@@ -1,6 +1,6 @@
 # DOC-011 — Code Conventions
 
-**Status:** Accepted layout, DI, naming, typing, and test strategy; tooling open · **Updated:** 2026-10-29.
+**Status:** Accepted layout, DI, naming, typing, and test strategy; tooling open · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
@@ -13,7 +13,7 @@
 
 ## 1. Minimal layout
 
-This is the agreed layout, not existing source code. It includes the permission model added after the first layout. Exact routes, token issuance, and contract methods remain open. Add test files where the behavior requires them.
+This is the agreed layout, not existing source code. It includes the permission model added after the first layout. Minimal login/refresh is selected; its detailed lifecycle, exact routes, and contract methods remain open. Add test files where the behavior requires them.
 
 ```text
 src/
@@ -49,7 +49,7 @@ docs/
 
 - `main.ts` boots the application; `app.module.ts` composes feature modules.
 - `examples` contains public, permission-protected, and superadmin-only response demonstrations, with feature-owned permission constants.
-- `auth` contains identity verification, guard metadata handling, and authorization behavior. Its in-memory adapter supplies current role/grants through a contract. JWT profile and issuance details remain open.
+- `auth` contains identity verification, guard metadata handling, and authorization behavior. Its in-memory adapter supplies current role/grants through a contract. Minimal login/refresh follows [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md); detailed token/storage policies remain proposed.
 - Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). The test runner remains unselected.
 - Keep tooling configuration at the root initially. Add runtime configuration structure when its actual settings are agreed.
 - `.gitkeep` only tracks an empty extension location. It performs no operation and is not a provider.

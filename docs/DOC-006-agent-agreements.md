@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 4.0.0 · **Updated:** 2026-10-29.
+**Status:** Accepted · **Guide version:** 4.2.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,8 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.2.0 | 2026-10-30 | Add Swagger HTTP Basic Auth with a bcrypt password hash in `.env`, covering documentation UI/schema access separately from API JWT permissions. Token baseline, bcrypt parameters, and exact library versions remain open. | [D-039 — Swagger Basic Auth with bcrypt](DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt) |
+| 4.1.0 | 2026-10-30 | Add approved minimal login/refresh scope, `.env` signing/expiry configuration, and Swagger-first token testing. Detailed lifetimes, signing, rotation, transport, and logout remain proposed; software approval gates are unchanged. | [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration) |
 | 4.0.0 | 2026-10-29 | Replace unconditional admin access with per-user permissions, in-memory role/grant lookup, and public route metadata. Accept minimal JWT identity and UUID v4 public user IDs. General feature persistence remains placeholders; software/Git approval gates are unchanged. | [D-035–D-037 — Per-user permissions, JWT identity, and public user identifiers](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access) |
 | 3.2.0 | 2026-10-29 | Accept field-specific input policy, expanded JSON envelopes, shared HTTP wiring, and status mappings after explicit maintainer approval. Identity, endpoint schemas, and tooling remain open; software approval gates are unchanged. | [D-032–D-034 — HTTP validation, envelopes, and status conventions](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries) |
 | 3.1.0 | 2026-10-29 | Record accepted code/test conventions and add task-based HTTP validation, envelope, and status-reference routes. Detailed HTTP policies and expanded envelope remain proposed. | [D-030–D-034 — Code, testing, and HTTP boundary agreements](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions) |

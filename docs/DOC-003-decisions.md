@@ -1,6 +1,6 @@
 # DOC-003 — Decision Records
 
-**Status:** Current register · **Updated:** 2026-10-29.
+**Status:** Current register · **Updated:** 2026-10-30.
 **Format record:** [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation).
 
 **Decision:** Keep stable decision IDs and explicit status. Every decision document states the decision and its reason; other sections are optional.
@@ -344,12 +344,13 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-036 — Minimal JWT identity and server-side access state
 
-**Status:** Accepted architecture; token profile, issuance, and tooling open · **Date:** 2026-10-29.
+**Status:** Accepted JWT architecture; token profile and tooling open; issuance requirements extended below · **Date:** 2026-10-29.
 
 - Decision: use signed JWTs with minimal identity/validation claims. Resolve current role and permission grants from the server-side store using the authenticated subject; do not embed permission snapshots or custom encrypted permission payloads.
 - Reason: permission changes should affect later checks without reissuing a token, and the grant list need not be exposed in token contents. Encrypting a bearer token does not prevent a holder from replaying it.
 - Validation: verify the signature and expected claims, including issuer, audience, and validity period. Use the public user identifier for the subject. A caller-supplied role or an unverified token claim is not a trusted permission source.
-- Limits: this selects neither a JWT library/version nor a signing algorithm, key configuration, token lifetime, transport, issuance, refresh, logout, or revocation workflow. Permission lookup alone does not revoke a leaked token's identity.
+- Initial limits: this selected neither a JWT library/version nor a signing algorithm, key configuration, token lifetime, transport, issuance, refresh, logout, or revocation workflow. Permission lookup alone does not revoke a leaked token's identity.
+- Follow-up: minimal login, refresh, `.env` signing/expiry configuration, and Swagger-first use were selected in [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration). Exact token profile and lifecycle policies remain open.
 - References: [OWASP REST Security: JWT](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html#jwt), [RFC 6750: bearer-token properties](https://www.rfc-editor.org/rfc/rfc6750.html#section-1.2), retrieved 2026-10-29. No software preflight or execution approval is implied.
 
 ## D-037 — UUID v4 public user identifiers
@@ -360,3 +361,23 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: avoid exposing sequential numeric user identifiers while keeping the template small. Database primary keys remain a later schema choice.
 - Boundary: UUIDs do not replace object-level authorization when real resources are added. Hashids is reversible ID encoding, not encryption; it is not the selected identifier strategy.
 - References: [Node.js crypto.randomUUID](https://nodejs.org/api/crypto.html#cryptorandomuuidoptions), [Hashids security notice](https://github.com/niieani/hashids.js), [OWASP IDOR prevention](https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html), retrieved 2026-10-29. Exact runtime selection still requires preflight and explicit approval.
+
+## D-038 — Minimal login, refresh, and environment configuration
+
+**Status:** Requirements accepted; detailed lifecycle proposed · **Date:** 2026-10-30.
+
+- Decision: issue tokens through minimal login, support refresh, keep signing-key and expiry settings in `.env`, and use Swagger for initial manual testing. The maintainer explicitly clarified that “reset token” means refresh.
+- Reason: provide a directly usable token flow with configurable secrets and lifetimes for the access template.
+- Scope: this extends earlier deferral of token issuance. It does not select account CRUD, password recovery, logout, a database, an external identity provider, or an exact software package/version.
+- Open: credentials/fixtures, signing profile, token lifetimes, refresh format/rotation/storage, transport, logout/revocation semantics, and exact routes/contracts. Proposed defaults require separate maintainer approval.
+- Details: [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md) distinguishes accepted requirements, recommendations, and remaining choices. Software preflight and execution approval remain mandatory.
+
+## D-039 — Swagger Basic Auth with bcrypt
+
+**Status:** Requirements and Basic Auth accepted; implementation parameters open · **Date:** 2026-10-30.
+
+- Decision: protect Swagger with HTTP Basic Auth. Configure its username through `SWAGGER_USERNAME` and its bcrypt password hash through `SWAGGER_PASSWORD_HASH` in `.env`; compare submitted passwords against the hash. Protect enabled documentation UI and schema routes without changing API authentication or permissions.
+- Reason: the maintainer requested a password gate with bcrypt storage in `.env`, then explicitly selected the browser's username/password Basic Auth flow.
+- Boundary: this selects bcrypt for documentation credentials, not for application-user passwords. Do not generate/store plaintext secrets or treat documentation credentials as API permissions. No exact bcrypt/Swagger middleware package or version is selected or audited.
+- Open: configured credential values, bcrypt cost/input policy, environment-parser validation, exact route prefixes/aliases, throttling, and startup/error behavior. Credential values are supplied by the maintainer per environment.
+- Details: [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Library selection and hash-generation execution require the full supply chain preflight and explicit approval.

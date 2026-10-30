@@ -1,6 +1,6 @@
 # DOC-004 — Conventions
 
-**Status:** Accepted rules; proposals labeled · **Updated:** 2026-10-29.
+**Status:** Accepted rules; proposals labeled · **Updated:** 2026-10-30.
 **Format and reading:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -63,7 +63,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 **Reason:** Demonstrate structure, DI, and access boundaries without implementing a real application.
 
 - Use Node.js and NestJS; exact versions and supporting tools still require preflight and explicit approval.
-- Demonstrate per-user permissions with an in-memory role/grant store, public metadata, signed JWT identity, and UUID v4 public user IDs. Grant lists stay server-side; token issuance details remain open.
+- Demonstrate per-user permissions with an in-memory role/grant store, public metadata, signed JWT identity, and UUID v4 public user IDs. Use minimal login and refresh; signing/expiry settings live in `.env`. Detailed token policies remain open.
 - Real articles, categories, comments, relationships, lifecycle, and CRUD are outside the initial scope. Their earlier selection is historical.
 - Keep general feature persistence and third-party integration extension points as placeholders. The auth module's in-memory access store is an approved exception; no ORM, database, or real external I/O is required.
 - Add provider-specific contracts, libraries, mappings, and implementations later when requested; do not design speculative provider APIs now.
@@ -72,7 +72,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ## 3. Architecture
 
-**Status:** Accepted principles and minimal code conventions; token issuance and endpoint details open
+**Status:** Accepted principles and minimal code conventions; token policies and endpoint details open
 
 **Records:**
 
@@ -93,7 +93,7 @@ Read the relevant section and its linked [DOC-003 — Decision Records](DOC-003-
 
 ### Implementation conventions
 
-**Status:** Minimal code conventions accepted; token issuance and endpoint specifics remain open.
+**Status:** Minimal code conventions accepted; token policies and endpoint specifics remain open.
 
 Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions). Unit tests stay beside source; HTTP tests stay in `test/`.
 
@@ -102,7 +102,7 @@ Use [DOC-011 — Code Conventions](DOC-011-code-conventions.md), recorded as [D-
 - Define only contracts needed by the demo's layer boundaries. Leave future persistence/provider contracts to their actual integration work.
 - Reserve documented persistence/integration extension locations without real clients, queries, transactions, uploads, payments, or simulated claims of external success.
 - Use abstract classes as contracts and runtime DI tokens with explicit constructor injection and module wiring.
-- Use the accepted JWT identity and current server-side permission model below. Token issuance still needs a decision; do not infer a full login flow or trust caller-provided role claims.
+- Use JWT identity and current server-side permissions below. Minimal login/refresh is selected; account management and detailed lifecycle policies remain outside the approved scope unless explicitly agreed. Do not trust caller-provided role claims.
 
 ### Change limits
 
@@ -110,7 +110,7 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 
 ## 4. Authorization
 
-**Status:** Permission, JWT identity, and public-ID conventions accepted; token profile, issuance, and route details open
+**Status:** Permission, JWT identity, public IDs, and minimal login/refresh accepted; detailed token policies and route contracts open
 
 **Records:**
 
@@ -121,6 +121,8 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 - [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access)
 - [D-036 — Minimal JWT identity and server-side access state](DOC-003-decisions.md#d-036--minimal-jwt-identity-and-server-side-access-state)
 - [D-037 — UUID v4 public user identifiers](DOC-003-decisions.md#d-037--uuid-v4-public-user-identifiers)
+- [D-038 — Minimal login, refresh, and environment configuration](DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration)
+- [D-039 — Swagger Basic Auth with bcrypt](DOC-003-decisions.md#d-039--swagger-basic-auth-with-bcrypt)
 
 **Decision:** Authorize protected example operations through per-user grants. Use `@Public()` for anonymous routes and current server-side role/grant state for protected requests. An authenticated superadmin passes permission checks; superadmin-only routes remain exclusive to that role.
 
@@ -148,7 +150,14 @@ An admin role alone grants no protected permission. This replaces the unconditio
 - Use signed JWTs for minimal identity and validation claims. Verify the signature and expected issuer, audience, and validity period, then resolve current access state using the subject.
 - Keep permission lists and privileged role decisions in the server-side store. Do not add custom permission encryption inside JWTs.
 - Token encryption does not prevent bearer-token reuse after a leak; permission lookup alone does not provide logout or full token revocation.
-- JWT library/version, signing profile, key configuration, lifetime, transport, issuance, refresh, and revocation details remain open. A login/account application is not implied by selecting JWT identity.
+- Use minimal login and refresh, with signing-key/expiry values in `.env` and initial manual testing through Swagger. “Reset token” was clarified as refresh.
+- JWT library/version, signing profile, key format/rotation, lifetimes, transport, refresh policy, and logout/revocation remain open. Accepted requirements and proposed defaults are separated in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+
+### Swagger access
+
+- Protect Swagger using HTTP Basic Auth, with `SWAGGER_USERNAME` and a bcrypt `SWAGGER_PASSWORD_HASH` in `.env`. The hash is configuration, not a plaintext password or an API access token.
+- Cover enabled documentation UI/schema routes and keep the gate independent of API JWT/permission checks. Exact credential values, route/configuration handling, bcrypt parameters, and library versions remain open.
+- Follow [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Application-user password hashing and the earlier token baseline are still undecided.
 
 ### Public user identifiers
 
@@ -161,13 +170,13 @@ Sources and rationale are linked in [D-035 — Per-user permissions and public a
 ### Open for the demo
 
 - Exact endpoint paths, methods, input schemas, and response data. Envelope and access status conventions are accepted in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
-- How demo tokens are issued, transported, configured, and tested.
+- Approve or revise the login/refresh baseline in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md), including credentials/fixtures, lifetimes, signing profile, rotation, transport, and logout behavior.
 - Exact permission catalog, grant fixtures, and how superadmin changes grants. No grant-management endpoint is selected.
 - Behavior for missing route metadata, multiple required permissions, and exact superadmin-only metadata.
 
 ### Deferred extension
 
-Persistent resource catalogs, dynamic roles/permissions, delegation management, account CRUD, data ownership, and login/token/session workflows are not prerequisites for this initial demo. Revisit them only under a later agreed scope.
+Persistent resource catalogs, advanced delegation, account CRUD, registration, password recovery, and external identity providers remain deferred. Minimal login/refresh is now required; advanced session and revocation behavior needs an explicit decision.
 
 ## 5. External interaction examples
 
@@ -184,7 +193,7 @@ Persistent resource catalogs, dynamic roles/permissions, delegation management, 
 **Reason:** Let a consuming project add the required contract, library, and adapter later while keeping external details outside service logic.
 
 - Document where contracts and implementations would be added and how DI would connect them.
-- Keep the demo independent of databases and external services. Initial auth storage is limited to the in-memory role/grant adapter specified in [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access).
+- Keep the demo independent of databases and external services. The in-memory role/grant adapter follows [D-035 — Per-user permissions and public access](DOC-003-decisions.md#d-035--per-user-permissions-and-public-access). Additional credential/refresh storage responsibilities remain proposed in [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
 - Do not add repositories, schema, migrations, real upload/payment behavior, or vendor SDK wrappers merely to populate a layer.
 - Real integrations require a new agreed scope and the normal supply chain preflight/approval process.
 
