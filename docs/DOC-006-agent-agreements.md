@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 4.18.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Guide version:** 4.19.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,7 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.19.0 | 2026-10-30 | Accept all six limiter/cleanup groups: exact sliding-window admission/counting, environment defaults/validation, native timer lifecycle, replay-safe expiry pruning, explicit proxy-list configuration, and a separate 60-request/60-second Swagger quota. Actual proxy addresses, implementation, and software approval remain separate. | [D-059 — In-memory limiter and cleanup parameters](DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters) |
 | 4.18.0 | 2026-10-30 | Accept all nine logging operating groups: bounded queues/overflow, ingestion/202 acknowledgment, development capture, safe exception details, UTC files/retention/size, serialized writes/recovery, separate process layout/lifecycle, shared credential handling, and configuration defaults. Software execution and deployment supervision remain separate. | [D-058 — Minimal logging operating policy](DOC-003-decisions.md#d-058--minimal-logging-operating-policy) |
 | 4.17.0 | 2026-10-30 | Accept `LOG_WORKER_MAX_CONCURRENT_REQUESTS=10` as the maximum active HTTP log deliveries per API process. Queue and remaining logging settings are presented together for review; they remain proposed. | [D-057 — Concurrent logging delivery limit](DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit) |
 | 4.16.0 | 2026-10-30 | Accept one HTTP delivery attempt per log event with no automatic retry after failure or timeout. Keep safe stderr diagnostics, subsequent event handling, and independent API responses. Concurrency, queue, acknowledgment, and shutdown behavior remain open. | [D-056 — Single-attempt logging delivery](DOC-003-decisions.md#d-056--single-attempt-logging-delivery) |

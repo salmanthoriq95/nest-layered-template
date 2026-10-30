@@ -1,6 +1,6 @@
 # DOC-001 — AI Contributor Guide
 
-**Status:** Accepted · **Version:** 4.18.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Version:** 4.19.0 · **Updated:** 2026-10-30.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -35,8 +35,8 @@ At session start or after compaction, read this guide, identify the task, then l
 | Endpoint inputs/results, route policy defaults, or demo accounts/grants | Relevant accepted [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md); unresolved implementation details remain open. |
 | Authentication, authorization, public access, or user identifiers | Relevant subsections of [DOC-004 — Conventions: 4. Authorization](docs/DOC-004-conventions.md#4-authorization). |
 | Login, refresh, auth environment settings, or Swagger access/token testing | Relevant [DOC-014 — Authentication Lifecycle](docs/DOC-014-authentication-lifecycle.md), including accepted JWT configuration/startup rules; implementation/tooling choices remain open. |
-| Login/refresh rate limits, client IP, or reverse-proxy trust | [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](docs/DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust). Limits and trust policy are accepted; remaining implementation/deployment parameters are open. |
-| Expiring auth state, replay retention, or rate-counter cleanup | [DOC-014 — Authentication Lifecycle: In-memory cleanup](docs/DOC-014-authentication-lifecycle.md#in-memory-cleanup). Periodic cleanup must preserve request-time expiry, replay evidence, accounts, and grants. |
+| Login/refresh or Swagger throttling, client IP, or reverse-proxy trust | Relevant [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](docs/DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). Sliding windows, settings, quotas, and proxy-list format are accepted; actual proxy addresses and software selection remain separate. |
+| Expiring auth state, replay retention, or rate-counter cleanup | [DOC-014 — Authentication Lifecycle: In-memory cleanup](docs/DOC-014-authentication-lifecycle.md#in-memory-cleanup) and accepted timer/pruning details in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](docs/DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). Preserve request-time expiry, replay evidence, accounts, and grants. |
 | Logging, request IDs, development diagnostics, error files, or logging-worker changes | Relevant [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md). Initial operating policy is accepted; software preflight and deployment-specific supervision remain separate. |
 | Decision or documentation changes | [DOC-004 — Conventions: 1. Documentation](docs/DOC-004-conventions.md#1-documentation) and affected decision records. |
 | New/changed external software, package-manager/installer runs, skills, MCP, or CI actions | Full [DOC-005 — Global Software Supply Chain Security Policy](docs/DOC-005-supply-chain-security.md), before selection, download, installation, update, or execution. |

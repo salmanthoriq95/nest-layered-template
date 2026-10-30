@@ -6,6 +6,7 @@
 - [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
 - [D-044 — Public dummy login credentials](DOC-003-decisions.md#d-044--public-dummy-login-credentials)
 - [D-050 — Login and refresh rate limits and proxy trust](DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
+- [D-059 — In-memory limiter and cleanup parameters](DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters)
 - [D-052 — Minimal process health endpoints](DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 
 **Decision:** Expose three authentication operations, three access demonstrations, and independent API/worker health endpoints. Use explicit API access metadata, one example permission, and the accepted JSON envelope.
@@ -136,8 +137,8 @@ JWT environment names, key encoding, startup validation, duration defaults, and 
 
 UUID request correlation and the initial logging operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md), including the independent process, authenticated `POST /internal/logs`, ingestion/202 acknowledgment, queues, and unexpected-fault files. Worker health remains a separate public liveness endpoint.
 
-Login/refresh quotas and proxy trust policy are accepted in [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust).
+Login/refresh quotas, exact sliding-window admission, a separate shared Swagger quota, environment validation, and explicit proxy-list configuration are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters).
 
-Periodic cleanup, request-time expiry enforcement, and refresh replay retention are accepted in [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
+Periodic cleanup, its native timer lifecycle/configuration, request-time expiry enforcement, and refresh replay retention are accepted in [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
 
-Still open: fixture hash generation, deployment cost calibration, limiter implementation/deployment parameters, cleanup implementation/settings, exact service/store method signatures, software versions, and deployment-specific process supervision. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.
+Still open: fixture hash generation, deployment cost calibration, actual trusted proxy addresses, exact service/store method signatures, software versions, implementation, and deployment-specific process supervision. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.

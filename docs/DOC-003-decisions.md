@@ -385,7 +385,8 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: the maintainer requested a password gate with bcrypt storage in `.env`, then explicitly selected the browser's username/password Basic Auth flow.
 - Initial boundary: this selected bcrypt for documentation credentials. Application bcrypt was accepted later in [D-043 — Bcrypt application password hashing](DOC-003-decisions.md#d-043--bcrypt-application-password-hashing). Keep credential sources and API permissions separate. No exact bcrypt/Swagger middleware package or version is selected or audited.
 - Follow-up: [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants) accepts Swagger routes, bcrypt cost/input defaults, and startup failure for invalid enabled-documentation credentials.
-- Open: environment-supplied credential values, parser/middleware implementation, deployment cost calibration, and throttling. The dummy-account password choice does not set Swagger credentials.
+- Throttling follow-up: [D-059 — In-memory limiter and cleanup parameters](DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters) accepts a separate shared Swagger scope of 60 requests per IP per 60 seconds before Basic Auth, covering UI/schema/assets together.
+- Open: environment-supplied credential values, parser/middleware implementation, deployment cost calibration, and exact software. The dummy-account password choice does not set Swagger credentials.
 - Details: [DOC-014 — Authentication Lifecycle: 5. Swagger access protection](DOC-014-authentication-lifecycle.md#5-swagger-access-protection). Library selection and hash-generation execution require the full supply chain preflight and explicit approval.
 
 ## D-040 — HS256 tokens, refresh rotation, and immediate logout
@@ -503,24 +504,25 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 
 ## D-050 — Login and refresh rate limits and proxy trust
 
-**Status:** Policy accepted; exact parameters and implementation open · **Date:** 2026-10-30.
+**Status:** Accepted; parameters resolved in D-059, implementation/tooling pending · **Date:** 2026-10-30.
 
 - Decision: default to 5 login requests and 30 refresh requests per 60 seconds, counted separately per client IP and endpoint, including successes and failures. Configure limits/periods through `.env`; invalid settings stop startup. Counters stay in API-process memory and reset on restart.
 - Reason: the maintainer accepted the complete initial rate-limit proposal for the template, with adjustable defaults and a small in-memory implementation.
 - Rejection: return `429` with the accepted envelope, `RATE_LIMITED`, `Retry-After` reflecting the remaining wait, and `Cache-Control: no-store`.
 - Proxy trust: default to the direct peer's IP and no trusted proxy. Proxy deployments must explicitly identify trusted proxies before using forwarded client IP; a raw client-supplied header is not authoritative.
 - Cleanup follow-up: [D-051 — Periodic in-memory state cleanup](DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup) accepts periodic removal of expired counters while preserving rate-limit semantics.
-- Open: exact environment names, limiter/window algorithm, cleanup implementation, deployment-specific trust configuration, and exact software/preflight. This does not select a proxy product, HTTP adapter, rate-limit package, distributed counter store, or execution command.
+- Parameter follow-up: [D-059 — In-memory limiter and cleanup parameters](DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters) accepts exact sliding-window admission/counting, configuration/validation, proxy-list format, cleanup lifecycle, and a separate Swagger quota.
+- Boundary: actual trusted proxy addresses, implementation, and exact software/preflight remain separate. No proxy product, HTTP adapter, rate-limit package, distributed counter store, or execution command is selected.
 - Details: [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust).
 
 ## D-051 — Periodic in-memory state cleanup
 
-**Status:** Policy accepted; implementation and setting name open · **Date:** 2026-10-30.
+**Status:** Accepted; configuration/timer parameters resolved in D-059, implementation pending · **Date:** 2026-10-30.
 
 - Decision: clean expired session/refresh state and rate-limit counters periodically, using a default 60-second interval configurable through `.env`. Keep validity checks on requests independent of this schedule. Preserve consumed refresh-token evidence until the session deadline; keep dummy accounts and grants available.
 - Reason: the maintainer accepted periodic memory cleanup while retaining immediate expiry/revocation enforcement and refresh replay detection.
 - Boundary: remove only runtime state that no longer affects the accepted token or rate-limit behavior. Cleanup runs in the API's process-local state; the logging worker does not own this state. No new persistence, scheduler package, runtime execution, or Git write is authorized.
-- Open: exact environment name/validation, timer startup/shutdown behavior, scheduling mechanism, and limiter-specific removal implementation.
+- Parameter follow-up: [D-059 — In-memory limiter and cleanup parameters](DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters) accepts the native timer lifecycle, configuration/validation, and replay-safe expiry-pruning behavior. Exact internal method signatures, software approval, and implementation remain separate.
 - Details: [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
 
 ## D-052 — Minimal process health endpoints
@@ -586,3 +588,13 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Reason: the maintainer explicitly accepted the complete package, resolving the remaining first-version logging policy in one review and keeping the template bounded and understandable.
 - Approval: the maintainer answered “setuju semua” to the numbered 1–9 proposal. Defaults and failure/loss trade-offs are accepted; implementation has not started.
 - Boundary: delivery remains best effort. Exact runtime/tooling versions, software preflight/execution, build commands, and production supervision/non-loopback deployment remain separate work. No source, secret, runtime file, commit, or push is created by this documentation approval.
+
+## D-059 — In-memory limiter and cleanup parameters
+
+**Status:** Accepted for the initial version · **Date:** 2026-10-30.
+
+- Decision: adopt all six parameter groups: exact sliding-window admission/counting, named environment defaults and validation, one process-owned cleanup timer and its lifecycle, expiry pruning that preserves replay evidence, an explicit proxy-address list, and a separate 60-request/60-second Swagger scope.
+- Reason: the maintainer accepted the complete package, resolving the remaining limiter/cleanup policy in one review with precise window behavior and no additional scheduler service or package selected.
+- Approval: the maintainer answered “setuju semua” to the numbered 1–6 proposal. Existing login/refresh quotas and cleanup-retention constraints retain their earlier approvals.
+- Boundary: exact software/preflight, internal method signatures, actual deployment proxy addresses, and implementation remain separate. No source, `.env`, runtime execution, commit, or push is included in this documentation approval.
+- Details: [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters).

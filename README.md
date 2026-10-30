@@ -12,7 +12,7 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 - Keep two dummy accounts, roles/grants, and sessions in memory. Edit grants manually in storage; no grant-management endpoint is included. Dummy-account credentials stay outside `.env`.
 - Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first. API contracts are accepted; tooling and remaining runtime settings are pending.
 - Use bcrypt for application and Swagger passwords. Application hashes stay in memory fixtures; Swagger Basic Auth uses its separate `.env` credentials.
-- Apply environment-configured login/refresh limits per client IP and endpoint, with process-local counters and explicit proxy trust when deployed behind a reverse proxy.
+- Apply environment-configured sliding-window limits per client IP: separate login/refresh quotas and a shared Swagger UI/schema/assets quota before Basic Auth. Keep counters in process-local memory, with explicit proxy trust when deployed behind a reverse proxy.
 - Keep a modular, N-layered main API with DI and clear boundaries; run logging in an independent process.
 - Send logs to the independent worker through background internal HTTP, with UUID correlation and development-only request details. The worker persists unexpected faults to one daily JSON array file; exclude secrets in every mode. Delivery is best effort; failures produce a safe local stderr diagnostic while the API keeps serving. Initial queue, ingestion, file, and lifecycle policies are accepted in [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md).
 - Validate request inputs and use uniform JSON envelopes with standard HTTP statuses and safe error details.

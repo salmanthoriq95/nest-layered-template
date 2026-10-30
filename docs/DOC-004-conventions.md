@@ -132,6 +132,7 @@ Placeholders show where future dependencies connect. Adding a real provider stil
 - [D-045 — JWT configuration, validation, and key rotation](DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
 - [D-050 — Login and refresh rate limits and proxy trust](DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
 - [D-051 — Periodic in-memory state cleanup](DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup)
+- [D-059 — In-memory limiter and cleanup parameters](DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters)
 
 **Decision:** Authorize protected example operations through per-user grants. Use `@Public()` for anonymous routes and current server-side role/grant state for protected requests. An authenticated superadmin passes permission checks; superadmin-only routes remain exclusive to that role.
 
@@ -186,7 +187,7 @@ Sources and rationale are linked in [D-035 — Per-user permissions and public a
 - Follow accepted [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md) for routes, independent process health responses, schemas, initial grants, access metadata, token/session profile, and Swagger/bcrypt defaults.
 - Keep the accepted envelope and HTTP status conventions in [DOC-012 — HTTP Boundary Conventions](DOC-012-http-conventions.md).
 - Request IDs use server-generated UUID v4 values under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Internal HTTP delivery and safe stderr fallback are accepted.
-- Follow accepted [DOC-014 — Authentication Lifecycle: Rate limiting and proxy trust](DOC-014-authentication-lifecycle.md#rate-limiting-and-proxy-trust) for login/refresh quotas, environment configuration, process-local counters, 429 headers, and explicit proxy trust. Remaining limiter/deployment parameters are open alongside contract methods, fixture hashes, cost calibration, and exact software versions. Initial logging operating settings are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
+- Follow accepted [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters) for sliding-window quotas, environment validation, atomic admission, 429 headers, native cleanup lifecycle, and explicit proxy-list configuration. Swagger has its own shared UI/schema/assets quota before Basic Auth. Actual proxy addresses, contract methods, fixture hashes, cost calibration, and exact software versions remain separate. Initial logging operating settings are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 
 ### Deferred extension
 

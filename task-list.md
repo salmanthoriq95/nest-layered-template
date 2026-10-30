@@ -98,7 +98,7 @@ Database/ORM selection, schema, relationships, indexes, migrations, database see
 - [x] Accept JWT environment names, 64-character hex key encoding, startup validation, duration defaults, and manual key rotation/restart. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
 - [x] Accept login/refresh rate limits, environment configuration, in-memory counters, 429 headers, and explicit proxy trust. [D-050 — Login and refresh rate limits and proxy trust](docs/DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust)
 - [x] Accept periodic cleanup every 60 seconds by default, configurable through `.env`, preserving request-time validity, refresh replay evidence, accounts, and grants. [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup)
-- [ ] Define remaining limiter and cleanup implementation/settings, including timer lifecycle and exact environment names.
+- [x] Accept all six groups in [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters): sliding windows/counting, environment validation, timer lifecycle, replay-safe pruning, proxy configuration, and a separate Swagger quota.
 - [x] Agree fail-closed metadata, all-required permission matching, and superadmin-only metadata.
 - [ ] Define identity, authentication, authorization, user, permission, and session contract methods before implementation.
 
@@ -152,7 +152,10 @@ Third-party-call resilience and event idempotency belong to a later integration 
 - [ ] Verify login, accepted refresh rotation/reuse behavior, environment validation, and Swagger use against the accepted contracts.
 - [ ] Verify immediate access/refresh logout, previous tokens from the same session, refresh/logout races, missing sessions after restart, and superadmin session checks.
 - [ ] Verify login/refresh quotas, success/failure counting, IP/endpoint separation, required 429 headers, counter reset, and ignored untrusted forwarding headers.
+- [ ] Verify exact sliding-window boundary pruning/Retry-After, atomic concurrent admission, validation/parser/content-type failure counting, canonical IP keys, and rejected requests not extending the window.
+- [ ] Verify Swagger's shared UI/schema/assets quota before Basic Auth, success/failure counting, and isolation from login/refresh scopes.
 - [ ] Verify expiry rejection between cleanup runs, retained replay evidence, and preserved accounts/grants after cleanup.
+- [ ] Verify cleanup configuration/delay validation, first-run timing, nonoverlapping passes, monotonic limiter time versus UTC session expiry, and cancellation/no rescheduling on shutdown using controlled clocks.
 - [ ] Verify unauthenticated health endpoints on the API and worker, 200 envelopes/no-store headers, and API health while the worker is unavailable.
 - [ ] Verify worker ingestion accepts only the configured shared token, rejects missing/mismatched credentials, and never exposes the token in logs or diagnostics in any mode.
 - [ ] Verify timed-out logging attempts are actively cancelled and safely reported without awaiting delivery on the main API request or changing its response.
@@ -176,7 +179,8 @@ No database, business-transaction, or provider integration tests are required be
 - [x] Accept async logging, a separate worker, best-effort internal HTTP, and the complete initial ingestion/file/lifecycle policy. [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md)
 - [x] Accept independent public `GET /health` on the API and logging worker, with standard 200 envelopes and no-store headers. [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints)
 - [x] Define JWT configuration/startup rules and invalid enabled-Swagger credential handling. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
-- [ ] Finalize remaining limiter/cleanup settings and tooling before affected implementation; logging and minimal process-health policies are accepted.
+- [x] Finalize limiter/cleanup settings, Swagger throttling, and proxy-list configuration. [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters)
+- [ ] Finalize tooling and exact internal contract methods before affected implementation; initial auth, logging, limiter/cleanup, and minimal process-health policies are accepted.
 
 [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
@@ -261,8 +265,8 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-047 — Independent logging worker](docs/DOC-003-decisions.md#d-047--independent-logging-worker) | Accepted; initial launch/lifecycle resolved in D-058; production supervision deferred |
 | [D-048 — Daily JSON error files](docs/DOC-003-decisions.md#d-048--daily-json-error-files) | Accepted; file operating details resolved in D-058 |
 | [D-049 — Best-effort internal HTTP logging delivery](docs/DOC-003-decisions.md#d-049--best-effort-internal-http-logging-delivery) | Accepted; ingestion/operating details resolved in D-058 |
-| [D-050 — Login and refresh rate limits and proxy trust](docs/DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust) | Policy/defaults accepted; implementation/deployment parameters open |
-| [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup) | Policy accepted; scheduling/settings open |
+| [D-050 — Login and refresh rate limits and proxy trust](docs/DOC-003-decisions.md#d-050--login-and-refresh-rate-limits-and-proxy-trust) | Accepted; initial parameters resolved; actual deployment proxy addresses pending |
+| [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup) | Accepted; configuration/timer parameters resolved; implementation pending |
 | [D-052 — Minimal process health endpoints](docs/DOC-003-decisions.md#d-052--minimal-process-health-endpoints) | Accepted; implementation pending |
 | [D-053 — Default logging worker ingestion address](docs/DOC-003-decisions.md#d-053--default-logging-worker-ingestion-address) | Accepted; configuration resolved in D-058 |
 | [D-054 — Shared-token logging worker authentication](docs/DOC-003-decisions.md#d-054--shared-token-logging-worker-authentication) | Accepted; credential/configuration policy resolved in D-058; generation pending |
@@ -270,6 +274,7 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-056 — Single-attempt logging delivery](docs/DOC-003-decisions.md#d-056--single-attempt-logging-delivery) | Accepted initial policy |
 | [D-057 — Concurrent logging delivery limit](docs/DOC-003-decisions.md#d-057--concurrent-logging-delivery-limit) | Default and setting name accepted |
 | [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy) | All nine groups accepted; implementation pending |
+| [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters) | All six groups accepted; implementation pending |
 
 ## Next discussions
 
@@ -297,18 +302,18 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Accept one attempt per event with no automatic retry for the initial version.
 - [x] Accept a default maximum of ten active HTTP log deliveries per API process.
 - [x] Accept all nine logging operating groups in one review, as requested by the maintainer.
-- [ ] Resolve remaining limiter and cleanup implementation/settings together before affected implementation.
+- [x] Accept all six limiter/cleanup groups together, including the additional separate Swagger quota.
 - [ ] Finish remaining code/tooling defaults and a small first-release acceptance checklist.
 - [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.18.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: local master contains `2f6c0a9` (`docs: define auth configuration and operational conventions`). The earlier address documentation changes were already present and are preserved. Live remote state was not checked here.
-- Current progress: the maintainer answered “setuju semua” to all nine groups in [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy). Initial queues/overflow, ingestion/202 acknowledgment, development capture, safe exception details, daily files/retention/size, write/recovery rules, separate process layout/lifecycle, credential policy, and configuration defaults are accepted. Related docs and earlier open-status references are synchronized. No secret, fixture hash, runtime log, or application source has been generated.
+- Guide version: 4.19.0. Scope remains documentation and design; no source scaffolding or new software execution.
+- Git observation: local master contains `e19f252` (`docs(logging): finalize worker contracts and operating policy`). The three-file limiter/cleanup proposal was already uncommitted at this turn's start and is preserved. Live remote state was not checked here.
+- Current progress: the maintainer answered “setuju semua” to all six groups in [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters). Exact sliding-window admission/counting, environment defaults/validation, native timer lifecycle, replay-safe pruning, proxy-list configuration, and the separate Swagger quota are accepted. Related docs, earlier open-status references, and verification tasks are synchronized. The accepted logging policy remains recorded in [D-058 — Minimal logging operating policy](docs/DOC-003-decisions.md#d-058--minimal-logging-operating-policy). No secret, fixture hash, runtime log, or application source has been generated.
 - Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: initial logging policy is complete in [DOC-016 — Logging Conventions: 6. Initial logging operating policy](docs/DOC-016-logging-conventions.md#6-initial-logging-operating-policy); no logging-policy approval is pending. Group any remaining limiter/cleanup settings, tooling/internal contracts, and first-release acceptance details into a concise review; do not restart parameter-by-parameter questioning. Exact software needs full preflight and explicit execution approval before scaffolding/installing/running. Production supervision and non-loopback deployment remain deferred to actual deployment needs.
+- Next step/questions: no limiter/cleanup policy approval is pending in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](docs/DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). Prepare the tooling/dependency preflight, exact internal contract review, and first-release acceptance checklist as the next work areas; group related questions and do not reopen accepted policies. Exact software needs full preflight and explicit execution approval before scaffolding/installing/running. Actual proxy addresses and production supervision remain deployment inputs.
 - Approval boundary: no exact external software/version, hashing command, installation/execution, or assistant commit/push is authorized by these design decisions. Swagger credentials and the JWT signing key remain separate from public dummy passwords. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed monitoring/backup/recovery details beyond accepted logging requirements.
 
 ## Implementation backlog
