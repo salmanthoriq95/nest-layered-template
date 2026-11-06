@@ -1,6 +1,6 @@
 # DOC-003 — Decision Records
 
-**Status:** Current register · **Updated:** 2026-10-30.
+**Status:** Current register · **Updated:** 2026-11-06.
 **Format record:** [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation).
 
 **Decision:** Keep stable decision IDs and explicit status. Every decision document states the decision and its reason; other sections are optional.
@@ -805,3 +805,73 @@ Active rules: [DOC-004 — Conventions](DOC-004-conventions.md). Progress: relev
 - Boundary: no automatic upgrade or future artifact approval is implied. Full graph preflight and explicit approval remain mandatory before affected software steps.
 - Refines: the range form left open in [D-076 — Dependency ranges and committed lockfile](#d-076--dependency-ranges-and-committed-lockfile).
 - Details: [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts).
+
+## D-082 — Verified access-claim results
+
+**Status:** Accepted · **Date:** 2026-11-06.
+
+- Decision: return application-owned `VerifiedAccessClaims` from JWT verification, containing user/session identity and issuance/expiry timestamps. Session and permission checks follow verification.
+- Reason: the maintainer selected B to retain useful token metadata without exposing jose types.
+- Details: [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](DOC-021-scaffold-profile.md#7-implementation-closure).
+
+## D-083 — Boolean password verification
+
+**Status:** Accepted · **Date:** 2026-11-06.
+
+- Decision: return `Promise<boolean>` for password matching. A mismatch returns false; callers choose their authentication outcome. Unexpected faults still throw.
+- Reason: the maintainer selected A for reuse across application login and Swagger Basic Auth.
+- Details: [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](DOC-021-scaffold-profile.md#7-implementation-closure).
+
+## D-084 — Explicit atomic session operations
+
+**Status:** Accepted · **Date:** 2026-11-06.
+
+- Decision: expose dedicated session operations such as `rotateRefresh` and `revokeSession`. Storage guarantees the contract's atomic state transitions; the service coordinates credential/deadline policy.
+- Reason: the maintainer selected A instead of a transaction callback abstraction.
+- Boundary: preserve single-use rotation, committed replay revocation, original deadlines, and synchronous memory state transitions.
+- Details: [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](DOC-021-scaffold-profile.md#7-implementation-closure).
+
+## D-085 — Injectable time sources
+
+**Status:** Accepted · **Date:** 2026-11-06.
+
+- Decision: inject `ClockContract` with `epochMs()` and `monotonicMs()`. Use epoch time for session/JWT deadlines and monotonic time for limiter durations.
+- Reason: the maintainer selected A for deterministic time-dependent tests without real expiry waits.
+- Details: [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](DOC-021-scaffold-profile.md#7-implementation-closure).
+
+## D-086 — Immediate unknown-user rejection
+
+**Status:** Accepted with presented timing trade-off · **Date:** 2026-11-06.
+
+- Decision: immediately return the generic authentication failure when a username is absent, without dummy bcrypt work.
+- Reason: the maintainer selected B after the timing/CPU alternatives were explained.
+- Boundary: preserve generic 401 responses, credential validation, and early rate-limit admission. This does not claim equal timing between failure paths.
+- Details: [DOC-014 — Authentication Lifecycle](DOC-014-authentication-lifecycle.md).
+
+## D-087 — Subprocess HTTP testing
+
+**Status:** Accepted; test execution pending · **Date:** 2026-11-06.
+
+- Decision: HTTP tests start compiled API/worker entry points as separate processes and send real local HTTP requests. Include startup, auth boundaries, and process independence.
+- Reason: the maintainer selected A to exercise the artifacts and lifecycle that actually run.
+- Boundary: native Node tools, controlled test secrets, colocated unit tests, and no live integrations remain accepted.
+- Details: [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](DOC-021-scaffold-profile.md#7-implementation-closure).
+
+## D-088 — Source-first implementation
+
+**Status:** Accepted; external execution approval separate · **Date:** 2026-11-06.
+
+- Decision: write source, contracts, memory adapters, configuration, scripts, and tests while completing software preflight. Derive routine implementation details from accepted conventions and review the first version together.
+- Reason: the maintainer selected A to move from design into implementation.
+- Boundary: source-writing approval does not clear artifacts or authorize package/image download, installation, hashing, compiler/test/application execution, commits, or pushes.
+- Details: [DOC-023 — Container Preflight](DOC-023-container-preflight.md).
+
+## D-089 — Docker development workflow
+
+**Status:** Accepted direction; environment/artifact execution pending · **Date:** 2026-11-06.
+
+- Decision: use Docker for Node/npm, compilation, and watch, without host Node/nvm. Separate compiler, API, logging worker, and tooling services; keep native Linux dependencies inside images.
+- Reason: the maintainer uses a new laptop without Node/nvm and explicitly requested Docker as the toolchain.
+- Profile: expose only host-loopback API access. Use private Compose service addressing for the worker, retaining its shared credential. Keep standalone loopback defaults. Compose reads raw env values to preserve bcrypt hashes.
+- Boundary: inspect existing Docker/Compose/Colima and exact image/VM artifacts under the full supply-chain policy before execution; do not start a VM or install software implicitly.
+- Details: [DOC-022 — Container Development Workflow](DOC-022-container-workflow.md), [DOC-023 — Container Preflight](DOC-023-container-preflight.md).

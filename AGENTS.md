@@ -1,6 +1,6 @@
 # DOC-001 — AI Contributor Guide
 
-**Status:** Accepted · **Version:** 4.26.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Version:** 4.27.0 · **Updated:** 2026-11-06.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](docs/DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -22,6 +22,7 @@ Co-created with OpenAI Codex (GPT-6 family; exact variant unavailable).
 - External software steps require the full supply chain policy, preflight, and explicit approval. ELIGIBLE is not execution permission.
 - Leave commits, pushes, publication, and remote changes to the maintainer unless explicitly requested.
 - Work directly on `master` in this repository; creating or switching branches requires explicit maintainer instruction.
+- Source-first implementation is authorized. Use Docker for Node/npm/compiler/watch; no host Node/nvm installation. Artifact/execution approval remains separate.
 
 ## Load context by task
 
@@ -32,6 +33,7 @@ At session start or after compaction, read this guide, identify the task, then l
 | Scope, feature, layer, contract, or integration changes | [DOC-004 — Conventions: 2. Scope and priorities](docs/DOC-004-conventions.md#2-scope-and-priorities), [DOC-004 — Conventions: 3. Architecture](docs/DOC-004-conventions.md#3-architecture), or [DOC-004 — Conventions: 5. External interaction examples](docs/DOC-004-conventions.md#5-external-interaction-examples), as applicable. |
 | Code layout, naming, typing, imports, or tests | Relevant sections of [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md). |
 | Scaffold configuration, compiler/lint/format choices, contracts, fixtures, or dependency declarations | Relevant [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md) and [DOC-011 — Code Conventions](docs/DOC-011-code-conventions.md). Section 6 fixes compiler flags/configs/outputs, Node workflow scripts, crypto boundaries, readonly lookup snapshots, refresh encoding, and caret ranges. Retain compiled unit/HTTP build gates and complete-result review. |
+| Docker, Compose, compiler/runtime/watch, bootstrap, or container execution | [DOC-022 — Container Development Workflow](docs/DOC-022-container-workflow.md) and [DOC-023 — Container Preflight](docs/DOC-023-container-preflight.md). Keep compiler/API/worker independent, secrets literal, dependency/native code inside containers, and all software execution gates. |
 | Runtime, validator, ORM, scheduler, or exact software artifacts | [DOC-011 — Code Conventions: 7. Tooling direction](docs/DOC-011-code-conventions.md#7-tooling-direction) and relevant [DOC-017 — Tooling Preflight](docs/DOC-017-tooling-preflight.md). Node 26, Zod, Node Schedule, and future Prisma are accepted directions; exact artifacts require preflight. Persistence placeholders and native cleanup remain accepted. |
 | Request validation, response envelopes, or HTTP statuses | Relevant [DOC-012 — HTTP Boundary Conventions](docs/DOC-012-http-conventions.md); [DOC-013 — HTTP Status and Response Examples](docs/DOC-013-http-response-examples.md) when status examples are needed. Check proposed versus accepted details. |
 | Endpoint inputs/results, route policy defaults, or demo accounts/grants | Relevant accepted [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md); unresolved implementation details remain open. |

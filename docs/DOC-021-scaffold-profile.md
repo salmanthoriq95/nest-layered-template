@@ -1,6 +1,6 @@
 # DOC-021 — Initial Scaffold Profile
 
-**Status:** Accepted profile, configuration layout, and auth contract conventions; artifacts/implementation pending · **Updated:** 2026-10-30.
+**Status:** Accepted profile; source/configuration/test draft written, runtime verification pending · **Updated:** 2026-11-06.
 **Records:**
 
 - [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration)
@@ -15,6 +15,9 @@
 - [D-079 — Storage lookup snapshots](DOC-003-decisions.md#d-079--storage-lookup-snapshots)
 - [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers)
 - [D-081 — Caret dependency ranges](DOC-003-decisions.md#d-081--caret-dependency-ranges)
+- [D-082–D-087 — Provider, session, clock, login, and subprocess testing decisions](DOC-003-decisions.md#d-082--verified-access-claim-results)
+- [D-088 — Source-first implementation](DOC-003-decisions.md#d-088--source-first-implementation)
+- [D-089 — Docker development workflow](DOC-003-decisions.md#d-089--docker-development-workflow)
 
 ## 1. Configuration profile
 
@@ -67,7 +70,7 @@ These are acceptance criteria, not completed verification. Implementing and chec
 
 ## 4. Software approval boundary
 
-Express, `@nestjs/config`, `jose`, and native `bcrypt` are selected directions; exact artifacts, published graphs, support, advisories, install behavior, and provenance still need the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). The maintainer selected `bcrypt@6.0.0` as the review baseline; `jose@6.2.14` remains the current review target, not a cleared artifact. Existing assessment remains [DOC-017 — Tooling Preflight](DOC-017-tooling-preflight.md), with overall **UNKNOWN** artifact clearance. No package, source scaffold, config file, `.env`, secret, hash, or test execution was created by these documentation decisions.
+Express, `@nestjs/config`, `jose`, and native `bcrypt` are selected directions; artifacts and their full graphs still require [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). The manifest and source/config/test drafts are now written under the source-first authorization. `bcrypt@6.0.0` and `jose@6.2.14` remain review baselines. Current evidence is [DOC-023 — Container Preflight](DOC-023-container-preflight.md), with overall **UNKNOWN** clearance. No actual `.env`, secret, fixture hash/UUID, lockfile, or software execution was produced.
 
 ## 5. Implementation selections
 
@@ -142,4 +145,21 @@ abstract class AuthenticationServiceContract {
 
 Hash the complete refresh-token representation consistently for storage/lookup. Keep raw refresh tokens out of storage and logs; retain consumed-token evidence until the existing session deadline. This generator choice does not change HTTP input bounds, credential-error mappings, token transport, or rotation rules. Passwords still use bcrypt.
 
-Copied lookup results do not introduce grant-management endpoints or unused persistence operations. Exact JWT/password-provider and session-store methods remain review items. The snippets are documentation, not generated configuration/source or executed checks.
+Copied lookup results do not introduce grant-management endpoints or unused persistence operations. Source implementations now follow these selections and the closure below. Compiler/runtime behavior has not yet been verified.
+
+## 7. Implementation closure
+
+**Decision:** Apply the six selected contract/test choices and proceed with source-first Docker implementation.
+
+**Reason:** The maintainer selected B/A/A/A/B/A for the remaining questions, then authorized writing code while preflight continues.
+
+- JWT verification returns `VerifiedAccessClaims` with identity and NumericDate issuance/expiry seconds.
+- Password comparison returns `Promise<boolean>`; unexpected faults propagate.
+- Session storage has dedicated atomic rotate/revoke operations.
+- `ClockContract` supplies epoch and monotonic milliseconds.
+- An unknown username is rejected immediately with the generic 401; dummy comparison is not added.
+- HTTP tests launch compiled API/worker processes and make local HTTP calls.
+
+The repository now contains source, compiler configs, workflow scripts, Docker/Compose files, unit tests, and subprocess HTTP tests. Fixture IDs/hashes are deliberately pending approved one-time generation; invalid placeholders fail startup. Actual secrets and lockfile are not generated.
+
+See [DOC-022 — Container Development Workflow](DOC-022-container-workflow.md) for toolchain/bootstrap and [DOC-023 — Container Preflight](DOC-023-container-preflight.md) for the current UNKNOWN artifact clearance and diagnostic approval scope. Do not interpret written tests as passing results.

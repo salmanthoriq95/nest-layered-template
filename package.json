@@ -1,0 +1,51 @@
+{
+  "name": "nest-layered-template",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "A modular NestJS template with explicit layer contracts and in-memory permission examples.",
+  "engines": {
+    "node": ">=26.13.0 <27"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src test scripts",
+    "format": "prettier --write src test scripts *.json *.mjs *.yaml",
+    "format:check": "prettier --check src test scripts *.json *.mjs *.yaml",
+    "check": "node scripts/check.mjs",
+    "test": "node scripts/test.mjs",
+    "test:unit": "node scripts/test.mjs unit",
+    "test:e2e": "node scripts/test.mjs e2e",
+    "dev:build": "node node_modules/typescript/bin/tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "dev:api": "node scripts/watch-entry.mjs dist/main.js",
+    "dev:worker": "node scripts/watch-entry.mjs dist/logging-worker/main.js",
+    "start:api": "node --enable-source-maps dist/main.js",
+    "start:worker": "node --enable-source-maps dist/logging-worker/main.js",
+    "fixtures:generate": "node scripts/generate-demo-fixtures.mjs",
+    "configure": "node scripts/configure.mjs"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.3.0",
+    "@nestjs/core": "^12.3.0",
+    "@nestjs/platform-express": "^12.3.0",
+    "@nestjs/swagger": "^12.0.5",
+    "express": "^5.3.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.6.7",
+    "jose": "^6.2.14",
+    "bcrypt": "^6.0.0",
+    "@nestjs/config": "^12.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "eslint": "^10.13.0",
+    "typescript-eslint": "^8.72.1",
+    "prettier": "^3.9.10",
+    "@types/node": "^26.6.6",
+    "@types/express": "^5.0.6",
+    "@types/bcrypt": "^6.0.0"
+  }
+}

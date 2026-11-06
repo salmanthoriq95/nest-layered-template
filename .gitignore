@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.docker.env
+node_modules/
+dist/
+.test-dist/
+logs/
+.DS_Store
+*.tsbuildinfo
+coverage/

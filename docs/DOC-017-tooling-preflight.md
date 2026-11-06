@@ -21,6 +21,8 @@
 
 **Reason:** Identify a small compatible stack while applying the complete [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md). This is an evidence ledger and proposal, not a completed audit or an installation manifest.
 
+**2026-11-06 supplement:** Source, configuration, tests, Docker workflow, and a candidate manifest now exist. Colima's Docker engine is reachable, but installed runtime advisory matches and the Node November security preannouncement require **REVIEW**. Other unverified artifacts remain **UNKNOWN**. Current versions, sources, approval scopes, and remaining work are in [DOC-023 — Container Preflight](DOC-023-container-preflight.md). Earlier observations below are historical.
+
 ## 1. Candidate profile
 
 Accepted directions: Node 26's latest supported patch, Zod validation, Node Schedule, Prisma for future database persistence, npm, ESM/NodeNext, compilation through TypeScript, native Node tests/assertions and HTTP requests, and separate ESLint/typescript-eslint/Prettier checks. The current Node target is `26.13.0`; recheck the patch before installation review. Express is the selected HTTP adapter and `@nestjs/config`/Zod is the startup-configuration approach. Use basic lint, default Prettier, and the accepted watch/test profile; exact artifacts/configuration remain candidates. Keep accepted DI, test locations, validation behavior, auth, and logging policy.
@@ -62,7 +64,7 @@ All source links below were retrieved on **2026-10-30**. Node 26, Zod, and Node 
 | `typescript-eslint` | `8.72.1` | TypeScript lint support; [tagged manifest](https://raw.githubusercontent.com/typescript-eslint/typescript-eslint/v8.72.1/packages/typescript-eslint/package.json) | Peers include ESLint 10 and TypeScript `>=4.8.4 <6.1.0`; workspace dependency substitutions need published metadata. |
 | `prettier` | `3.9.10` | Formatting; [tagged manifest](https://raw.githubusercontent.com/prettier/prettier/3.9.10/package.json) | Tagged release; Node `>=22`. Published packaging/bundling still unverified. |
 
-Unresolved roles: a compatible, published `@types/node` version and any required lint-config/type packages. Their exact versions are not established; the inventory is incomplete. There is no project `package.json`, lockfile, or resolved dependency graph.
+At this initial review, Node/lint type artifacts were unresolved. Current direct candidates are recorded in DOC-023 and `package.json`; there is still no resolved lockfile/full graph.
 
 ### Node LTS comparison
 
@@ -165,4 +167,4 @@ Before installation/execution:
 
 Native bcrypt's exact-version OSV/GitHub scan, KEV mapping, OpenSSF/Socket/deps.dev signals, full dependency graph, and published/native artifact verification are not complete. The historical advisory and source manifest above do not close those gaps. Overall clearance remains **UNKNOWN**.
 
-No package manager, runtime, installer, hashing script, application, or test suite has been executed. No `package.json`, lockfile, secret, application source, or runtime log was created. The accepted AI guide is version **4.26.0**, recording configuration and contract selections; artifact execution remains unapproved.
+No package manager, runtime, installer, hashing script, application, or test suite has been executed. Source/config/test files and `package.json` now exist; no lockfile, actual secret, generated fixture, or runtime log was created. Guide version **4.27.0** records source-first Docker implementation; artifact execution remains unapproved. Current evidence is in DOC-023.

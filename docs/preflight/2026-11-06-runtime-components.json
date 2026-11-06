@@ -1,0 +1,762 @@
+{
+  "retrieved": "2026-11-06",
+  "scope": "Installed Colima Docker runtime",
+  "decision": "REVIEW",
+  "osv": {
+    "results": [
+      {
+        "vulns": [
+          {
+            "id": "GHSA-7236-3392-c5c6",
+            "modified": "2026-09-10T03:51:13.277422Z"
+          },
+          {
+            "id": "GHSA-72x6-4j93-7w86",
+            "modified": "2026-09-10T03:51:13.226978Z"
+          },
+          {
+            "id": "GO-2026-6255",
+            "modified": "2026-09-01T21:56:11.324773Z"
+          },
+          {
+            "id": "GO-2026-6256",
+            "modified": "2026-09-01T21:56:10.777895Z"
+          }
+        ]
+      },
+      {
+        "vulns": [
+          {
+            "id": "GHSA-33vj-92qq-66hc",
+            "modified": "2026-09-10T03:51:07.626163Z"
+          },
+          {
+            "id": "GHSA-7jxh-36q5-gcqv",
+            "modified": "2026-09-17T17:40:55.122822Z"
+          },
+          {
+            "id": "GHSA-cvxm-645q-p574",
+            "modified": "2026-09-10T03:50:49.278604Z"
+          },
+          {
+            "id": "GHSA-jpcc-p29g-p8mq",
+            "modified": "2026-09-10T03:50:50.032144Z"
+          },
+          {
+            "id": "GHSA-p7v4-vr35-mj6f",
+            "modified": "2026-10-19T21:41:22.608698Z"
+          },
+          {
+            "id": "GHSA-pg57-6jwg-q645",
+            "modified": "2026-10-01T20:55:46.094271Z"
+          },
+          {
+            "id": "GHSA-rgh6-rfwx-v388",
+            "modified": "2026-09-10T03:50:50.388984Z"
+          },
+          {
+            "id": "GHSA-rp3h-jf77-q9p4",
+            "modified": "2026-10-19T21:40:52.337183Z"
+          },
+          {
+            "id": "GHSA-xhf5-7wjv-pqxp",
+            "modified": "2026-09-10T03:51:09.792384Z"
+          },
+          {
+            "id": "GO-2026-5064",
+            "modified": "2026-06-26T06:29:23.046204Z"
+          },
+          {
+            "id": "GO-2026-5338",
+            "modified": "2026-06-26T15:44:22.793783Z"
+          },
+          {
+            "id": "GO-2026-5475",
+            "modified": "2026-06-26T19:59:20.816056Z"
+          },
+          {
+            "id": "GO-2026-5622",
+            "modified": "2026-06-26T15:44:24.122407Z"
+          },
+          {
+            "id": "GO-2026-5758",
+            "modified": "2026-06-26T19:59:21.410839Z"
+          },
+          {
+            "id": "GO-2026-6444",
+            "modified": "2026-09-17T17:30:11.249324Z"
+          },
+          {
+            "id": "GO-2026-6597",
+            "modified": "2026-10-01T20:45:17.223140Z"
+          },
+          {
+            "id": "GO-2026-6791",
+            "modified": "2026-10-19T21:31:38.313663Z"
+          },
+          {
+            "id": "GO-2026-6796",
+            "modified": "2026-10-19T21:31:38.305997Z"
+          }
+        ]
+      },
+      {
+        "vulns": [
+          {
+            "id": "GHSA-xjvp-4fhw-gc47",
+            "modified": "2026-09-10T03:51:09.778120Z"
+          },
+          {
+            "id": "GO-2026-5761",
+            "modified": "2026-07-08T15:29:23.485432Z"
+          }
+        ]
+      },
+      {
+        "vulns": [
+          {
+            "id": "GHSA-pxq6-2prw-chj9",
+            "modified": "2026-09-10T03:50:40.571293Z"
+          },
+          {
+            "id": "GO-2026-4883",
+            "modified": "2026-04-03T20:59:19.136043Z"
+          },
+          {
+            "id": "GO-2026-4887",
+            "modified": "2026-04-03T20:59:19.226161Z"
+          },
+          {
+            "id": "GO-2026-5617",
+            "modified": "2026-07-28T16:30:26.475155Z"
+          },
+          {
+            "id": "GO-2026-5668",
+            "modified": "2026-08-11T23:45:11.206486Z"
+          },
+          {
+            "id": "GO-2026-5746",
+            "modified": "2026-07-23T17:45:22.600659Z"
+          }
+        ]
+      }
+    ]
+  },
+  "advisories": {
+    "buildkit-gh": [
+      {
+        "id": "GHSA-72x6-4j93-7w86",
+        "cve": "CVE-2026-61712",
+        "severity": "low",
+        "summary": "BuildKit has a possible runtime DoS via unbounded group parsing",
+        "url": "https://github.com/advisories/GHSA-72x6-4j93-7w86",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/moby/buildkit"
+            },
+            "vulnerable_version_range": "<= 0.31.0",
+            "first_patched_version": "0.31.1",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/moby/buildkit/security/advisories/GHSA-72x6-4j93-7w86"
+        ]
+      },
+      {
+        "id": "GHSA-7236-3392-c5c6",
+        "cve": "CVE-2026-61711",
+        "severity": "medium",
+        "summary": "BuildKit: Custom frontend could bypass Seccomp/AppArmor",
+        "url": "https://github.com/advisories/GHSA-7236-3392-c5c6",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/moby/buildkit"
+            },
+            "vulnerable_version_range": "<= 0.31.0",
+            "first_patched_version": "0.31.1",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/moby/buildkit/security/advisories/GHSA-7236-3392-c5c6"
+        ]
+      }
+    ],
+    "containerd-gh": [
+      {
+        "id": "GHSA-rp3h-jf77-q9p4",
+        "cve": "CVE-2026-95838",
+        "severity": "medium",
+        "summary": "containerd: Unpack DoS via repeated opaque whiteouts",
+        "url": "https://github.com/advisories/GHSA-rp3h-jf77-q9p4",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": "< 2.0.12",
+            "first_patched_version": "2.0.12",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd"
+            },
+            "vulnerable_version_range": "< 1.7.35",
+            "first_patched_version": "1.7.35",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.8",
+            "first_patched_version": "2.2.8",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.5",
+            "first_patched_version": "2.3.5",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-rp3h-jf77-q9p4"
+        ]
+      },
+      {
+        "id": "GHSA-p7v4-vr35-mj6f",
+        "cve": "CVE-2026-95837",
+        "severity": "high",
+        "summary": "containerd CRI plugin: Checkpoint restore bypasses destination security context",
+        "url": "https://github.com/advisories/GHSA-p7v4-vr35-mj6f",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.2.7",
+            "first_patched_version": "2.2.7",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.4",
+            "first_patched_version": "2.3.4",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-p7v4-vr35-mj6f"
+        ]
+      },
+      {
+        "id": "GHSA-pg57-6jwg-q645",
+        "cve": "CVE-2026-53493",
+        "severity": "medium",
+        "summary": "Containerd has image-pull DoS via crafted OCI index graph amplification",
+        "url": "https://github.com/advisories/GHSA-pg57-6jwg-q645",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.0.0, < 2.0.13",
+            "first_patched_version": "2.0.13",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd"
+            },
+            "vulnerable_version_range": "<= 1.7.35",
+            "first_patched_version": "1.7.36",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.2.9",
+            "first_patched_version": "2.2.9",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.6",
+            "first_patched_version": "2.3.6",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": "= 2.4.0",
+            "first_patched_version": "2.4.1",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-pg57-6jwg-q645"
+        ]
+      },
+      {
+        "id": "GHSA-7jxh-36q5-gcqv",
+        "cve": "CVE-2026-53495",
+        "severity": "medium",
+        "summary": "containerd: CRI ExecSync Goroutine Leak Leads to Node-Level Denial of Service",
+        "url": "https://github.com/advisories/GHSA-7jxh-36q5-gcqv",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": "< 2.0.12",
+            "first_patched_version": "2.0.12",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd"
+            },
+            "vulnerable_version_range": "< 1.7.35",
+            "first_patched_version": "1.7.35",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.8",
+            "first_patched_version": "2.2.8",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.5",
+            "first_patched_version": "2.3.5",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-7jxh-36q5-gcqv"
+        ]
+      },
+      {
+        "id": "GHSA-33vj-92qq-66hc",
+        "cve": "CVE-2026-53492",
+        "severity": "high",
+        "summary": "containerd CRI checkpoint restore CDI annotation smuggling",
+        "url": "https://github.com/advisories/GHSA-33vj-92qq-66hc",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.1.9",
+            "first_patched_version": "2.1.9",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.5",
+            "first_patched_version": "2.2.5",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.2",
+            "first_patched_version": "2.3.2",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-33vj-92qq-66hc"
+        ]
+      },
+      {
+        "id": "GHSA-rgh6-rfwx-v388",
+        "cve": "CVE-2026-53489",
+        "severity": "high",
+        "summary": "Arbitrary host CRI log file read via symlink following in CRI checkpoint restore",
+        "url": "https://github.com/advisories/GHSA-rgh6-rfwx-v388",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.1.9",
+            "first_patched_version": "2.1.9",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.5",
+            "first_patched_version": "2.2.5",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.2",
+            "first_patched_version": "2.3.2",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-rgh6-rfwx-v388"
+        ]
+      },
+      {
+        "id": "GHSA-xhf5-7wjv-pqxp",
+        "cve": "CVE-2026-53488",
+        "severity": "high",
+        "summary": "containerd CRI — image-config `LABEL` flows to restart-monitor `binary://` logger: host-root command execution from an image pull",
+        "url": "https://github.com/advisories/GHSA-xhf5-7wjv-pqxp",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd"
+            },
+            "vulnerable_version_range": ">= 1.7.0, < 1.7.33",
+            "first_patched_version": "1.7.33",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.0.0, < 2.0.10",
+            "first_patched_version": "2.0.10",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.1.9",
+            "first_patched_version": "2.1.9",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.5",
+            "first_patched_version": "2.2.5",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.2",
+            "first_patched_version": "2.3.2",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-xhf5-7wjv-pqxp"
+        ]
+      },
+      {
+        "id": "GHSA-cvxm-645q-p574",
+        "cve": "CVE-2026-50195",
+        "severity": "medium",
+        "summary": "containerd: CRI checkpoint import allows local image tag poisoning",
+        "url": "https://github.com/advisories/GHSA-cvxm-645q-p574",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.1.9",
+            "first_patched_version": "2.1.9",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.5",
+            "first_patched_version": "2.2.5",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.2",
+            "first_patched_version": "2.3.2",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-cvxm-645q-p574"
+        ]
+      },
+      {
+        "id": "GHSA-jpcc-p29g-p8mq",
+        "cve": "CVE-2026-47262",
+        "severity": "medium",
+        "summary": "containerd image-triggered runtime DoS via unbounded group parsing",
+        "url": "https://github.com/advisories/GHSA-jpcc-p29g-p8mq",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.0.0, < 2.0.10",
+            "first_patched_version": "2.0.10",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd"
+            },
+            "vulnerable_version_range": ">= 1.7.0, < 1.7.33",
+            "first_patched_version": "1.7.33",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.1.0, < 2.1.9",
+            "first_patched_version": "2.1.9",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.2.0, < 2.2.5",
+            "first_patched_version": "2.2.5",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/containerd/containerd/v2"
+            },
+            "vulnerable_version_range": ">= 2.3.0, < 2.3.2",
+            "first_patched_version": "2.3.2",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/containerd/containerd/security/advisories/GHSA-jpcc-p29g-p8mq"
+        ]
+      }
+    ],
+    "runc-gh": [
+      {
+        "id": "GHSA-xjvp-4fhw-gc47",
+        "cve": "CVE-2026-41579",
+        "severity": "medium",
+        "summary": "runc: Malicious image with /dev symlink can trigger limited host filesystem integrity violations ",
+        "url": "https://github.com/advisories/GHSA-xjvp-4fhw-gc47",
+        "ranges": [
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/opencontainers/runc"
+            },
+            "vulnerable_version_range": "<= 1.3.5",
+            "first_patched_version": "1.3.6",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/opencontainers/runc"
+            },
+            "vulnerable_version_range": ">= 1.4.0, <= 1.4.2",
+            "first_patched_version": "1.4.3",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "go",
+              "name": "github.com/opencontainers/runc"
+            },
+            "vulnerable_version_range": ">= 1.5.0-rc.1, <= 1.5.0-rc.2",
+            "first_patched_version": "1.5.0-rc.3",
+            "vulnerable_functions": []
+          }
+        ],
+        "primarySources": [
+          "https://github.com/opencontainers/runc/security/advisories/GHSA-xjvp-4fhw-gc47"
+        ]
+      }
+    ]
+  },
+  "observed": {
+    "dockerCli": "29.9.3",
+    "compose": "5.7.0",
+    "hostBuildx": "0.38.2",
+    "dockerEngine": "29.5.2",
+    "engineGo": "1.26.3",
+    "buildkit": "0.30.0",
+    "containerd": "2.2.4",
+    "runc": "1.3.5",
+    "guestOs": "Ubuntu 24.04.4 LTS",
+    "architecture": "arm64",
+    "runningContainers": 0,
+    "cachedImages": [
+      "hello-world:latest"
+    ],
+    "heldPackages": [
+      "docker-ce",
+      "docker-ce-cli",
+      "containerd.io"
+    ]
+  },
+  "nodeAnnouncement": {
+    "source": "https://raw.githubusercontent.com/nodejs/nodejs.org/main/apps/site/pages/en/blog/vulnerability/november-2026-security-releases.md",
+    "published": "2026-11-03T23:00:00.000Z",
+    "plannedSecurityRelease": "2026-11-11 (on or shortly after)",
+    "lines": [
+      "26.x",
+      "24.x",
+      "22.x"
+    ],
+    "maximumAnnouncedSeverity": "HIGH",
+    "specificAffectedCvesAndFixVersions": "not disclosed in retrieved announcement",
+    "decision": "REVIEW"
+  },
+  "kev": {
+    "source": "https://raw.githubusercontent.com/cisagov/kev-data/main/known_exploited_vulnerabilities.json",
+    "catalog": "2026.11.04",
+    "queriedCveCount": 12,
+    "matchedQueriedCves": [],
+    "absenceIsNotClearance": true
+  },
+  "remoteNodeIndex": {
+    "reference": "docker.io/library/node:26.13.0-bookworm@sha256:a546d3f8acd2af4382668a7e6acd3bc4418e6a27478373e3246f8162f5181509",
+    "index": {
+      "schemaVersion": 2,
+      "mediaType": "application/vnd.oci.image.index.v1+json",
+      "manifests": [
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 2310,
+          "digest": "sha256:1d9e3c29bf8eae6becc330e2546d461b23c1a86ac9207d015b5ea8ba26cbe210",
+          "platform": {
+            "architecture": "amd64",
+            "os": "linux"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 842,
+          "digest": "sha256:0ab73999817e1861b3373214ee82c5d60830f2045126a7621b620c7402885e33",
+          "platform": {
+            "architecture": "unknown",
+            "os": "unknown"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 2312,
+          "digest": "sha256:a0b93c08df51926b62df52fb9f7bba8a9b52e42541e1532407b3cb366470c893",
+          "platform": {
+            "architecture": "arm64",
+            "os": "linux",
+            "variant": "v8"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 842,
+          "digest": "sha256:8b50f23eff98552579ad65d050fb2d298a99f44d6de1f99539b6cca21497fbba",
+          "platform": {
+            "architecture": "unknown",
+            "os": "unknown"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 2312,
+          "digest": "sha256:401be497a7d69d6dc3a41b9b7602099cce12e46a3a047c8a0c5eb9516ef87501",
+          "platform": {
+            "architecture": "ppc64le",
+            "os": "linux"
+          }
+        },
+        {
+          "mediaType": "application/vnd.oci.image.manifest.v1+json",
+          "size": 842,
+          "digest": "sha256:2b8006e4b7d415fa6ef5965670ed9887e31464186770180f4b544f84cb9d6c05",
+          "platform": {
+            "architecture": "unknown",
+            "os": "unknown"
+          }
+        }
+      ]
+    },
+    "imagePulled": false,
+    "signatureVerified": false
+  },
+  "exposure": {
+    "confirmedVersionRangesOnly": true,
+    "criPluginActivation": "not established; Docker use does not imply CRI exposure",
+    "hostHomeMountedWritableInVm": true,
+    "projectContainerMounts": "no host home or Docker socket mounts",
+    "guestRuntimeUpgrade": "requires approval; no package holds changed"
+  }
+}

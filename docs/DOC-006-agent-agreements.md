@@ -1,6 +1,6 @@
 # DOC-006 — AI Working Agreements
 
-**Status:** Accepted · **Guide version:** 4.26.0 · **Updated:** 2026-10-30.
+**Status:** Accepted · **Guide version:** 4.27.0 · **Updated:** 2026-11-06.
 **Records:**
 
 - [D-019 — Lightweight decision documentation](DOC-003-decisions.md#d-019--lightweight-decision-documentation)
@@ -24,6 +24,7 @@ Versions track AI working agreements, independently of application releases.
 
 | Version | Date | Changes | Records |
 | --- | --- | --- | --- |
+| 4.27.0 | 2026-11-06 | Accept verified JWT metadata, boolean password checks, explicit atomic session operations, injected time, immediate unknown-user rejection, and subprocess HTTP tests. Authorize source-first implementation using Docker for runtime/compiler/watch, preserving external execution gates. | [D-082–D-087 — Provider, session, clock, login, and subprocess testing decisions](DOC-003-decisions.md#d-082--verified-access-claim-results), [D-088 — Source-first implementation](DOC-003-decisions.md#d-088--source-first-implementation), [D-089 — Docker development workflow](DOC-003-decisions.md#d-089--docker-development-workflow) |
 | 4.26.0 | 2026-10-30 | Accept deployment source maps, decorator/emit flags, three shared compiler configs, `dist/` and `.test-dist/`, Node workflow scripts, auth service signatures and separate JWT/password contracts, readonly lookup snapshots, 32-byte hexadecimal refresh tokens/SHA-256 verifiers, and caret ranges. Preserve artifact/execution gates. | [D-077 — Compiler configuration and script layout](DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout), [D-078 — Authentication service and crypto boundaries](DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries), [D-079 — Storage lookup snapshots](DOC-003-decisions.md#d-079--storage-lookup-snapshots), [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers), [D-081 — Caret dependency ranges](DOC-003-decisions.md#d-081--caret-dependency-ranges) |
 | 4.25.0 | 2026-10-30 | Select jose/native bcrypt, ESNext, separate build/test outputs with compiled tests required for build success, named inputs, missing-lookup `undefined`, epoch-millisecond session times, stable public demo fixtures, and dependency ranges with a committed lockfile. Keep artifact/execution gates. | [D-072 — JWT and native bcrypt implementations](DOC-003-decisions.md#d-072--jwt-and-native-bcrypt-implementations), [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds), [D-074 — Internal contract inputs and values](DOC-003-decisions.md#d-074--internal-contract-inputs-and-values), [D-075 — Stable public demo fixtures](DOC-003-decisions.md#d-075--stable-public-demo-fixtures), [D-076 — Dependency ranges and committed lockfile](DOC-003-decisions.md#d-076--dependency-ranges-and-committed-lockfile) |
 | 4.24.0 | 2026-10-30 | Accept Express, strict-only checking, basic lint, default Prettier, automatic watch, `@nestjs/config`/Zod, synchronous memory where appropriate, typed application errors, and combined unit/HTTP test commands. Accept first-release criteria and complete-result review; keep artifact/execution gates. | [D-070 — Initial scaffold configuration](DOC-003-decisions.md#d-070--initial-scaffold-configuration), [D-071 — First-release acceptance and review](DOC-003-decisions.md#d-071--first-release-acceptance-and-review) |
@@ -82,6 +83,6 @@ Record an explicit maintainer change before relying on it. If scope, authority, 
 
 ## Verification and attribution
 
-Use relevant authorized checks and report what passed, failed, or remains unverified. Never invent installation, test, audit, or readiness results. Application build/test commands are not yet defined.
+Use relevant authorized checks and report what passed, failed, or remains unverified. Never invent installation, test, audit, or readiness results. Build/test scripts are written; their execution and passing results remain pending under [DOC-023 — Container Preflight](DOC-023-container-preflight.md).
 
 Initial collaboration used OpenAI Codex with the GPT-6 family identified in the session; the exact variant was unavailable. Record only evidenced identities for future contributors. Preserve attribution in the [DOC-000 — nest-layered-template](../README.md) and guide.

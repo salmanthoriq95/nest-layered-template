@@ -1,0 +1,122 @@
+x-development: &development
+  build:
+    context: .
+    target: development
+    args:
+      NODE_IMAGE: ${NODE_IMAGE:?Set the reviewed image digest in .docker.env}
+  pull_policy: never
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  metadata:
+    profiles: [metadata]
+    build:
+      context: .
+      target: toolchain
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:?Set the reviewed image digest in .docker.env}
+    pull_policy: never
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+
+  tooling:
+    <<: *development
+    profiles: [tools]
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          initial_sync: true
+        - action: sync
+          path: ./test
+          target: /app/test
+          initial_sync: true
+        - action: sync
+          path: ./scripts
+          target: /app/scripts
+          initial_sync: true
+        - action: sync
+          path: ./tsconfig.json
+          target: /app/tsconfig.json
+        - action: sync
+          path: ./tsconfig.build.json
+          target: /app/tsconfig.build.json
+        - action: sync
+          path: ./tsconfig.test.json
+          target: /app/tsconfig.test.json
+        - action: sync
+          path: ./eslint.config.mjs
+          target: /app/eslint.config.mjs
+
+  compiler:
+    <<: *development
+    command: [node, node_modules/typescript/bin/tsc, -p, tsconfig.build.json, --watch, --preserveWatchOutput]
+    volumes:
+      - compiled:/app/dist
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          initial_sync: true
+        - action: sync+restart
+          path: ./tsconfig.json
+          target: /app/tsconfig.json
+        - action: sync+restart
+          path: ./tsconfig.build.json
+          target: /app/tsconfig.build.json
+
+  api:
+    <<: *development
+    command: [node, scripts/watch-entry.mjs, dist/main.js]
+    depends_on:
+      compiler:
+        condition: service_started
+    env_file:
+      - path: .env
+        required: false
+        format: raw
+    environment:
+      HOST: 0.0.0.0
+      PORT: "3000"
+      LOG_WORKER_URL: http://logging-worker:3001/internal/logs
+    ports:
+      - 127.0.0.1:${API_HOST_PORT:-3000}:3000
+    volumes:
+      - compiled:/app/dist:ro
+    read_only: true
+    develop:
+      watch:
+        - action: rebuild
+          path: ./scripts
+
+  logging-worker:
+    <<: *development
+    command: [node, scripts/watch-entry.mjs, dist/logging-worker/main.js]
+    depends_on:
+      compiler:
+        condition: service_started
+    env_file:
+      - path: .env
+        required: false
+        format: raw
+    environment:
+      LOG_WORKER_HOST: 0.0.0.0
+      LOG_WORKER_PORT: "3001"
+      LOG_ERROR_DIRECTORY: /app/logs/errors
+    volumes:
+      - compiled:/app/dist:ro
+      - error-logs:/app/logs
+    read_only: true
+    develop:
+      watch:
+        - action: rebuild
+          path: ./scripts
+
+volumes:
+  compiled:
+  error-logs:

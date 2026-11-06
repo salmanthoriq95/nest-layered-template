@@ -2,7 +2,7 @@
 
 A modular NestJS backend starter with clear boundaries, explicit contracts, and flexible authorization.
 
-**Status:** design and documentation. Stack/scaffold directions and first-release criteria are accepted; source scaffolding and artifact approval remain pending. See [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md).
+**Status:** implementation draft. Source, Docker workflow, and tests are written; software approval, lockfile/fixture generation, compilation, and runtime verification remain pending. See [DOC-023 — Container Preflight](docs/DOC-023-container-preflight.md). No passing application checks are claimed yet.
 
 ## Scope
 
@@ -10,12 +10,12 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 - Use per-user in-memory grants. Public routes are anonymous; authenticated superadmins pass permission checks; superadmin-only routes stay restricted.
 - Use HS256 access JWTs (15-minute default) and rotating opaque refresh tokens (seven-day refresh window). Logout immediately invalidates the current session's access and refresh tokens through server-side checks.
 - Keep two dummy accounts, roles/grants, and sessions in memory. Edit grants manually in storage; no grant-management endpoint is included. Dummy-account credentials stay outside `.env`.
-- Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first. API contracts and tooling direction are accepted; exact artifacts and build/runtime configuration remain pending.
+- Configure signing/expiry in `.env`, use UUID v4 public user IDs, and try the API through Swagger first.
 - Use jose for JWTs and native bcrypt for application/Swagger passwords. Application hashes stay in memory fixtures; Swagger Basic Auth uses its separate `.env` credentials.
 - Apply environment-configured sliding-window limits per client IP: separate login/refresh quotas and a shared Swagger UI/schema/assets quota before Basic Auth. Keep counters in process-local memory, with explicit proxy trust when deployed behind a reverse proxy.
 - Keep a modular, N-layered main API with DI and clear boundaries; run logging in an independent process.
 - Send logs to the independent worker through background internal HTTP, with UUID correlation and development-only request details. The worker persists unexpected faults to one daily JSON array file; exclude secrets in every mode. Delivery is best effort; failures produce a safe local stderr diagnostic while the API keeps serving. Initial queue, ingestion, file, and lifecycle policies are accepted in [DOC-016 — Logging Conventions](docs/DOC-016-logging-conventions.md).
-- Validate request inputs with Zod and use uniform JSON envelopes with standard HTTP statuses and safe error details. Exact validation artifacts and integration remain pending.
+- Validate request inputs with Zod and use uniform JSON envelopes with standard HTTP statuses and safe error details.
 - Prepare persistence/integration placeholders, alongside auth's in-memory access store behind a contract. Prisma is the future ORM direction; add its reviewed database/client implementation only when a consuming project needs persistence.
 - Use Node Schedule with explicit recurrence fields when calendar jobs are needed. The accepted in-memory cleanup stays on its native timer; no calendar job is required initially.
 - Initial scope has no real article/category/comment CRUD, database, ORM, upload, or payment integration.
@@ -24,14 +24,28 @@ A modular NestJS backend starter with clear boundaries, explicit contracts, and 
 
 Designed for solo developers and teams of 2–3. Priorities: readable flows, fast delivery, easy debugging and review, and changes with controlled scope and cost.
 
-## Planned demo logins
+## Docker development
+
+Node, npm, TypeScript, tests, and watch run in containers. Host Node/nvm is unnecessary. Compiler, API, and worker are independent services; tooling checks use isolated output.
+
+Follow [DOC-022 — Container Development Workflow](docs/DOC-022-container-workflow.md) for the reviewed bootstrap, private configuration, fixture generation, watch, and check commands. Complete the supply-chain approval steps first. The helper defaults to Docker context `colima`; `CONTAINER_CONTEXT` selects another reviewed local context.
+
+After bootstrap and execution approval:
+
+```sh
+sh scripts/container-tools.sh watch
+```
+
+API: `http://127.0.0.1:3000`. Swagger: `/docs` with separate Basic Auth. The worker is private to the Compose network. Dependency updates require preflight and a reviewed lockfile; watch does not install packages.
+
+## Demo logins
 
 | Username | Password |
 | --- | --- |
 | `superadmin` | `dev123` |
 | `admin` | `dev123` |
 
-These public example credentials are approved for the planned in-memory fixtures; the application is not implemented yet. Fixtures will store bcrypt hashes. Swagger Basic Auth credentials and the JWT signing key remain separately configured through `.env`. See [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md) for routes and initial grants.
+These public credentials belong only to the demo. Fixture IDs/hashes must be generated once after approval; pending placeholders intentionally fail startup. Edit grants in the fixture source and restart the demo. API restarts clear sessions. Swagger credentials and signing keys remain separate private `.env` settings. See [DOC-015 — Demo API Contracts](docs/DOC-015-demo-api-contracts.md).
 
 ## Project guide
 
@@ -58,10 +72,12 @@ These public example credentials are approved for the planned in-memory fixtures
 | [DOC-019 — Drizzle Security and Compatibility Review](docs/DOC-019-drizzle-review.md) | Known advisory ranges, Node 26 compatibility limits, and unresolved artifact evidence. |
 | [DOC-020 — Persistence Alternatives](docs/DOC-020-persistence-alternatives.md) | Historical Kysely/Knex/MikroORM comparisons and typing/security evidence; Prisma is selected. |
 | [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md) | Accepted Express/configuration, compiler/lint/format/watch, contract/error/test choices, and first-release criteria. |
+| [DOC-022 — Container Development Workflow](docs/DOC-022-container-workflow.md) | Docker toolchain, staged bootstrap, secrets, watch, and checks without host Node. |
+| [DOC-023 — Container Preflight](docs/DOC-023-container-preflight.md) | Current artifact evidence, remaining risks, and concrete execution approval scopes. |
 
 ## AI collaboration
 
-Design and documentation were developed by the maintainer with **[OpenAI Codex](https://learn.chatgpt.com/docs/models)**, an AI code assistant using the **GPT-6 model family** identified in the contributing session. The exact model variant was unavailable.
+Design, documentation, and the source draft were developed by the maintainer with **[OpenAI Codex](https://learn.chatgpt.com/docs/models)**, an AI code assistant using the **GPT-6 model family** identified in the contributing session. The exact model variant was unavailable.
 
 ## License
 

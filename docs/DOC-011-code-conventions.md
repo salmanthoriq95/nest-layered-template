@@ -1,6 +1,6 @@
 # DOC-011 — Code Conventions
 
-**Status:** Layout, DI, typing, tests, and configuration profile accepted; artifacts/implementation pending · **Updated:** 2026-10-30.
+**Status:** Accepted conventions; source/config/test draft written, execution pending · **Updated:** 2026-11-06.
 **Records:**
 
 - [D-030 — Minimal code layout and conventions](DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions)
@@ -32,7 +32,7 @@
 
 ## 1. Minimal layout
 
-This is the agreed layout, not existing source code. API routes, demo passwords, and auth service signatures are accepted; remaining store/provider methods and actual fixture hashes remain pending. Add test files where behavior requires them.
+The agreed layout is now implemented as a source draft, with small shared application/clock/HTTP boundaries and Docker tooling. Provider/store signatures are in source; fixture generation and all compiler/runtime verification remain pending. See [DOC-022 — Container Development Workflow](DOC-022-container-workflow.md).
 
 The tree includes the main API and accepted logging locations. Use `src/logging/` for API logging contracts/event types and the adapter, and `src/logging-worker/` for the independent worker entry point and implementation. Detailed filenames and contract methods belong to implementation review under [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md).
 
@@ -89,8 +89,8 @@ tsconfig.test.json
 - `examples` contains public, permission-protected, and superadmin-only response demonstrations, with feature-owned permission constants.
 - `auth` contains login/refresh/logout, identity/session verification, route policy, and authorization behavior. Account credentials, current role/grants, and session/refresh state stay behind application-owned contracts. Use a shared source of current role/grant data where adapters expose different views.
 - Keep exactly two dummy usernames, `superadmin` and `admin`, in the in-memory user fixture/store. Both use demo password `dev123`, stored as bcrypt hashes after approved generation. Edit grants manually; no management controller or source-file reload feature is included. Initial grants follow [DOC-015 — Demo API Contracts](DOC-015-demo-api-contracts.md).
-- Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). Native Node tests are the accepted runner direction; exact compilation/commands remain pending.
-- Keep tooling configuration at the root. Share compiler settings through `tsconfig.json`, extended by build/test configs. Emit application code to `dist/` and test compilation to `.test-dist/`. Project-owned Node workflow scripts live in `scripts/` and are invoked through npm. Exact script contents remain pending.
+- Unit tests sit beside the files they verify as `*.spec.ts`; HTTP tests live in `test/` as `*.e2e-spec.ts`. See [5. Minimal testing strategy](#5-minimal-testing-strategy). Native Node tests and compiled HTTP subprocesses are drafted; execution remains pending.
+- Keep tooling configuration at the root. Share compiler settings through `tsconfig.json`, extended by build/test configs. Emit application code to `dist/` and test compilation to `.test-dist/`. Project-owned Node workflow scripts live in `scripts/` and are invoked through npm inside Docker.
 - `.gitkeep` only tracks an empty extension location. It performs no operation and is not a provider.
 
 ## 2. Responsibilities and dependencies
@@ -126,7 +126,7 @@ Prefer named input objects for operations with multiple fields, e.g. `login({ us
 
 Storage lookups return copied record snapshots with readonly types, including copies of mutable nested data owned by storage. Apply changes through explicit storage operations; do not return live mutable records. Preserve current grant checks and atomic session behavior. [D-079 — Storage lookup snapshots](DOC-003-decisions.md#d-079--storage-lookup-snapshots)
 
-Keep JWT issuance/verification in `IdentityProviderContract` and password checks in a separate `PasswordVerifierContract`. The accepted auth service has async login/refresh returning `TokenResult` and synchronous memory logout returning `void`, using an already verified `SessionIdentity`. See [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts) for signatures. Remaining provider/store methods still require review. [D-078 — Authentication service and crypto boundaries](DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries)
+Keep JWT issuance/verification in `IdentityProviderContract` and password checks in `PasswordVerifierContract`. JWT verification returns application-owned `VerifiedAccessClaims`; password matching returns a boolean. Auth login/refresh return `Promise<TokenResult>` and memory logout returns `void`. Dedicated atomic session operations and injected `ClockContract` implement the selected boundaries. See [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](DOC-021-scaffold-profile.md#7-implementation-closure). Source signatures remain subject to first-version review and execution checks.
 
 ## 4. Naming and typing
 
@@ -170,7 +170,7 @@ Keep JWT issuance/verification in `IdentityProviderContract` and password checks
 - Keep tests deterministic and independent of real databases, uploads, payment providers, and external networks. No database/vendor integration suite is needed while those integrations remain placeholders.
 - Use the native Node test runner, assertions, and HTTP client as the accepted testing direction. No numerical coverage target or extra test framework is selected. Exact runtime/artifacts and script implementations still require preflight and approval.
 
-`npm test` runs both unit and HTTP tests. Keep `test:unit` and `test:e2e` for focused runs; `npm run check` aggregates type checking, basic lint, default-Prettier verification, build, and all tests. Script implementations remain pending. First-release acceptance and complete-result review follow [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).
+`npm test` runs both unit and HTTP tests. Keep `test:unit` and `test:e2e` for focused runs; `npm run check` aggregates type checking, basic lint, default-Prettier verification, build, and all tests. Script drafts are written; execution remains pending. First-release acceptance and complete-result review follow [DOC-021 — Initial Scaffold Profile: 3. First-release acceptance and review](DOC-021-scaffold-profile.md#3-first-release-acceptance-and-review).
 
 Use separate build/test configurations and output locations. Build success requires type checking and executed unit/HTTP tests against compiled JavaScript; compilation alone does not run tests. Application artifacts exclude test files, and deployment/startup does not rerun the suite. Share the application compiler profile between builds and tests, and compose commands without recursive calls or redundant full-suite runs. Application output is `dist/`; test compilation output is `.test-dist/`. Exact scripts remain pending. [D-073 — ESNext and verified application builds](DOC-003-decisions.md#d-073--esnext-and-verified-application-builds), [D-077 — Compiler configuration and script layout](DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
 
@@ -188,13 +188,13 @@ Bcrypt, its starting cost, demo passwords, and endpoint/grant and token/session 
 
 JWT environment names, defaults, validation, and manual key rotation are accepted in [DOC-014 — Authentication Lifecycle: 3. JWT configuration](DOC-014-authentication-lifecycle.md#3-jwt-configuration).
 
-Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are agreed; implementation and deployment supervision remain pending.
+Structured logging, UUID request IDs, development-only diagnostics, separate-worker JSON error persistence, best-effort internal HTTP, and the initial operating policy are accepted in [DOC-016 — Logging Conventions](DOC-016-logging-conventions.md). Use an adapter behind the logging contract; send failure produces a safe local stderr diagnostic without changing API responses. Worker ingestion, queues, file settings, and lifecycle are drafted; execution and deployment supervision remain pending.
 
-Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile, selected compiler flags/paths, auth service signatures, snapshot ownership, fixture/caret policies, and acceptance criteria are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Remaining provider/store methods, actual fixture values, full config/script contents, dependency baselines/resolutions, and deployment proxy addresses remain open. Software execution still requires preflight and explicit approval.
+Limiter/cleanup settings, sliding windows, proxy-list validation, and timer lifecycle are accepted in [DOC-014 — Authentication Lifecycle: Limiter and cleanup parameters](DOC-014-authentication-lifecycle.md#limiter-and-cleanup-parameters). The scaffold profile and boundary choices are accepted in [DOC-021 — Initial Scaffold Profile](DOC-021-scaffold-profile.md). Contracts, configuration, scripts, and direct candidate baselines are drafted. Fixture values, full dependency resolutions, artifact clearance, execution verification, and deployment proxy addresses remain open.
 
 ## 7. Tooling direction
 
-**Status:** Accepted direction; exact software versions, configuration files, and execution pending.
+**Status:** Accepted direction; files/candidate manifest written, artifact clearance and execution pending.
 
 **Decision:** Use npm, ESM/NodeNext, TypeScript compilation through `tsc`, native Node tests/assertions/HTTP requests, and separate ESLint/typescript-eslint/Prettier checks.
 

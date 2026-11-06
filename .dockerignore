@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+.docker.env
+node_modules
+dist
+.test-dist
+logs
+coverage
+.DS_Store

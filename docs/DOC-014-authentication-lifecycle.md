@@ -37,7 +37,7 @@
 
 | Topic | Agreement |
 | --- | --- |
-| Login | Use the two in-memory dummy accounts and bcrypt verification. Both passwords are `dev123`; only their hashes belong in the adapter/fixture. No application-account credentials come from `.env`. |
+| Login | Use two in-memory dummy accounts and bcrypt verification. Both passwords are `dev123`; hashes belong in fixtures. Unknown usernames immediately receive generic 401 without dummy comparison, per [D-086 — Immediate unknown-user rejection](DOC-003-decisions.md#d-086--immediate-unknown-user-rejection). No application-account credentials come from `.env`. |
 | Access token | Signed JWT with a default 15-minute TTL; retain minimal identity claims, active-session validation, and current server-side permission lookup. |
 | Signing profile | HS256 for the single application, using a random secret with at least 256 bits of entropy. Fix the allowed algorithm in verifier configuration. |
 | Refresh token | Opaque credential from 32 cryptographically random bytes encoded as hexadecimal (64 characters). Store only its SHA-256 digest with user/session binding and expiry in an in-memory adapter behind a contract. |

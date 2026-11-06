@@ -1,6 +1,6 @@
 # DOC-002 — Project Task List
 
-**Status:** Active checklist · **Updated:** 2026-10-30.
+**Status:** Active checklist · **Updated:** 2026-11-06.
 **Record:** [D-003 — Root task list](docs/DOC-003-decisions.md#d-003--root-task-list).
 
 Living discussion and implementation checklist for `nest-layered-template`. Read only task sections relevant to the current request.
@@ -47,7 +47,7 @@ Living discussion and implementation checklist for `nest-layered-template`. Read
 - [x] Accept strict-only checking, basic lint, default Prettier, automatic watch, sync memory where appropriate, and typed application errors. [D-070 — Initial scaffold configuration](docs/DOC-003-decisions.md#d-070--initial-scaffold-configuration)
 - [x] Select `ESNext` and separate build/test configurations and outputs; require compiled unit/HTTP tests before build success. [D-073 — ESNext and verified application builds](docs/DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
 - [x] Accept source maps, decorator/emit flags, three shared compiler configs, `dist/`/`.test-dist/`, and Node workflow scripts. [D-077 — Compiler configuration and script layout](docs/DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout)
-- [ ] Prepare full config/script contents and watcher startup details for review with exact artifacts.
+- [x] Write config/workflow/watch drafts for review. Container execution remains pending. [DOC-022 — Container Development Workflow](docs/DOC-022-container-workflow.md)
 - [x] Define direct imports, exports, and folder dependencies; defer aliases and barrel files.
 - [x] Prefer named input objects, return `undefined` for missing storage records, and use epoch milliseconds for session times. [D-074 — Internal contract inputs and values](docs/DOC-003-decisions.md#d-074--internal-contract-inputs-and-values)
 - [x] Return copied readonly lookup snapshots and change state through explicit storage operations. [D-079 — Storage lookup snapshots](docs/DOC-003-decisions.md#d-079--storage-lookup-snapshots)
@@ -111,7 +111,7 @@ Prisma is the selected future ORM under [D-069 — Prisma ORM direction](docs/DO
 - [x] Accept periodic cleanup every 60 seconds by default, configurable through `.env`, preserving request-time validity, refresh replay evidence, accounts, and grants. [D-051 — Periodic in-memory state cleanup](docs/DOC-003-decisions.md#d-051--periodic-in-memory-state-cleanup)
 - [x] Accept all six groups in [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters): sliding windows/counting, environment validation, timer lifecycle, replay-safe pruning, proxy configuration, and a separate Swagger quota.
 - [x] Agree fail-closed metadata, all-required permission matching, and superadmin-only metadata.
-- [ ] Define identity, authentication, authorization, user, permission, and session contract methods before implementation.
+- [x] Define identity, password, authorization, user, permission, session, and clock contracts. [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](docs/DOC-021-scaffold-profile.md#7-implementation-closure)
 
 Database-backed resource catalogs, advanced delegation, account CRUD, registration, password recovery, ownership scopes, and all-device logout remain deferred. Login/refresh and immediate current-session logout are required. No grant-management API or additional authorization framework is selected.
 
@@ -189,7 +189,7 @@ Third-party-call resilience and event idempotency belong to a later integration 
 - [ ] Verify Swagger UI/schema access protection, Basic Auth challenges, valid/invalid credentials, literal hash loading, and independence from API authentication.
 - [ ] Verify validation, response envelopes, real status codes, and safe error details against the accepted HTTP contract.
 - [ ] Verify required contracts/DI and that placeholders do not perform external I/O.
-- [x] Accept `npm test` for unit+HTTP tests, focused `test:unit`/`test:e2e`, and aggregate `npm run check`. Exact script implementations remain pending.
+- [x] Accept `npm test` for unit+HTTP tests, focused `test:unit`/`test:e2e`, and aggregate `npm run check`. Script drafts are written; execution remains pending.
 - [x] Accept first-release criteria and complete-result review. Verification remains pending. [D-071 — First-release acceptance and review](docs/DOC-003-decisions.md#d-071--first-release-acceptance-and-review)
 - [x] Require type checking and executed compiled unit/HTTP tests for build success; exclude tests from application artifacts. [D-073 — ESNext and verified application builds](docs/DOC-003-decisions.md#d-073--esnext-and-verified-application-builds)
 
@@ -203,22 +203,22 @@ No database, business-transaction, or provider integration tests are required be
 - [x] Define JWT configuration/startup rules and invalid enabled-Swagger credential handling. [D-045 — JWT configuration, validation, and key rotation](docs/DOC-003-decisions.md#d-045--jwt-configuration-validation-and-key-rotation)
 - [x] Finalize limiter/cleanup settings, Swagger throttling, and proxy-list configuration. [D-059 — In-memory limiter and cleanup parameters](docs/DOC-003-decisions.md#d-059--in-memory-limiter-and-cleanup-parameters)
 - [x] Select Express and `@nestjs/config` with Zod startup validation; retain accepted auth/logging/limiter/health settings. [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md)
-- [ ] Review remaining provider/store methods/types, full config/script contents, and artifacts before affected implementation.
+- [x] Write provider/store types, configuration, and scripts for first-version review. Artifact clearance and runtime verification remain pending.
 
 [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) is planning guidance. Backup schedules, retention, RPO/RTO, restore drills, incident runbooks, and deployment infrastructure are project-specific future work when actual data/hosting exist.
 
 ## 11. Developer experience and maintenance
 
-- [ ] Define first-checkout setup.
+- [x] Document Docker-only first-checkout setup and approval stages. [DOC-022 — Container Development Workflow](docs/DOC-022-container-workflow.md)
 - [x] Accept automatic compiler/API/worker watch, combined/focused tests, and aggregate checks.
-- [ ] Prepare the exact development/build/quality/test script implementations and startup instructions.
+- [x] Write development/build/quality/test scripts and startup instructions; verify after execution approval.
 - [ ] Complete setup, contribution, and troubleshooting documentation.
 - [x] Maintain conventions and decision records with the task list. [D-004 — Decision records and conventions](docs/DOC-003-decisions.md#d-004--decision-records-and-conventions)
 - [ ] Add representative code examples for conventions.
 - [x] Establish the decision-record format and location. [DOC-003 — Decision Records](docs/DOC-003-decisions.md)
 - [x] Use master directly until the maintainer requests branch separation; keep general branching strategy in a separate handbook. [D-026 — Direct master workflow for this repository](docs/DOC-003-decisions.md#d-026--direct-master-workflow-for-this-repository)
 - [x] Adopt Conventional Commits for commit messages. [D-027 — Conventional Commits message format](docs/DOC-003-decisions.md#d-027--conventional-commits-message-format)
-- [ ] Define the minimal access-demo reference implementation.
+- [x] Write the access-demo source draft; verify before first-release acceptance.
 - [ ] Define template versioning, changelog, and downstream updates.
 - [x] Record the plan for a public GitHub repository. [D-013 — Public GitHub repository](docs/DOC-003-decisions.md#d-013--public-github-repository)
 - [x] Choose an English project/repository name. [D-013 — Public GitHub repository](docs/DOC-003-decisions.md#d-013--public-github-repository), [D-014 — Descriptive project name](docs/DOC-003-decisions.md#d-014--descriptive-project-name)
@@ -321,6 +321,14 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 | [D-079 — Storage lookup snapshots](docs/DOC-003-decisions.md#d-079--storage-lookup-snapshots) | Accepted readonly snapshot policy; implementation pending |
 | [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](docs/DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers) | Accepted generator/verifier profile; implementation pending |
 | [D-081 — Caret dependency ranges](docs/DOC-003-decisions.md#d-081--caret-dependency-ranges) | Accepted range form; exact baselines/artifacts pending |
+| [D-082 — Verified access-claim results](docs/DOC-003-decisions.md#d-082--verified-access-claim-results) | Accepted; source draft written, execution pending |
+| [D-083 — Boolean password verification](docs/DOC-003-decisions.md#d-083--boolean-password-verification) | Accepted; source draft written, execution pending |
+| [D-084 — Explicit atomic session operations](docs/DOC-003-decisions.md#d-084--explicit-atomic-session-operations) | Accepted; source draft written, execution pending |
+| [D-085 — Injectable time sources](docs/DOC-003-decisions.md#d-085--injectable-time-sources) | Accepted; source draft written, execution pending |
+| [D-086 — Immediate unknown-user rejection](docs/DOC-003-decisions.md#d-086--immediate-unknown-user-rejection) | Accepted; source draft written, execution pending |
+| [D-087 — Subprocess HTTP testing](docs/DOC-003-decisions.md#d-087--subprocess-http-testing) | Accepted; source draft written, execution pending |
+| [D-088 — Source-first implementation](docs/DOC-003-decisions.md#d-088--source-first-implementation) | Accepted; source draft written, execution pending |
+| [D-089 — Docker development workflow](docs/DOC-003-decisions.md#d-089--docker-development-workflow) | Accepted; source draft written, execution pending |
 
 ## Next discussions
 
@@ -356,19 +364,29 @@ Decisions, reasons, status, and any useful supporting details live in [DOC-003 �
 - [x] Accept the scaffold profile and first-release acceptance criteria in [DOC-021 — Initial Scaffold Profile](docs/DOC-021-scaffold-profile.md).
 - [x] Accept the nine implementation selections and clarify that build verification executes compiled tests; application artifacts exclude tests. [DOC-021 — Initial Scaffold Profile: 5. Implementation selections](docs/DOC-021-scaffold-profile.md#5-implementation-selections)
 - [x] Accept all seven follow-up choices: A for 1–5/7 and B for 6 (hex refresh tokens). [DOC-021 — Initial Scaffold Profile: 6. Configuration layout and auth contracts](docs/DOC-021-scaffold-profile.md#6-configuration-layout-and-auth-contracts)
-- [ ] Prepare exact config/script implementations, internal contract types, and artifacts for review.
-- [ ] Evaluate required Node/Nest/tooling components through preflight and explicit approval before scaffolding.
+- [x] Settle all six boundary choices and write source/config/test drafts. [DOC-021 — Initial Scaffold Profile: 7. Implementation closure](docs/DOC-021-scaffold-profile.md#7-implementation-closure)
+- [x] Approve source-first drafting and Docker-only runtime/compiler/watch. [D-088 — Source-first implementation](docs/DOC-003-decisions.md#d-088--source-first-implementation), [D-089 — Docker development workflow](docs/DOC-003-decisions.md#d-089--docker-development-workflow)
+- [ ] Complete full-graph preflight and obtain explicit approval before external downloads, installation, or execution. [DOC-023 — Container Preflight](docs/DOC-023-container-preflight.md)
 - [ ] Keep real app/domain/integration work deferred until the maintainer requests it.
 
 ## Active handoff
 
-- Guide version: 4.26.0. Scope remains documentation and design; no source scaffolding or new software execution.
-- Git observation: the worktree was clean at the start of this update. Latest observed local master is `645c28c` (`docs: define implementation conventions and verified build workflow`). Current work records the seven follow-up choices; live remote state was not checked.
-- Current progress: [D-077 — Compiler configuration and script layout](docs/DOC-003-decisions.md#d-077--compiler-configuration-and-script-layout) accepts deployment source maps, decorator/emit flags, three compiler configs, separate `dist/`/`.test-dist/`, and project-owned Node workflow scripts. [D-078 — Authentication service and crypto boundaries](docs/DOC-003-decisions.md#d-078--authentication-service-and-crypto-boundaries) accepts async login/refresh, sync memory logout, and separate JWT/password contracts. [D-079 — Storage lookup snapshots](docs/DOC-003-decisions.md#d-079--storage-lookup-snapshots) accepts copied readonly lookup results. [D-080 — Hexadecimal refresh tokens and SHA-256 verifiers](docs/DOC-003-decisions.md#d-080--hexadecimal-refresh-tokens-and-sha-256-verifiers) selects 32 random bytes encoded as hex and SHA-256 verifier storage; [D-081 — Caret dependency ranges](docs/DOC-003-decisions.md#d-081--caret-dependency-ranges) selects caret. Previous jose/native bcrypt, strict/ESNext, build/test gates, stable fixtures, and lockfile policies remain accepted. Full software preflight remains UNKNOWN; no source/config/script file, fixture value, hash, secret, or runtime log was generated.
-- Earlier approvals: [D-030–D-037 — Code, tests, HTTP boundaries, permissions, JWT identity, and public IDs](docs/DOC-003-decisions.md#d-030--minimal-code-layout-and-conventions); [D-038–D-041 — Login, Swagger protection, token lifecycle, and in-memory accounts/grants](docs/DOC-003-decisions.md#d-038--minimal-login-refresh-and-environment-configuration); [D-043 — Bcrypt application password hashing](docs/DOC-003-decisions.md#d-043--bcrypt-application-password-hashing).
-- Next step/questions: all seven follow-up choices are settled. Prepare full config/script contents, remaining provider/store method contracts, exact dependency baselines/resolutions, and fixture-generation scope for concrete review. Retain selected flags/output paths, readonly snapshots, hex refresh/SHA-256, caret/lockfile, and all earlier operating rules. Complete [DOC-017 — Tooling Preflight: 5. Review and execution gate](docs/DOC-017-tooling-preflight.md#5-review-and-execution-gate) and obtain concrete approval before installation, hashing, or running software. First-release criteria are accepted but unverified; actual deployment inputs remain separate.
-- Approval boundary: accepted stack/scaffold profiles and complete-result review do not clear software artifacts or authorize execution, hash generation, source scaffolding, database/client/migration work, new calendar jobs, commits, pushes, or publication. All prior secret exclusions and operating policies remain in force. [DOC-010 — Reliability Strategy](docs/DOC-010-reliability.md) still contains proposed broader monitoring/backup/recovery plans.
+- Guide version: 4.27.0. Source-first drafting is authorized; external download/install/execution still requires preflight and explicit approval.
+- Repository: the matching checkout is under `Documents/Salman's Projects/Boilerplate/nest-layered-template`; the supplied `Documents/personal-project/boilerplate` path does not exist. The source-first update began from clean master at `886a33b` (`docs: specify scaffold configuration and auth contract boundaries`).
+- Git authorization: the maintainer explicitly requested committing and pushing the current draft to `origin/master`. This snapshot-specific permission does not approve runtime upgrades, image/package steps, or later unrelated Git writes.
+- Written, unverified: application/service/DI contracts, memory auth and grants, JWT/refresh/logout, validation/envelopes, Swagger protection, rate limits/cleanup, independent logging worker, JSON error persistence, compiler/workflow/container files, and colocated unit/subprocess HTTP tests.
+- Latest decisions: [D-082–D-087 — Verified claims, password verification, atomic sessions, clocks, unknown-user handling, and subprocess tests](docs/DOC-003-decisions.md#d-082--verified-access-claim-results); [D-088 — Source-first implementation](docs/DOC-003-decisions.md#d-088--source-first-implementation); [D-089 — Docker development workflow](docs/DOC-003-decisions.md#d-089--docker-development-workflow).
+- Evidence: [DOC-023 — Container Preflight](docs/DOC-023-container-preflight.md) now requires **REVIEW** for runtime advisory matches and the Node November security preannouncement. Other unverified artifacts remain **UNKNOWN**. Earlier empty direct-npm advisory queries do not clear the VM/runtime or full dependency graph.
+- Runtime verification: the maintainer approved the Colima startup command; it returned already running. The `colima` context now reaches Docker Engine `29.5.2` on Ubuntu `24.04.4 LTS`/arm64. Host CLI `29.9.3`, Compose `5.7.0`, and Compose configuration checks pass. No permission-denied error occurred. Startup does not need approval again; upgrades and image/package steps remain separate.
+- Confirmed findings: BuildKit `0.30.0`, containerd `2.2.4`, and runc `1.3.5` match published advisory ranges; exploitability is not established. The Node project announced HIGH-severity fixes for 26.x/24.x/22.x on or shortly after `2026-11-11`. [Runtime evidence](docs/preflight/2026-11-06-runtime-components.json) records versions, queries, ranges, KEV checks, and unknowns.
+- Not executed/generated: runtime upgrades or package-hold changes, project image pull/build, Node/npm, installs, fixture UUID/hash generation, compiler/lint/format/tests, actual `.env`, or lockfile. Pending fixture markers intentionally fail application startup. Only the pre-existing hello-world image is cached; no active containers were reported.
+- Next decision: review an in-VM runtime update toward Docker `29.9.3` with patched components; choose local-only Node `26.13.0` testing with disclosed pending-security risk or waiting for the announced patched release. After that, retain image/metadata/full-graph preflight and approved installation/execution stages. Configuration validation is not application runtime verification.
+- First-release acceptance remains unverified. Actual deployment inputs and broader monitoring/backup/recovery plans remain separate work. General persistence, Prisma, uploads/payments, new calendar jobs, and deployment remain outside this source-first step.
 
 ## Implementation backlog
 
-Add agreed tasks with outcomes, acceptance criteria, dependencies/decisions, and relevant verification. External software steps still require preflight and explicit approval.
+- [x] Write the agreed application, contracts, container workflow, and test drafts. Dependencies: accepted scope and D-082–D-089. Outcome: reviewable source without executing external tools.
+- [ ] Complete runtime/VM/image and dependency-graph preflight, record exact artifacts and obtain scoped execution approval. Acceptance: evidence and unresolved risks are explicit; UNKNOWN is never treated as cleared.
+- [ ] Generate the lockfile, stable public fixture IDs/hashes, and private local configuration only within approved container steps. Acceptance: lifecycle scripts remain disabled, secrets stay ignored, and fixtures generate once.
+- [ ] Run formatting, basic lint, type checking, compiled unit/HTTP tests, and image/native-loading checks. Acceptance: checks pass against the approved graph; application output excludes tests.
+- [ ] Verify Compose Watch, protected Swagger, independent health/process lifetime, and API availability while the worker is down. Acceptance: documented first-release criteria pass before complete-result review.

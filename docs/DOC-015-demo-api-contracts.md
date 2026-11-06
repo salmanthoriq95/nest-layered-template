@@ -1,6 +1,6 @@
 # DOC-015 — Demo API Contracts
 
-**Status:** Accepted; implementation and software approval pending · **Updated:** 2026-10-30.
+**Status:** Accepted; source/test draft written, software approval and runtime verification pending · **Updated:** 2026-11-06.
 **Records:**
 
 - [D-042 — Minimal API contracts and initial demo grants](DOC-003-decisions.md#d-042--minimal-api-contracts-and-initial-demo-grants)
@@ -143,4 +143,4 @@ Login/refresh quotas, exact sliding-window admission, a separate shared Swagger 
 
 Periodic cleanup, its native timer lifecycle/configuration, request-time expiry enforcement, and refresh replay retention are accepted in [DOC-014 — Authentication Lifecycle: In-memory cleanup](DOC-014-authentication-lifecycle.md#in-memory-cleanup).
 
-Still open: fixture hash generation, deployment cost calibration, actual trusted proxy addresses, exact service/store method signatures, software versions, implementation, and deployment-specific process supervision. Complete the full [DOC-005 — Global Software Supply Chain Security Policy](DOC-005-supply-chain-security.md) before selecting/installing/executing supporting software.
+Still pending: approved fixture generation, artifact/graph review, compilation/tests, and first-version review of the written implementation. Deployment cost calibration, real trusted proxy addresses, and production supervision follow actual hosting needs. See [DOC-023 — Container Preflight](DOC-023-container-preflight.md).

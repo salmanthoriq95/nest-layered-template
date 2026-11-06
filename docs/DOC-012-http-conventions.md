@@ -1,6 +1,6 @@
 # DOC-012 — HTTP Boundary Conventions
 
-**Status:** Accepted; Express/Zod and typed application errors selected, exact artifacts/wiring pending · **Updated:** 2026-10-30.
+**Status:** Accepted; shared HTTP wiring written as an unverified source draft · **Updated:** 2026-11-06.
 **Records:**
 
 - [D-032 — HTTP input validation and XSS boundaries](DOC-003-decisions.md#d-032--http-input-validation-and-xss-boundaries)
@@ -103,6 +103,8 @@ Do not expose stack traces, vendor payloads, credentials, or rejected input valu
 - Ensure application-handled parser/validation failures, guard denials, missing routes, and unexpected failures use the same error envelope. Assign request metadata early enough for these paths.
 - Preserve relevant protocol headers, including authentication challenges, allowed methods, and retry guidance. Avoid direct response writes that bypass shared response mapping.
 - HTTP tests must use the same boundary configuration as the running application. Check actual statuses, envelope shape, field validation, safe error messages, and request metadata.
+
+OpenAPI JSON/YAML definitions retain their protocol format so Swagger can consume them. Swagger UI/assets are documentation resources; its authentication failures use the shared error envelope. Application JSON endpoints retain the accepted success/error envelope.
 
 Nest documents response mapping through interceptors and error handling through exception filters. [NestJS interceptors](https://docs.nestjs.com/interceptors), [NestJS exception filters](https://docs.nestjs.com/exception-filters), retrieved 2026-10-29.
 
